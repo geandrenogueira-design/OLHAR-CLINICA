@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>OLHAR — Simulador de Ametropia</title>
+<style>
+  :root{
+    --bg:#0d1117;--panel:#151b23;--panel-2:#1c242e;--line:#2a3441;
+    --txt:#e6edf3;--txt-2:#8b98a8;--accent:#37c9b0;--accent-2:#4a9eff;--warn:#e0a458;--radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);
+    font:400 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;overflow:hidden}
+  .app{display:flex;height:100vh;width:100vw}
+
+  .rail{width:308px;flex:0 0 308px;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;overflow:hidden;transition:margin-left .28s cubic-bezier(.4,0,.2,1)}
+  .rail.hidden{margin-left:-308px}
+  .rail-head{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+  .brand{font-size:11px;letter-spacing:.16em;color:var(--accent);font-weight:700}
+  .brand span{color:var(--txt-2);font-weight:500;letter-spacing:.08em}
+  .rail-head h1{font-size:16px;font-weight:600;margin-top:5px;letter-spacing:-.01em}
+  .rail-body{flex:1;overflow-y:auto;padding:16px 18px 24px}
+  .rail-body::-webkit-scrollbar{width:8px}
+  .rail-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+  .group{margin-bottom:22px}
+  .group>h2{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2);font-weight:700;margin-bottom:10px}
+
+  .scenes{display:grid;gap:5px}
+  .scene-btn{display:flex;align-items:center;gap:10px;width:100%;background:var(--panel-2);
+    border:1px solid transparent;color:var(--txt-2);padding:9px 11px;border-radius:8px;
+    cursor:pointer;text-align:left;font:inherit;font-size:13px;transition:.15s}
+  .scene-btn:hover{border-color:var(--line);color:var(--txt)}
+  .scene-btn.on{background:rgba(55,201,176,.1);border-color:var(--accent);color:var(--txt)}
+  .scene-btn b{font-weight:600}
+  .scene-btn small{display:block;font-size:10.5px;color:var(--txt-2);margin-top:1px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);flex:0 0 7px}
+  .scene-btn.on .dot{background:var(--accent)}
+  .dot.res{background:var(--warn);box-shadow:0 0 0 2px rgba(224,164,88,.2)}
+
+  .ctl{margin-bottom:15px}
+  .ctl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .ctl-top label{font-size:12.5px;color:var(--txt-2)}
+  .ctl-top output{font:600 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--txt);
+    background:var(--panel-2);padding:4px 7px;border-radius:5px;min-width:62px;text-align:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+    background:var(--accent);margin-top:-6.5px;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--accent)}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+
+  .readout{background:var(--panel-2);border-radius:var(--radius);padding:13px 14px}
+  .mer{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12.5px}
+  .mer+.mer{border-top:1px solid var(--line)}
+  .mer .k{color:var(--txt-2)}
+  .mer .v{font:600 13px/1 ui-monospace,Menlo,monospace}
+  .mer .v.blur{color:var(--warn)}
+  .mer .v.ok{color:var(--accent)}
+  .cross{display:flex;justify-content:center;padding:14px 0 6px}
+
+  .note{font-size:11px;line-height:1.5;color:var(--txt-2);border-left:2px solid var(--line);padding-left:10px;margin-top:8px}
+  .note.w{color:var(--warn);border-color:var(--warn)}
+  .av-in{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;
+    color:var(--txt);font:inherit;font-size:13px;padding:8px 10px}
+  .av-in:focus{outline:none;border-color:var(--accent)}
+  .ghost{width:100%;background:transparent;border:1px solid var(--line);color:var(--txt-2);
+    font:inherit;font-size:12px;padding:8px;border-radius:7px;cursor:pointer;transition:.15s}
+  .ghost:hover{color:var(--txt);border-color:var(--txt-2)}
+  .ghost.act{border-color:var(--accent);color:var(--accent)}
+  .seg{display:flex;background:var(--panel-2);border-radius:8px;padding:3px;gap:3px}
+  .seg button{flex:1;background:transparent;border:0;color:var(--txt-2);font:inherit;font-size:12px;
+    padding:7px 4px;border-radius:6px;cursor:pointer;transition:.15s;font-weight:600;letter-spacing:.04em}
+  .seg button.on{background:var(--accent);color:#06231e}
+  .pill{display:inline-block;background:rgba(55,201,176,.14);color:var(--accent);
+    border:1px solid rgba(55,201,176,.35);border-radius:20px;padding:3px 10px;
+    font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+
+  /* painel de ajuste — some no modo paciente */
+  #tune{display:none;margin-top:6px}
+  #tune.on{display:block}
+  .calbox{background:var(--panel-2);border-radius:9px;padding:11px 12px;margin-top:8px;font-size:12px}
+  .calbox .f{display:flex;gap:6px;margin-top:7px}
+  .calbox input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    color:var(--txt);font:inherit;font-size:12px;padding:6px 8px}
+  .calbox input:focus{outline:none;border-color:var(--accent)}
+  .calbox .ok{background:var(--accent);color:#06231e;border:0;border-radius:6px;font:inherit;
+    font-size:12px;font-weight:600;padding:6px 12px;cursor:pointer}
+  .copy{font:600 12px/1.4 ui-monospace,Menlo,monospace;color:var(--accent);
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;margin-top:8px;
+    word-break:break-all;cursor:pointer}
+
+  .stage{flex:1;position:relative;display:flex;flex-direction:column;min-width:0;background:#05080b}
+  .stage-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel);flex:0 0 auto}
+  .icon-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--txt-2);width:32px;height:32px;
+    border-radius:7px;cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center;transition:.15s;flex:0 0 auto}
+  .icon-btn:hover{color:var(--txt);border-color:var(--txt-2)}
+  .stage-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stage-title span{color:var(--txt-2);font-weight:400;margin-left:8px;font-size:11.5px}
+  .stage-bar .spacer{flex:1}
+  .modeseg{display:flex;background:var(--panel-2);border-radius:7px;padding:3px;gap:3px}
+  .modeseg button{background:transparent;border:0;color:var(--txt-2);font:inherit;font-size:11.5px;
+    padding:6px 11px;border-radius:5px;cursor:pointer;white-space:nowrap}
+  .modeseg button.on{background:var(--accent);color:#06231e;font-weight:600}
+
+  .canvas-wrap{flex:1;position:relative;overflow:hidden}
+  #display{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #calline{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+  .tag{position:absolute;top:14px;padding:5px 11px;border-radius:20px;font-size:10.5px;font-weight:700;
+    letter-spacing:.1em;pointer-events:none;backdrop-filter:blur(6px);background:rgba(5,8,11,.65);
+    border:1px solid rgba(255,255,255,.14);transition:opacity .2s;z-index:3}
+  .tag.l{color:#ffb4a2}.tag.r{color:#9ff0e0}
+  .handle{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.85);pointer-events:none;
+    box-shadow:0 0 14px rgba(0,0,0,.6);z-index:3}
+  .handle::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;
+    border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 2px 14px rgba(0,0,0,.5)}
+  .handle::before{content:'‹ ›';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;
+    color:#0d1117;font-size:16px;font-weight:700;letter-spacing:2px}
+  .handle.hide{display:none}
+
+  .footer{flex:0 0 auto;padding:8px 16px;border-top:1px solid var(--line);background:var(--panel);
+    font-size:10.5px;color:var(--txt-2);line-height:1.4}
+  .footer b{color:var(--warn);font-weight:600}
+
+  @media (max-width:820px){
+    .rail{position:absolute;z-index:20;height:100%;box-shadow:0 0 40px rgba(0,0,0,.6)}
+    .stage-title span{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <div class="brand">OLHAR <span>/ módulo 01</span></div>
+      <h1>Simulador de Ametropia</h1>
+    </div>
+    <div class="rail-body">
+
+      <div class="group">
+        <h2>Cena</h2>
+        <div class="scenes" id="scenes"></div>
+        <p class="note" id="cenaNota"></p>
+      </div>
+
+      <div class="group">
+        <h2>Refração</h2>
+        <div class="seg" id="olhoseg" style="display:none;margin-bottom:12px">
+          <button data-olho="od" class="on">OD</button>
+          <button data-olho="oe">OE</button>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="sph">Esférico</label><output id="sphOut"></output></div>
+          <input type="range" id="sph" min="-10" max="6" step="0.25" value="-2.25">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="cyl">Cilíndrico</label><output id="cylOut"></output></div>
+          <input type="range" id="cyl" min="-6" max="0" step="0.25" value="-1.25">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="axis">Eixo</label><output id="axisOut"></output></div>
+          <input type="range" id="axis" min="0" max="180" step="1" value="20">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="add">Adição</label><output id="addOut"></output></div>
+          <input type="range" id="add" min="0" max="3" step="0.25" value="0">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="pupil">Pupila</label><output id="pupilOut"></output></div>
+          <input type="range" id="pupil" min="2" max="7" step="0.1" value="4">
+        </div>
+        <button class="ghost" id="reset">Zerar refração (emetrope)</button>
+      </div>
+
+      <div class="group">
+        <h2>Leitura clínica</h2>
+        <div class="readout">
+          <div class="cross" id="cross"></div>
+          <div class="mer"><span class="k">Meridiano do eixo</span><span class="v" id="m1"></span></div>
+          <div class="mer"><span class="k">Meridiano oposto</span><span class="v" id="m2"></span></div>
+          <div class="mer"><span class="k">Desfoque residual</span><span class="v" id="r1"></span></div>
+          <div class="mer"><span class="k">Equivalente esférico</span><span class="v" id="se"></span></div>
+          <div class="mer"><span class="k">Amplitude de acomodação</span><span class="v" id="ampv"></span></div>
+        </div>
+        <p class="note" id="hint" style="display:none"></p>
+      </div>
+
+      <div class="group">
+        <h2>AV medida (opcional)</h2>
+        <input class="av-in" id="av" placeholder="ex.: 20/80 sem correção" autocomplete="off">
+        <p class="note">Campo livre. O simulador reproduz o desfoque óptico; não estima acuidade.</p>
+      </div>
+
+      <div class="group">
+        <h2>Ajuste de cena <span style="color:var(--txt-2);font-weight:400;letter-spacing:0;text-transform:none">· tecla A</span></h2>
+        <button class="ghost" id="tuneBtn">Abrir modo de ajuste</button>
+        <div id="tune">
+          <div class="ctl" style="margin-top:12px">
+            <div class="ctl-top"><label for="fov">Campo horizontal</label><output id="fovOut"></output></div>
+            <input type="range" id="fov" min="4" max="120" step="0.5" value="65">
+          </div>
+          <div class="calbox">
+            <button class="ghost" id="calBtn">Calibrar por objeto conhecido</button>
+            <div id="calForm" style="display:none">
+              <div class="f">
+                <input id="calSize" placeholder="tamanho (cm)" inputmode="decimal">
+                <input id="calDist" placeholder="distância (m)" inputmode="decimal">
+                <button class="ok" id="calOk">OK</button>
+              </div>
+            </div>
+            <div class="copy" id="copyLine" title="clique para copiar"></div>
+          </div>
+          <p class="note">Ajuste até o desfoque bater com a queixa real, depois grave o valor de <code>fov</code> em <code>cenas/manifest.js</code>. Este painel não aparece para o paciente.</p>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <button class="icon-btn" id="toggleRail" title="Ocultar controles (H)">☰</button>
+      <div class="stage-title" id="stageTitle">—<span id="stageMeta"></span></div>
+      <div class="spacer"></div>
+      <div class="modeseg" id="modeseg">
+        <button data-mode="split" class="on">Comparar</button>
+        <button data-mode="uncorr">Sem correção</button>
+        <button data-mode="corr">Com correção</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" id="wrap">
+      <canvas id="display"></canvas>
+      <canvas id="calline"></canvas>
+      <div class="tag l" id="tagL" style="left:14px">SEM CORREÇÃO</div>
+      <div class="tag r" id="tagR" style="right:14px">COM CORREÇÃO</div>
+      <div class="handle" id="handle"></div>
+    </div>
+
+    <div class="footer">
+      <b>Aproximação perceptual.</b> Reproduz o desfoque por defocus e astigmatismo a partir do diâmetro pupilar e do campo angular da cena. Não modela aberrações de alta ordem, espalhamento intraocular, adaptação neural nem opacidade de meios — e <b>não constitui previsão de acuidade pós-tratamento</b>.
+    </div>
+  </main>
+</div>
+
+<script src="cenas/manifest.js"></script>
+<script>
+/* ==========================================================================
+   OLHAR — Módulo 01 · Simulador de Ametropia
+   Cenas fixas (fotos em cenas/ + sobreposições vetoriais de texto).
+   Desfoque anisotrópico em canvas 2D — sem WebGL, sem leitura de pixels,
+   portanto funciona com imagens locais abertas direto do arquivo.
+   ========================================================================== */
+
+/* ---------- 1. ÓPTICA ---------- */
+// diâmetro angular do círculo de desfoque (arcmin): beta = pupila(m) × D
+const blurArcmin = (D,p) => 3.43775*p*Math.abs(D);
+const ampFromAdd = a => Math.max(0.25, 2.5-a);
+function residual(Rx, distM, amp){
+  const demand = distM ? 1/distM : 0;
+  const areq   = demand + Rx;
+  const aused  = Math.min(Math.max(areq,0), amp);
+  return Math.abs(areq - aused);
+}
+const fmtD = v => (v>0?'+':'') + v.toFixed(2);
+
+/* ---------- 2. CANVAS ---------- */
+const disp=document.getElementById('display'), dctx=disp.getContext('2d');
+const wrap=document.getElementById('wrap'), handle=document.getElementById('handle');
+const tagL=document.getElementById('tagL'), tagR=document.getElementById('tagR');
+const calCv=document.getElementById('calline'), calX=calCv.getContext('2d');
+const mk=()=>{const c=document.createElement('canvas');return [c,c.getContext('2d')];};
+const [sharpC,sharpX]=mk();   // visão corrigida
+const [preC,preX]=mk();       // cena antes do desfoque
+const [softC,softX]=mk();     // visão sem correção (desfocada)
+const [wA,wAx]=mk(), [wB,wBx]=mk(), [glowC,glowX]=mk();
+let RW=0,RH=0,DPR=1;
+const clearX=x=>{x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.globalCompositeOperation='source-over';x.filter='none';x.clearRect(0,0,x.canvas.width,x.canvas.height);};
+const canFilter=(()=>{const[c,x]=mk();c.width=c.height=2;x.filter='blur(1px)';return x.filter==='blur(1px)';})();
+
+/* --- desfoque gaussiano anisotrópico, eixo arbitrário ---------------------
+   Comprime o quadro no eixo que precisa de MAIS desfoque, borra de forma
+   isotrópica e descomprime. O resultado é uma PSF elíptica orientada no eixo
+   do cilindro — matematicamente equivalente à convolução separável.          */
+function blurAniso(dstX, src, sigU, sigV, axisDeg){
+  clearX(dstX);
+  if(Math.max(sigU,sigV) < 0.4){ dstX.drawImage(src,0,0); return; }
+  const fl=0.5, su=Math.max(sigU,fl), sv=Math.max(sigV,fl);
+  const iso=Math.min(su,sv), ku=iso/su, kv=iso/sv;
+  const th = (Math.abs(ku-kv)<0.01) ? 0 : -axisDeg*Math.PI/180;   // sem cilindro, rotação é inócua
+  const c=Math.cos(-th), s=Math.sin(-th);
+  let bw=0,bh=0;
+  for(const [px,py] of [[RW/2,RH/2],[RW/2,-RH/2],[-RW/2,RH/2],[-RW/2,-RH/2]]){
+    bw=Math.max(bw,Math.abs((px*c-py*s)*ku));
+    bh=Math.max(bh,Math.abs((px*s+py*c)*kv));
+  }
+  const pad=Math.ceil(iso*3)+2;
+  const DW=Math.ceil(bw*2)+pad*2, DH=Math.ceil(bh*2)+pad*2;
+  if(wA.width!==DW||wA.height!==DH){ wA.width=wB.width=DW; wA.height=wB.height=DH; }
+  clearX(wAx);
+  wAx.translate(DW/2,DH/2); wAx.scale(ku,kv); wAx.rotate(-th);
+  wAx.drawImage(src,-RW/2,-RH/2);
+  clearX(wBx);
+  if(canFilter){ wBx.filter=`blur(${iso}px)`; wBx.drawImage(wA,0,0); wBx.filter='none'; }
+  else { const f=Math.max(1.2,iso/1.6), w=Math.max(2,Math.round(DW/f)), h=Math.max(2,Math.round(DH/f));
+         wBx.drawImage(wA,0,0,DW,DH,0,0,w,h); wBx.drawImage(wB,0,0,w,h,0,0,DW,DH); }
+  dstX.translate(RW/2,RH/2); dstX.rotate(th); dstX.scale(1/ku,1/kv);
+  dstX.drawImage(wB,-DW/2,-DH/2);
+  dstX.setTransform(1,0,0,1,0,0);
+}
+
+/* --- bloom: realça só os altos-luzes (sem ler pixels, logo sem taint) --- */
+function bloom(dstX, src, amount){
+  if(amount<=0.01) return;
+  if(glowC.width!==RW||glowC.height!==RH){ glowC.width=RW; glowC.height=RH; }
+  clearX(glowX);
+  glowX.drawImage(src,0,0);
+  glowX.globalCompositeOperation='multiply';
+  glowX.drawImage(src,0,0); glowX.drawImage(src,0,0);   // ~luminância³: sobra só o alto-luz
+  glowX.globalCompositeOperation='source-over';
+  dstX.save();
+  dstX.globalCompositeOperation='lighter';
+  dstX.globalAlpha=Math.min(1,amount);
+  if(canFilter) dstX.filter=`blur(${18+amount*70}px)`;
+  dstX.drawImage(glowC,0,0);
+  dstX.restore();
+}
+
+/* ---------- 3. CENAS DE RESERVA (desenhadas) ---------- */
+function rr(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);
+  x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
+function halo(x,cx,cy,r,a,c){const g=x.createRadialGradient(cx,cy,0,cx,cy,r);
+  g.addColorStop(0,`rgba(${c},${a})`);g.addColorStop(.35,`rgba(${c},${a*.3})`);g.addColorStop(1,`rgba(${c},0)`);
+  x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,7);x.fill();}
+function rngf(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+
+const RESERVAS={
+
+  rua(x,W,H,A){
+    const hz=H*.58; let g=x.createLinearGradient(0,0,0,hz);
+    g.addColorStop(0,'#8fb8d8'); g.addColorStop(1,'#d6e2ea'); x.fillStyle=g; x.fillRect(0,0,W,hz);
+    const r=rngf(7);
+    for(let i=0;i<9;i++){ const bw=W*(.07+r()*.07), bx=i*W*.115-W*.02, bh=H*(.16+r()*.28);
+      x.fillStyle=['#b9c3cb','#a7b2bb','#c6ced4','#98a4ad'][i%4]; x.fillRect(bx,hz-bh,bw,bh);
+      x.fillStyle='rgba(40,60,80,.30)';
+      for(let a=0;a<5;a++)for(let b=0;b<3;b++) x.fillRect(bx+bw*(.14+b*.28),hz-bh+H*.03+a*H*.045,bw*.16,H*.026); }
+    x.fillStyle='#f2ece0'; x.fillRect(W*.03,hz-H*.20,W*.26,H*.20);
+    x.fillStyle='#0f5c3f'; rr(x,W*.045,hz-H*.185,W*.23,H*.052,A(3)); x.fill();
+    x.fillStyle='#7f8c96'; x.fillRect(W*.06,hz-H*.115,W*.09,H*.115);
+    x.fillStyle='#c9c3b8'; x.fillRect(0,hz,W,H*.10);
+    x.fillStyle='#54595e'; x.fillRect(0,hz+H*.10,W,H);
+    x.fillStyle='#e8e2d0'; for(let i=0;i<7;i++) x.fillRect(W*(.02+i*.15),hz+H*.24,W*.075,H*.014);
+    const bx=W*.56, by=hz-H*.13, bw=W*.36, bh=H*.29;
+    x.fillStyle='#1f4e79'; rr(x,bx,by,bw,bh,A(5)); x.fill();
+    x.fillStyle='#d8e6f0'; rr(x,bx+bw*.05,by+bh*.14,bw*.55,bh*.36,A(3)); x.fill();
+    x.fillStyle='#0b1720'; rr(x,bx+bw*.66,by+bh*.06,bw*.28,bh*.20,A(2)); x.fill();
+    x.beginPath(); x.arc(bx+bw*.20,by+bh,bh*.15,0,7); x.fill();
+    x.beginPath(); x.arc(bx+bw*.82,by+bh,bh*.15,0,7); x.fill();
+    const tx=W*.475, ty=hz-H*.30;
+    x.fillStyle='#3a4148'; x.fillRect(tx,ty,A(3),H*.42);
+    x.fillStyle='#22282e'; rr(x,tx-A(5),ty-H*.115,A(13),H*.115,A(2)); x.fill();
+    [['#7a2020',.28],['#7a6a20',.28],['#2fd15f',1]].forEach((l,i)=>{ x.globalAlpha=l[1]; x.fillStyle=l[0];
+      x.beginPath(); x.arc(tx+A(1.5),ty-H*.098+i*H*.035,A(4),0,7); x.fill(); x.globalAlpha=1; });
+    for(const [px,s,cor] of [[W*.055,1,'#c25b4a'],[W*.335,.86,'#3f6f8f'],[W*.955,1.05,'#6a5f8c']]){
+      const ph=H*.19*s, py=hz+H*.085;
+      x.fillStyle=cor; rr(x,px-ph*.17,py-ph*.72,ph*.34,ph*.48,ph*.09); x.fill();
+      x.fillStyle='#3b3f45'; x.fillRect(px-ph*.14,py-ph*.26,ph*.11,ph*.30); x.fillRect(px+ph*.03,py-ph*.26,ph*.11,ph*.30);
+      x.fillStyle='#e0b48c'; x.beginPath(); x.arc(px,py-ph*.83,ph*.12,0,7); x.fill();
+      x.fillStyle='#2e2a26'; x.beginPath(); x.arc(px,py-ph*.88,ph*.12,Math.PI,0); x.fill(); }
+  },
+
+  noite(x,W,H,A,o){
+    const hz=H*.46; let g=x.createLinearGradient(0,0,0,hz);
+    g.addColorStop(0,'#050a14'); g.addColorStop(1,'#12203a'); x.fillStyle=g; x.fillRect(0,0,W,hz);
+    x.fillStyle='#0b0d10'; x.fillRect(0,hz,W,H-hz);
+    x.fillStyle='#191d22'; x.beginPath(); x.moveTo(W*.40,hz); x.lineTo(W*.60,hz);
+    x.lineTo(W*1.22,H); x.lineTo(W*-.22,H); x.closePath(); x.fill();
+    x.fillStyle='#e8e4d8';
+    for(let i=0;i<9;i++){ const t=i/9,t2=(i+.45)/9, y1=hz+(H-hz)*t*t, y2=hz+(H-hz)*t2*t2,
+      w1=A(2)*(1+t*9), w2=A(2)*(1+t2*9);
+      x.beginPath(); x.moveTo(W/2-w1,y1); x.lineTo(W/2+w1,y1); x.lineTo(W/2+w2,y2); x.lineTo(W/2-w2,y2); x.closePath(); x.fill(); }
+    x.strokeStyle='rgba(232,228,216,.7)'; x.lineWidth=Math.max(1,A(1.4));
+    x.beginPath(); x.moveTo(W*.405,hz); x.lineTo(W*-.20,H); x.stroke();
+    x.beginPath(); x.moveTo(W*.595,hz); x.lineTo(W*1.20,H); x.stroke();
+    const sw=A(340), sh=A(150), sx=W*.70, sy=hz-sh-A(40);
+    x.fillStyle='#3a3f45'; x.fillRect(sx+sw*.42,sy+sh,A(9),A(190));
+    rr(x,sx,sy,sw,sh,A(12)); x.fillStyle='#0f5c3f'; x.fill();
+    x.strokeStyle='#eef3f0'; x.lineWidth=Math.max(1,A(4)); rr(x,sx+A(9),sy+A(9),sw-A(18),sh-A(18),A(7)); x.stroke();
+    for(const [px,ph] of [[W*.13,.62],[W*.30,.42],[W*.86,.55]]){
+      const ly=hz-H*ph*.55;
+      x.strokeStyle='#22272d'; x.lineWidth=A(6); x.beginPath(); x.moveTo(px,hz); x.lineTo(px,ly); x.stroke();
+      x.fillStyle='#fff3d0'; x.beginPath(); x.arc(px,ly,A(9),0,7); x.fill();
+      halo(x,px,ly,A(o.glare?150:46),o.glare?.5:.32,'255,238,190'); }
+    for(const [cx,cy,s] of [[W*.30,hz+A(26),1],[W*.355,hz+A(58),1.5],[W*.245,hz+A(120),2.4]])
+      for(const dx of [-A(26)*s,A(26)*s]){
+        x.fillStyle='#fff'; x.beginPath(); x.arc(cx+dx,cy,A(7)*s,0,7); x.fill();
+        halo(x,cx+dx,cy,A(o.glare?120:34)*s,o.glare?.62:.4,'255,252,235'); }
+    for(const [cx,cy,s] of [[W*.66,hz+A(90),2],[W*.72,hz+A(200),3.2]])
+      for(const dx of [-A(30)*s,A(30)*s]){
+        x.fillStyle='#ff3b30'; x.beginPath(); x.arc(cx+dx,cy,A(6)*s,0,7); x.fill();
+        halo(x,cx+dx,cy,A(o.glare?70:26)*s,o.glare?.5:.34,'255,70,60'); }
+    if(o.glare){ x.fillStyle=`rgba(190,205,235,${Math.min(.16,o.glare*.05)})`; x.fillRect(0,0,W,H); }
+  },
+
+  quadro(x,W,H,A){
+    x.fillStyle='#d8d3c8'; x.fillRect(0,0,W,H);
+    const bx=W*.06,by=H*.08,bw=W*.88,bh=H*.66;
+    x.fillStyle='#6b5638'; x.fillRect(bx-A(14),by-A(14),bw+A(28),bh+A(28));
+    x.fillStyle='#f7f8f6'; x.fillRect(bx,by,bw,bh);
+    x.fillStyle='#8a7150'; x.fillRect(bx-A(14),by+bh,bw+A(28),A(12));
+    x.fillStyle='#b3aa9c';
+    for(let i=0;i<4;i++){ const dx=W*.05+i*W*.245, dy=H*.82;
+      rr(x,dx,dy,W*.19,H*.05,A(6)); x.fill();
+      x.fillRect(dx+W*.02,dy+H*.05,A(8),H*.13); x.fillRect(dx+W*.16,dy+H*.05,A(8),H*.13); }
+  },
+
+  leitura(x,W,H,A){
+    x.fillStyle='#241f1a'; x.fillRect(0,0,W,H);
+    const px=W*.05,py=H*.04,pw=W*.90,ph=H*.92;
+    x.fillStyle='rgba(0,0,0,.4)'; rr(x,px+A(8),py+A(10),pw,ph,A(4)); x.fill();
+    x.fillStyle='#f6f1e6'; rr(x,px,py,pw,ph,A(4)); x.fill();
+    x.fillStyle='#d8d0c0'; x.fillRect(px+pw*.5-A(1),py,A(2),ph);
+  },
+
+  celular(x,W,H,A){
+    x.fillStyle='#12161c'; x.fillRect(0,0,W,H);
+    const bw=W*.60, bh=Math.min(H*.94,bw*2.02), bx=(W-bw)/2, by=(H-bh)/2;
+    x.fillStyle='#000'; rr(x,bx,by,bw,bh,A(50)); x.fill();
+    x.strokeStyle='#3b424b'; x.lineWidth=A(4); rr(x,bx,by,bw,bh,A(50)); x.stroke();
+    x.fillStyle='#f2f4f7'; rr(x,bx+A(12),by+A(12),bw-A(24),bh-A(24),A(40)); x.fill();
+    x.fillStyle='#e7eaef'; x.fillRect(bx+A(12),by+A(58),bw-A(24),A(52));
+  },
+
+  rosto(x,W,H,A){
+    const g=x.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#c8d8dd'); g.addColorStop(1,'#9fb3ba'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    const cx=W*.5, cy=H*.44, R=Math.min(W,H)*.24;
+    x.fillStyle='#4d6f7a'; x.beginPath(); x.ellipse(cx,H*1.12,R*2.5,R*1.7,0,0,7); x.fill();
+    x.fillStyle='#e9f0f2'; x.beginPath(); x.ellipse(cx,H*1.14,R*.7,R*1.2,0,0,7); x.fill();
+    x.fillStyle='#d9a982'; x.fillRect(cx-R*.28,cy+R*.6,R*.56,R*.7);
+    x.fillStyle='#e8bb92'; x.beginPath(); x.ellipse(cx,cy,R*.80,R*1.02,0,0,7); x.fill();
+    x.fillStyle='#4a3b32'; x.beginPath(); x.ellipse(cx,cy-R*.30,R*.86,R*.78,0,Math.PI,0); x.fill();
+    x.beginPath(); x.ellipse(cx-R*.80,cy-R*.05,R*.16,R*.42,0,0,7); x.fill();
+    x.beginPath(); x.ellipse(cx+R*.80,cy-R*.05,R*.16,R*.42,0,0,7); x.fill();
+    for(const s of [-1,1]){ const ex=cx+s*R*.32, ey=cy-R*.06;
+      x.fillStyle='#fbfbf8'; x.beginPath(); x.ellipse(ex,ey,R*.19,R*.105,0,0,7); x.fill();
+      x.fillStyle='#4a6b57'; x.beginPath(); x.arc(ex,ey,R*.082,0,7); x.fill();
+      x.fillStyle='#14181c'; x.beginPath(); x.arc(ex,ey,R*.036,0,7); x.fill();
+      x.fillStyle='#fff'; x.beginPath(); x.arc(ex-R*.03,ey-R*.03,R*.016,0,7); x.fill();
+      x.strokeStyle='#4a3b32'; x.lineWidth=R*.045; x.lineCap='round';
+      x.beginPath(); x.arc(ex,ey-R*.02,R*.21,Math.PI*1.12,Math.PI*1.88); x.stroke(); }
+    x.strokeStyle='#c4906b'; x.lineWidth=R*.035;
+    x.beginPath(); x.moveTo(cx,cy-R*.02); x.lineTo(cx-R*.07,cy+R*.22); x.lineTo(cx+R*.03,cy+R*.24); x.stroke();
+    x.strokeStyle='#a4544c'; x.lineWidth=R*.055;
+    x.beginPath(); x.arc(cx,cy+R*.30,R*.26,Math.PI*.22,Math.PI*.78); x.stroke();
+  },
+
+  optotipos(x,W,H,A){
+    x.fillStyle='#2a2e33'; x.fillRect(0,0,W,H);
+    const cx=W*.5, cw=W*.86, ch=H*.94;
+    x.fillStyle='#fbfbf8'; rr(x,cx-cw/2,(H-ch)/2,cw,ch,A(4)); x.fill();
+    const rows=[[200,'F P'],[100,'T O Z'],[70,'L P E D'],[50,'P E C F D'],
+                [40,'E D F C Z P'],[30,'F E L O P Z D'],[25,'D E F P O T E C'],[20,'L E F O D P C T']];
+    x.textAlign='center'; x.textBaseline='middle';
+    let y=(H-ch)/2+A(46);
+    for(const [den,letras] of rows){
+      const cap=5*den/20, fs=A(cap)/0.72;
+      x.fillStyle='#14181c'; x.font=`700 ${fs}px "Helvetica Neue",Arial,sans-serif`;
+      x.fillText(letras.split(' ').join('  '), cx, y+A(cap)/2);
+      x.fillStyle='#9aa2ab'; x.font=`600 ${A(6)}px Arial,sans-serif`; x.textAlign='left';
+      x.fillText('20/'+den, cx-cw/2+A(10), y+A(cap)/2); x.textAlign='center';
+      y += A(cap)*1.55 + A(4);
+    }
+  }
+};
+
+/* ---------- 4. CENAS DO MANIFESTO ---------- */
+const CENAS = (window.CENAS_OLHAR||[]).map(c=>({...c, img:null, estado: c.arquivo?'carregando':'desenhada'}));
+
+/* Tolerante a extensão: aceita .jpg .jpeg .png .webp e as extensões duplas
+   que o navegador cria ao salvar ("avenida-dia.jpg.png"). */
+function carregarImagens(){
+  for(const c of CENAS){
+    if(!c.arquivo) continue;
+    const base=c.arquivo.replace(/\.(jpe?g|png|webp)$/i,'');
+    const cands=[...new Set([c.arquivo, base+'.jpg', base+'.jpeg', base+'.png', base+'.webp',
+                             c.arquivo+'.png', c.arquivo+'.jpg'])];
+    tentarCarregar(c,cands,0);
+  }
+}
+function tentarCarregar(c,lista,i){
+  if(i>=lista.length){ c.estado='ausente'; renderScenes(); if(S.scene===c) refreshCena(); return; }
+  const im=new Image();
+  im.onload =()=>{ c.img=im; c.nw=im.naturalWidth; c.nh=im.naturalHeight;
+                   c.estado='foto'; c.usado=lista[i];
+                   renderScenes(); if(S.scene===c){ refreshCena(); render(); } };
+  im.onerror=()=>tentarCarregar(c,lista,i+1);
+  im.src='cenas/'+lista[i];
+}
+
+/* Geometria da foto no palco: enquadramento "contain" — a imagem inteira sempre
+   cabe, nada é cortado. Por isso o campo angular é sempre o do manifesto, e
+   nenhuma placa some por causa da proporção da tela. As sobras laterais recebem
+   uma cópia borrada e escurecida da própria foto, no lugar de tarjas pretas. */
+function geo(sc){
+  if(!sc.img) return {ox:0, oy:0, w:RW, h:RH};
+  const k=Math.min(RW/sc.nw, RH/sc.nh), w=sc.nw*k, h=sc.nh*k;
+  return {ox:(RW-w)/2, oy:(RH-h)/2, w, h};
+}
+const effFov = sc => sc.fov;   // sem corte, o campo é o declarado
+
+function paintScene(x, glare){
+  const sc=S.scene, A=am=>am/((effFov(sc)*60)/RW);
+  clearX(x);
+  if(sc.img){
+    const {ox,oy,w,h}=geo(sc);
+    if(ox>1||oy>1){                       // leito borrado no lugar de tarja preta
+      const kc=Math.max(RW/sc.nw,RH/sc.nh), cw=sc.nw*kc, ch=sc.nh*kc;
+      x.save(); if(canFilter) x.filter=`blur(${26*DPR}px)`;
+      x.drawImage(sc.img,(RW-cw)/2,(RH-ch)/2,cw,ch); x.restore();
+      x.fillStyle='rgba(5,8,11,.58)'; x.fillRect(0,0,RW,RH);
+    }
+    x.drawImage(sc.img,ox,oy,w,h);
+    if(sc.glare && glare>0) bloom(x, x.canvas, Math.min(.9, glare*.35));
+  } else {
+    (RESERVAS[sc.reserva]||RESERVAS.rua)(x,RW,RH,A,{glare});
+  }
+}
+
+/* ---------- 5. ESTADO + RENDER ---------- */
+const S={ scene:CENAS[0], sph:-2.25, cyl:-1.25, axis:20, add:0, pupil:4.0, mode:'split', split:0.5, tune:false };
+let pupilTouched=false;
+
+function layout(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  const r=wrap.getBoundingClientRect();
+  RW=Math.max(2,Math.round(r.width*DPR)); RH=Math.max(2,Math.round(r.height*DPR));
+  for(const c of [disp,sharpC,preC,softC,calCv]){ c.width=RW; c.height=RH; }
+  drawCalLine(); render();
+}
+
+function optics(){
+  const sc=S.scene, amp=ampFromAdd(S.add);
+  const p1=S.sph, p2=S.sph+S.cyl;
+  const r1=residual(p1,sc.dist,amp), r2=residual(p2,sc.dist,amp);
+  const apx=(effFov(sc)*60)/RW;                    // arcmin por pixel de render
+  const s1=blurArcmin(r1,S.pupil)/apx/4;           // sigma ≈ diâmetro do círculo /4
+  const s2=blurArcmin(r2,S.pupil)/apx/4;
+  return {p1,p2,r1,r2,s1,s2,apx,amp};
+}
+
+function render(){
+  if(!RW||!S.scene) return;
+  const o=optics();
+  const glare = Math.min(3,(o.r1+o.r2)/2);   // espalhamento cresce com o desfoque
+
+  paintScene(sharpX, 0);       // lado corrigido
+  paintScene(preX, glare);     // lado sem correção, antes do desfoque
+  blurAniso(softX, preC, o.s1, o.s2, S.axis);
+
+  clearX(dctx);
+  const cut = S.mode==='split' ? RW*S.split : (S.mode==='uncorr'?RW:0);
+  dctx.drawImage(sharpC,0,0);
+  if(cut>0){ dctx.save(); dctx.beginPath(); dctx.rect(0,0,cut,RH); dctx.clip();
+             dctx.drawImage(softC,0,0); dctx.restore(); }
+
+  const split=S.mode==='split';
+  handle.classList.toggle('hide',!split);
+  if(split) handle.style.left=(S.split*100)+'%';
+  tagL.style.opacity=(S.mode==='corr')?0:1;
+  tagR.style.opacity=(S.mode==='uncorr')?0:1;
+  updateReadout(o);
+}
+
+/* ---------- 6. LEITURA CLÍNICA ---------- */
+function updateReadout(o){
+  document.getElementById('sphOut').textContent=fmtD(S.sph);
+  document.getElementById('cylOut').textContent=fmtD(S.cyl);
+  document.getElementById('axisOut').textContent=S.axis+'°';
+  document.getElementById('addOut').textContent=S.add?fmtD(S.add):'—';
+  document.getElementById('pupilOut').textContent=S.pupil.toFixed(1)+' mm';
+  document.getElementById('m1').textContent=`${S.axis}°  ·  ${fmtD(o.p1)}`;
+  document.getElementById('m2').textContent=`${(S.axis+90)%180}°  ·  ${fmtD(o.p2)}`;
+  const rEl=document.getElementById('r1');
+  rEl.textContent=`${o.r1.toFixed(2)} / ${o.r2.toFixed(2)} D`;
+  rEl.className='v '+((o.r1+o.r2)<0.25?'ok':'blur');
+  document.getElementById('se').textContent=fmtD(S.sph+S.cyl/2);
+  document.getElementById('ampv').textContent=o.amp.toFixed(2)+' D';
+
+  const hint=document.getElementById('hint');
+  const semGrau=Math.abs(S.sph)<0.125&&Math.abs(S.cyl)<0.125;
+  if(!semGrau && (o.r1+o.r2)<0.25){
+    hint.style.display='block';
+    hint.textContent = S.scene.dist
+      ? `Sem desfoque nesta cena: a acomodação disponível (${o.amp.toFixed(2)} D) cobre a demanda. Aumente a adição para simular a presbiopia.`
+      : `Sem desfoque para longe: hipermetropia dentro da amplitude de acomodação (${o.amp.toFixed(2)} D). O paciente enxerga — à custa de esforço. Aumente a adição, ou use uma cena de perto.`;
+  } else hint.style.display='none';
+
+  drawCross(o);
+  const av=document.getElementById('av').value.trim();
+  document.getElementById('stageTitle').firstChild.nodeValue=S.scene.nome;
+  document.getElementById('stageMeta').textContent=
+    `${fmtD(S.sph)} ${fmtD(S.cyl)} × ${S.axis}°`+(S.add?`  add ${fmtD(S.add)}`:'')+(av?`  ·  AV ${av}`:'');
+  if(S.tune){
+    document.getElementById('fovOut').textContent=S.scene.fov.toFixed(1)+'°';
+    document.getElementById('copyLine').textContent=`fov:${S.scene.fov.toFixed(1)}   ·   ${o.apx.toFixed(3)}′/px   ·   letra 20/20 = ${(5/o.apx).toFixed(1)} px`;
+  }
+}
+
+function drawCross(o){
+  const box=118,c=box/2,r=40,th=S.axis,rad=th*Math.PI/180;
+  const x1=c+r*Math.cos(rad),y1=c-r*Math.sin(rad),x2=c-r*Math.cos(rad),y2=c+r*Math.sin(rad);
+  const x3=c-r*Math.sin(rad),y3=c-r*Math.cos(rad),x4=c+r*Math.sin(rad),y4=c+r*Math.cos(rad);
+  const e1=Math.min(1,o.r1/4),e2=Math.min(1,o.r2/4);
+  document.getElementById('cross').innerHTML=`
+  <svg width="${box}" height="${box}" viewBox="0 0 ${box} ${box}">
+    <ellipse cx="${c}" cy="${c}" rx="${8+e1*26}" ry="${8+e2*26}" transform="rotate(${-th} ${c} ${c})"
+      fill="rgba(224,164,88,.18)" stroke="rgba(224,164,88,.55)" stroke-width="1"/>
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#37c9b0" stroke-width="1.6"/>
+    <line x1="${x3}" y1="${y3}" x2="${x4}" y2="${y4}" stroke="#4a9eff" stroke-width="1.6"/>
+    <text x="${x1}" y="${y1}" dx="${x1>c?4:-4}" dy="4" fill="#37c9b0" font-size="9"
+      text-anchor="${x1>c?'start':'end'}" font-family="monospace">${fmtD(o.p1)}</text>
+    <text x="${x3}" y="${y3}" dx="${x3>c?4:-4}" dy="-2" fill="#4a9eff" font-size="9"
+      text-anchor="${x3>c?'start':'end'}" font-family="monospace">${fmtD(o.p2)}</text>
+  </svg>`;
+}
+
+/* ---------- 7. UI ---------- */
+const scenesEl=document.getElementById('scenes');
+function renderScenes(){
+  scenesEl.innerHTML='';
+  for(const s of CENAS){
+    const b=document.createElement('button');
+    b.className='scene-btn'+(s===S.scene?' on':'');
+    const res=(s.estado==='ausente'||s.estado==='carregando')&&s.arquivo;
+    b.innerHTML=`<span class="dot${res?' res':''}"></span><span><b>${s.nome}</b><small>${s.sub}</small></span>`;
+    b.onclick=()=>selectScene(s);
+    scenesEl.appendChild(b);
+  }
+}
+function selectScene(s){
+  S.scene=s;
+  if(!pupilTouched&&s.pupila){ S.pupil=s.pupila; document.getElementById('pupil').value=s.pupila; }
+  renderScenes(); refreshCena(); render();
+}
+function refreshCena(){
+  const s=S.scene, n=document.getElementById('cenaNota');
+  if(!s.arquivo){ n.className='note'; n.textContent='Cena gerada por código — a geometria angular é exata por construção.'; }
+  else if(s.estado==='foto'){
+    const baixa=s.nw<1600;
+    n.className='note'+(baixa?' w':'');
+    n.textContent=`${s.usado} · ${s.nw}×${s.nh} px · campo ${s.fov}° · texto sobreposto em tamanho angular real.`
+      + (baixa?' Resolução abaixo de 1600 px: o lado nítido perde impacto no telão — regere em 2400 px quando puder.':'');
+  }
+  else { n.className='note w'; n.textContent=`Falta cenas/${s.arquivo} — usando a cena desenhada de reserva. Gere a imagem pelo pacote de prompts e recarregue.`; }
+  if(S.tune) document.getElementById('fov').value=s.fov;
+}
+
+function bind(id,key,parse){
+  const el=document.getElementById(id);
+  el.addEventListener('input',()=>{ S[key]=parse(el.value); if(id==='pupil')pupilTouched=true; render(); });
+}
+bind('sph','sph',parseFloat); bind('cyl','cyl',parseFloat);
+bind('axis','axis',v=>parseInt(v,10)); bind('add','add',parseFloat); bind('pupil','pupil',parseFloat);
+document.getElementById('av').addEventListener('input',()=>updateReadout(optics()));
+document.getElementById('reset').onclick=()=>{
+  S.sph=0;S.cyl=0;S.axis=0;S.add=0;
+  ['sph','cyl','axis','add'].forEach(k=>document.getElementById(k).value=S[k]); render();
+};
+document.getElementById('modeseg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; S.mode=b.dataset.mode;
+  document.querySelectorAll('#modeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); render();
+});
+document.getElementById('toggleRail').onclick=()=>{
+  document.getElementById('rail').classList.toggle('hidden'); setTimeout(layout,300);
+};
+
+/* --- modo de ajuste --- */
+const tuneBtn=document.getElementById('tuneBtn'), tunePanel=document.getElementById('tune');
+function toggleTune(){
+  S.tune=!S.tune;
+  tunePanel.classList.toggle('on',S.tune);
+  tuneBtn.classList.toggle('act',S.tune);
+  tuneBtn.textContent=S.tune?'Fechar modo de ajuste':'Abrir modo de ajuste';
+  if(S.tune) document.getElementById('fov').value=S.scene.fov;
+  else { CAL.arm=false; CAL.a=CAL.b=null; drawCalLine(); }
+  render();
+}
+tuneBtn.onclick=toggleTune;
+document.getElementById('fov').addEventListener('input',e=>{
+  S.scene.fov=parseFloat(e.target.value); render();
+});
+document.getElementById('copyLine').onclick=e=>{
+  navigator.clipboard?.writeText(`fov:${S.scene.fov.toFixed(1)}`);
+  e.target.style.color='#fff'; setTimeout(()=>e.target.style.color='',400);
+};
+
+/* --- calibração por objeto conhecido --- */
+const CAL={arm:false,a:null,b:null};
+const calBtn=document.getElementById('calBtn'), calForm=document.getElementById('calForm');
+calBtn.onclick=()=>{
+  CAL.arm=!CAL.arm; CAL.a=CAL.b=null;
+  calBtn.classList.toggle('act',CAL.arm);
+  calBtn.textContent=CAL.arm?'Arraste sobre o objeto na cena…':'Calibrar por objeto conhecido';
+  calForm.style.display='none'; drawCalLine();
+};
+function drawCalLine(){
+  if(!calCv.width) return;
+  clearX(calX);
+  if(!CAL.a||!CAL.b) return;
+  calX.strokeStyle='#37c9b0'; calX.lineWidth=3*DPR; calX.setLineDash([9*DPR,6*DPR]);
+  calX.beginPath(); calX.moveTo(CAL.a[0],CAL.a[1]); calX.lineTo(CAL.b[0],CAL.b[1]); calX.stroke();
+  calX.setLineDash([]); calX.fillStyle='#37c9b0';
+  for(const p of [CAL.a,CAL.b]){ calX.beginPath(); calX.arc(p[0],p[1],7*DPR,0,7); calX.fill(); }
+}
+document.getElementById('calOk').onclick=()=>{
+  const sc=S.scene;
+  const size=parseFloat(document.getElementById('calSize').value);
+  const dist=parseFloat(document.getElementById('calDist').value);
+  if(!CAL.a||!CAL.b||!(size>0)||!(dist>0)){ alert('Marque o objeto na cena e informe tamanho (cm) e distância (m).'); return; }
+  const lenPx=Math.hypot(CAL.b[0]-CAL.a[0],CAL.b[1]-CAL.a[1]);
+  if(lenPx<20){ alert('Traço muito curto para calibrar.'); return; }
+  const arcmin=2*Math.atan((size/100/2)/dist)*180/Math.PI*60;   // tamanho angular real
+  sc.fov=(arcmin/lenPx)*geo(sc).w/60;                            // arcmin/px × largura da foto
+  CAL.arm=false; CAL.a=CAL.b=null; calBtn.classList.remove('act');
+  calBtn.textContent='Calibrar por objeto conhecido'; calForm.style.display='none';
+  document.getElementById('fov').value=sc.fov; drawCalLine(); render();
+};
+
+/* --- ponteiro: divisor ou traço de calibração --- */
+let dragging=false;
+const setSplit=e=>{ const r=wrap.getBoundingClientRect();
+  S.split=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); render(); };
+const toCanvas=e=>{ const r=wrap.getBoundingClientRect();
+  return [(e.clientX-r.left)/r.width*RW,(e.clientY-r.top)/r.height*RH]; };
+disp.addEventListener('pointerdown',e=>{
+  disp.setPointerCapture(e.pointerId);
+  if(CAL.arm){ CAL.a=toCanvas(e); CAL.b=CAL.a; dragging='cal'; drawCalLine(); return; }
+  if(S.mode!=='split')return; dragging='split'; setSplit(e);
+});
+disp.addEventListener('pointermove',e=>{
+  if(dragging==='cal'){ CAL.b=toCanvas(e); drawCalLine(); return; }
+  if(dragging==='split') setSplit(e);
+});
+const endDrag=()=>{
+  if(dragging==='cal'&&CAL.a&&CAL.b){
+    calForm.style.display='block'; calBtn.textContent='Refazer o traço';
+    document.getElementById('calSize').focus();
+  }
+  dragging=false;
+};
+disp.addEventListener('pointerup',endDrag);
+disp.addEventListener('pointercancel',endDrag);
+
+addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'&&e.target.type!=='range')return;
+  const k=e.key.toLowerCase();
+  if(k==='c') document.querySelector('[data-mode="split"]').click();
+  if(k==='1') document.querySelector('[data-mode="uncorr"]').click();
+  if(k==='2') document.querySelector('[data-mode="corr"]').click();
+  if(k==='h') document.getElementById('toggleRail').click();
+  if(k==='a'){ e.preventDefault(); toggleTune(); }
+  const i=CENAS.indexOf(S.scene), n=CENAS.length;
+  if(e.key==='ArrowDown'){ e.preventDefault(); selectScene(CENAS[(i+1)%n]); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); selectScene(CENAS[(i-1+n)%n]); }
+});
+
+/* ==========================================================================
+   8. PONTE COM O SISTEMA OLHAR
+   Recebe a refração do prontuário por URL ou por postMessage e aplica.
+     URL       ?nome=Maria&od=-2.25,-1.25,20,0&oe=-2,-0.75,165,0&olho=od&cena=avenida
+     mensagem  {tipo:'olhar:rx', nome, od:{sph,cyl,axis,add,av}, oe:{...}, olho, cena}
+   ========================================================================== */
+const OLHOS={od:null, oe:null};
+let PACIENTE='';
+
+const num=v=>{ const n=parseFloat(String(v??'').replace(',','.')); return isFinite(n)?n:0; };
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+
+function setCtl(id,val){ S[id]=val; const el=document.getElementById(id); if(el) el.value=val; }
+
+function aplicarOlho(lado){
+  const o=OLHOS[lado]; if(!o) return;
+  setCtl('sph',  clamp(num(o.sph), -10, 6));
+  setCtl('cyl',  clamp(-Math.abs(num(o.cyl)), -6, 0));   // sempre cilindro negativo
+  setCtl('axis', clamp(Math.round(num(o.axis)), 0, 180));
+  setCtl('add',  clamp(Math.abs(num(o.add)), 0, 3));
+  document.getElementById('av').value = o.av ? String(o.av) : '';
+  document.querySelectorAll('#olhoseg button').forEach(b=>b.classList.toggle('on', b.dataset.olho===lado));
+  render();
+}
+
+function aplicarRx(d){
+  if(d.nome) PACIENTE=d.nome;
+  if(d.od) OLHOS.od=d.od;
+  if(d.oe) OLHOS.oe=d.oe;
+  const seg=document.getElementById('olhoseg');
+  seg.style.display=(OLHOS.od&&OLHOS.oe)?'flex':'none';
+  if(d.cena){ const c=CENAS.find(x=>x.id===d.cena); if(c) selectScene(c); }
+  aplicarOlho(d.olho || (OLHOS.od?'od':'oe'));
+  const t=document.getElementById('stageTitle');
+  if(PACIENTE && !t.querySelector('.pill')){
+    const p=document.createElement('span'); p.className='pill'; p.textContent=PACIENTE;
+    t.appendChild(p);
+  } else if(PACIENTE){ t.querySelector('.pill').textContent=PACIENTE; }
+}
+
+document.getElementById('olhoseg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(b) aplicarOlho(b.dataset.olho);
+});
+
+addEventListener('message',e=>{
+  const d=e.data;
+  if(d && d.tipo==='olhar:rx') aplicarRx(d);
+});
+
+function lerURL(){
+  const q=new URLSearchParams(location.search);
+  if(![...q.keys()].length) return;
+  const par=s=>{ const [sph,cyl,axis,add,av]=String(s).split(','); return {sph,cyl,axis,add,av}; };
+  const d={ nome:q.get('nome')||'', olho:q.get('olho')||'od', cena:q.get('cena')||'' };
+  if(q.get('od')) d.od=par(q.get('od'));
+  if(q.get('oe')) d.oe=par(q.get('oe'));
+  if(d.od||d.oe) aplicarRx(d);
+  else if(d.cena){ const c=CENAS.find(x=>x.id===d.cena); if(c) selectScene(c); }
+}
+
+/* avisa o sistema hospedeiro que o módulo está pronto para receber dados */
+function anunciarPronto(){
+  try{ if(parent!==window) parent.postMessage({tipo:'olhar:pronto', modulo:'ametropia'},'*'); }catch(e){}
+}
+
+addEventListener('resize',layout);
+
+if(!CENAS.length){
+  document.body.innerHTML='<div style="padding:40px;font:15px/1.6 system-ui;color:#e6edf3">'+
+    '<b>cenas/manifest.js não carregou.</b><br>Mantenha o arquivo <code>olhar-simulador-ametropia.html</code> '+
+    'na mesma pasta que a pasta <code>cenas/</code>.</div>';
+} else {
+  renderScenes(); refreshCena(); carregarImagens(); layout();
+  lerURL(); anunciarPronto();
+}
+</script>
+</body>
+</html>

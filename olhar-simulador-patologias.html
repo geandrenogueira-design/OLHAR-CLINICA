@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>OLHAR — Simulador de Patologias</title>
+<style>
+  :root{
+    --bg:#0d1117;--panel:#151b23;--panel-2:#1c242e;--line:#2a3441;
+    --txt:#e6edf3;--txt-2:#8b98a8;--accent:#37c9b0;--accent-2:#4a9eff;--warn:#e0a458;--radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);
+    font:400 14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;overflow:hidden}
+  .app{display:flex;height:100vh;width:100vw}
+
+  .rail{width:312px;flex:0 0 312px;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;overflow:hidden;transition:margin-left .28s cubic-bezier(.4,0,.2,1)}
+  .rail.hidden{margin-left:-312px}
+  .rail-head{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+  .brand{font-size:11px;letter-spacing:.16em;color:var(--accent);font-weight:700}
+  .brand span{color:var(--txt-2);font-weight:500;letter-spacing:.08em}
+  .rail-head h1{font-size:16px;font-weight:600;margin-top:5px;letter-spacing:-.01em}
+  .rail-body{flex:1;overflow-y:auto;padding:16px 18px 24px}
+  .rail-body::-webkit-scrollbar{width:8px}
+  .rail-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+  .group{margin-bottom:22px}
+  .group>h2{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-2);font-weight:700;margin-bottom:10px}
+
+  .list{display:grid;gap:5px}
+  .item{display:flex;align-items:center;gap:10px;width:100%;background:var(--panel-2);
+    border:1px solid transparent;color:var(--txt-2);padding:9px 11px;border-radius:8px;
+    cursor:pointer;text-align:left;font:inherit;font-size:13px;transition:.15s}
+  .item:hover{border-color:var(--line);color:var(--txt)}
+  .item.on{background:rgba(55,201,176,.1);border-color:var(--accent);color:var(--txt)}
+  .item b{font-weight:600}
+  .item small{display:block;font-size:10.5px;color:var(--txt-2);margin-top:1px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);flex:0 0 7px}
+  .item.on .dot{background:var(--accent)}
+  .dot.res{background:var(--warn);box-shadow:0 0 0 2px rgba(224,164,88,.2)}
+
+  .ctl{margin-bottom:14px}
+  .ctl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .ctl-top label{font-size:12.5px;color:var(--txt-2)}
+  .ctl-top output{font:600 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--txt);
+    background:var(--panel-2);padding:4px 7px;border-radius:5px;min-width:56px;text-align:center}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+    background:var(--accent);margin-top:-6.5px;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--accent)}
+  input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+
+  .seg{display:flex;background:var(--panel-2);border-radius:8px;padding:3px;gap:3px}
+  .seg button{flex:1;background:transparent;border:0;color:var(--txt-2);font:inherit;font-size:11.5px;
+    padding:7px 4px;border-radius:6px;cursor:pointer;transition:.15s}
+  .seg button.on{background:var(--accent);color:#06231e;font-weight:600}
+
+  .switch{display:flex;align-items:flex-start;gap:10px;background:var(--panel-2);
+    padding:11px 12px;border-radius:9px;cursor:pointer;margin-bottom:8px}
+  .switch input{display:none}
+  .knob{width:34px;height:19px;border-radius:12px;background:var(--line);position:relative;flex:0 0 34px;transition:.18s;margin-top:1px}
+  .knob::after{content:'';position:absolute;top:2.5px;left:2.5px;width:14px;height:14px;border-radius:50%;background:var(--txt-2);transition:.18s}
+  .switch input:checked+.knob{background:rgba(55,201,176,.35)}
+  .switch input:checked+.knob::after{left:17.5px;background:var(--accent)}
+  .switch .lbl{font-size:12.5px;line-height:1.35}
+  .switch .lbl small{display:block;color:var(--txt-2);font-size:10.5px;margin-top:2px}
+
+  .expl{background:var(--panel-2);border-radius:var(--radius);padding:13px 14px;font-size:12.5px;line-height:1.55}
+  .expl h3{font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--accent)}
+  .expl p{color:var(--txt-2)}
+  .expl p+p{margin-top:8px}
+  .expl .queixa{color:var(--txt);font-style:italic;border-left:2px solid var(--warn);padding-left:9px;margin-top:10px}
+
+  .ghost{width:100%;background:transparent;border:1px solid var(--line);color:var(--txt-2);
+    font:inherit;font-size:12px;padding:8px;border-radius:7px;cursor:pointer;transition:.15s}
+  .ghost:hover{color:var(--txt);border-color:var(--txt-2)}
+
+  .stage{flex:1;position:relative;display:flex;flex-direction:column;min-width:0;background:#05080b}
+  .stage-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel);flex:0 0 auto}
+  .icon-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--txt-2);width:32px;height:32px;
+    border-radius:7px;cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center;transition:.15s;flex:0 0 auto}
+  .icon-btn:hover{color:var(--txt);border-color:var(--txt-2)}
+  .stage-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stage-title span{color:var(--txt-2);font-weight:400;margin-left:8px;font-size:11.5px}
+  .stage-bar .spacer{flex:1}
+  .modeseg{display:flex;background:var(--panel-2);border-radius:7px;padding:3px;gap:3px}
+  .modeseg button{background:transparent;border:0;color:var(--txt-2);font:inherit;font-size:11.5px;
+    padding:6px 11px;border-radius:5px;cursor:pointer;white-space:nowrap}
+  .modeseg button.on{background:var(--accent);color:#06231e;font-weight:600}
+  .pill{display:inline-block;background:rgba(55,201,176,.14);color:var(--accent);
+    border:1px solid rgba(55,201,176,.35);border-radius:20px;padding:3px 10px;
+    font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+
+  .canvas-wrap{flex:1;position:relative;overflow:hidden}
+  #display{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .tag{position:absolute;top:14px;padding:5px 11px;border-radius:20px;font-size:10.5px;font-weight:700;
+    letter-spacing:.1em;pointer-events:none;backdrop-filter:blur(6px);background:rgba(5,8,11,.65);
+    border:1px solid rgba(255,255,255,.14);transition:opacity .2s;z-index:3}
+  .tag.l{color:#ffb4a2}.tag.r{color:#9ff0e0}
+  .handle{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.85);pointer-events:none;
+    box-shadow:0 0 14px rgba(0,0,0,.6);z-index:3}
+  .handle::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;
+    border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 2px 14px rgba(0,0,0,.5)}
+  .handle::before{content:'‹ ›';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;
+    color:#0d1117;font-size:16px;font-weight:700;letter-spacing:2px}
+  .handle.hide{display:none}
+
+  .caption{position:absolute;left:0;right:0;bottom:0;padding:16px 22px;z-index:4;
+    background:linear-gradient(transparent,rgba(3,6,9,.9));pointer-events:none;transition:opacity .25s}
+  .caption b{display:block;font-size:16px;font-weight:600;margin-bottom:4px}
+  .caption span{font-size:13px;color:#c3ccd8;line-height:1.5;display:block;max-width:760px}
+  .caption.off{opacity:0}
+
+  .footer{flex:0 0 auto;padding:8px 16px;border-top:1px solid var(--line);background:var(--panel);
+    font-size:10.5px;color:var(--txt-2);line-height:1.4}
+  .footer b{color:var(--warn);font-weight:600}
+
+  @media (max-width:820px){
+    .rail{position:absolute;z-index:20;height:100%;box-shadow:0 0 40px rgba(0,0,0,.6)}
+    .stage-title span{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="rail" id="rail">
+    <div class="rail-head">
+      <div class="brand">OLHAR <span>/ módulo 02</span></div>
+      <h1>Simulador de Patologias</h1>
+    </div>
+    <div class="rail-body">
+
+      <div class="group">
+        <h2>Condição</h2>
+        <div class="list" id="pathos"></div>
+      </div>
+
+      <div class="group">
+        <h2>Estágio</h2>
+        <div class="ctl">
+          <div class="ctl-top"><label for="sev">Severidade</label><output id="sevOut"></output></div>
+          <input type="range" id="sev" min="0" max="100" step="1" value="55">
+        </div>
+        <div class="seg" id="presets">
+          <button data-v="0">Normal</button>
+          <button data-v="25">Inicial</button>
+          <button data-v="55" class="on">Moderado</button>
+          <button data-v="88">Avançado</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Cena</h2>
+        <div class="list" id="scenes"></div>
+      </div>
+
+      <div class="group">
+        <h2>Exibição</h2>
+        <label class="switch">
+          <input type="checkbox" id="fill" checked><span class="knob"></span>
+          <span class="lbl">Percepção real<small>Falha visual como preenchimento e perda de detalhe — não como mancha preta.</small></span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="cap" checked><span class="knob"></span>
+          <span class="lbl">Legenda na tela<small>Frase explicativa para o paciente.</small></span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" id="anim" checked><span class="knob"></span>
+          <span class="lbl">Animação<small>Moscas volantes, flutuação do filme lacrimal e fotopsias.</small></span>
+        </label>
+      </div>
+
+      <div class="group">
+        <h2>Explicação clínica</h2>
+        <div class="expl" id="expl"></div>
+      </div>
+
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-bar">
+      <button class="icon-btn" id="toggleRail" title="Ocultar controles (H)">☰</button>
+      <div class="stage-title" id="stageTitle">—<span id="stageMeta"></span></div>
+      <div class="spacer"></div>
+      <div class="modeseg" id="modeseg">
+        <button data-mode="split" class="on">Comparar</button>
+        <button data-mode="patho">Só a condição</button>
+        <button data-mode="normal">Só o normal</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" id="wrap">
+      <canvas id="display"></canvas>
+      <div class="tag l" id="tagL" style="left:14px">COM A CONDIÇÃO</div>
+      <div class="tag r" id="tagR" style="right:14px">VISÃO PRESERVADA</div>
+      <div class="handle" id="handle"></div>
+      <div class="caption" id="caption"><b></b><span></span></div>
+    </div>
+
+    <div class="footer">
+      <b>Aproximação perceptual.</b> Reproduz o efeito descrito na queixa clínica, não o mecanismo retiniano completo. A visão real varia entre pacientes, entre olhos e ao longo do dia, e a adaptação neural reduz a percepção do próprio déficit. <b>Não substitui exame nem serve como estimativa de prognóstico.</b>
+    </div>
+  </main>
+</div>
+
+<script src="cenas/manifest.js"></script>
+<script>
+/* ==========================================================================
+   OLHAR — Módulo 02 · Simulador de Patologias
+   Pipeline 2D em camadas: cena nítida → efeito → composição comparativa.
+   ========================================================================== */
+
+/* ---------- infraestrutura de canvas ---------- */
+const disp = document.getElementById('display'), dctx = disp.getContext('2d');
+const wrap = document.getElementById('wrap'), handle = document.getElementById('handle');
+const tagL = document.getElementById('tagL'), tagR = document.getElementById('tagR');
+const capEl = document.getElementById('caption');
+
+const mk = () => { const c=document.createElement('canvas'); return [c,c.getContext('2d')]; };
+const [sharpC,sharpX] = mk();   // cena preservada
+const [workC ,workX ] = mk();   // cena com a condição
+const [tmpC  ,tmpX  ] = mk();   // scratch A — camada em construção
+const [tmp2C ,tmp2X ] = mk();   // scratch B — reservado ao maskDraw
+const [poolC ,poolX ] = mk();   // scratch C — camada congelada p/ máscara
+const [fbC   ,fbX   ] = mk();   // scratch D — fallback de desfoque
+const ALL = [disp,sharpC,workC,tmpC,tmp2C,poolC,fbC];
+
+/* congela o conteúdo de tmpC para uso como camada (tmp2C é usado pelo maskDraw) */
+function freeze(){ clearX(poolX); poolX.drawImage(tmpC,0,0); return poolC; }
+
+let W=0,H=0,DPR=1,K=1;          // K = fator de escala (1 = 1000px de largura de referência)
+const supportsFilter = (()=>{ const [c,x]=mk(); c.width=c.height=2; x.filter='blur(1px)'; return x.filter==='blur(1px)'; })();
+
+function clearX(x){ x.setTransform(1,0,0,1,0,0); x.globalAlpha=1; x.globalCompositeOperation='source-over'; x.filter='none'; x.clearRect(0,0,W,H); }
+
+/* desfoque com fallback para navegadores sem ctx.filter */
+function blurTo(x, src, px){
+  clearX(x);
+  if(px<0.3){ x.drawImage(src,0,0); return; }
+  if(supportsFilter){ x.filter=`blur(${px}px)`; x.drawImage(src,0,0); x.filter='none'; return; }
+  // fallback: redução + ampliação bilinear em dois passos
+  const f=Math.max(1.2,Math.min(24,px/1.6));
+  const w=Math.max(2,Math.round(W/f)), h=Math.max(2,Math.round(H/f));
+  clearX(fbX); fbX.imageSmoothingEnabled=true; fbX.imageSmoothingQuality='high';
+  fbX.drawImage(src,0,0,W,H,0,0,w,h);
+  x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
+  x.drawImage(fbC,0,0,w,h,0,0,W,H);
+}
+
+/* desenha `layer` sobre `x` apenas onde a máscara tiver alfa */
+function maskDraw(x, layer, paintMask){
+  clearX(tmp2X);
+  tmp2X.drawImage(layer,0,0);
+  tmp2X.globalCompositeOperation='destination-in';
+  paintMask(tmp2X);
+  tmp2X.globalCompositeOperation='source-over';
+  x.drawImage(tmp2C,0,0);
+}
+
+/* campo de deslocamento por células (metamorfopsia) */
+function warp(x, src, disp_){
+  clearX(x);
+  const cw=Math.max(6,Math.round(W/90)), ch=Math.max(6,Math.round(H/60));
+  for(let y=0;y<H;y+=ch) for(let sx=0;sx<W;sx+=cw){
+    const [dx,dy]=disp_(sx+cw/2, y+ch/2);
+    x.drawImage(src, sx-dx, y-dy, cw+1, ch+1, sx, y, cw+1, ch+1);
+  }
+}
+
+/* PRNG determinístico — a mesma "patologia" toda vez */
+function rng(seed){ let s=seed>>>0; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+function rr(x,X,Y,w,h,r){ x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);
+  x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath(); }
+function halo(x,cx,cy,r,a,c){ const g=x.createRadialGradient(cx,cy,0,cx,cy,r);
+  g.addColorStop(0,`rgba(${c},${a})`); g.addColorStop(.35,`rgba(${c},${a*.3})`); g.addColorStop(1,`rgba(${c},0)`);
+  x.fillStyle=g; x.beginPath(); x.arc(cx,cy,r,0,7); x.fill(); }
+
+/* ==========================================================================
+   CENAS
+   ========================================================================== */
+
+function cenaRua(x){
+  const hz=H*.58;
+  let g=x.createLinearGradient(0,0,0,hz);
+  g.addColorStop(0,'#8fb8d8'); g.addColorStop(1,'#d6e2ea');
+  x.fillStyle=g; x.fillRect(0,0,W,hz);
+
+  // prédios
+  const r=rng(7);
+  for(let i=0;i<9;i++){
+    const bw=W*(.07+r()*.07), bx=i*W*.115-W*.02, bh=H*(.16+r()*.28);
+    x.fillStyle=['#b9c3cb','#a7b2bb','#c6ced4','#98a4ad'][i%4];
+    x.fillRect(bx,hz-bh,bw,bh);
+    x.fillStyle='rgba(40,60,80,.30)';
+    for(let a=0;a<5;a++) for(let b=0;b<3;b++)
+      x.fillRect(bx+bw*(.14+b*.28), hz-bh+H*.03+a*H*.045, bw*.16, H*.026);
+  }
+  // fachada de loja com letreiro
+  x.fillStyle='#f2ece0'; x.fillRect(W*.03,hz-H*.20,W*.26,H*.20);
+  x.fillStyle='#0f5c3f'; rr(x,W*.045,hz-H*.185,W*.23,H*.052,6*K); x.fill();
+  x.fillStyle='#fff'; x.textBaseline='middle'; x.textAlign='center';
+  x.font=`700 ${22*K}px -apple-system,Segoe UI,sans-serif`;
+  x.fillText('FARMÁCIA', W*.16, hz-H*.159);
+  x.fillStyle='#7f8c96'; x.fillRect(W*.06,hz-H*.115,W*.09,H*.115);
+
+  // calçada + rua
+  x.fillStyle='#c9c3b8'; x.fillRect(0,hz,W,H*.10);
+  x.fillStyle='#54595e'; x.fillRect(0,hz+H*.10,W,H);
+  x.fillStyle='#e8e2d0';
+  for(let i=0;i<7;i++) x.fillRect(W*(.02+i*.15), hz+H*.24, W*.075, H*.014);
+
+  // ônibus com número de linha
+  const bx=W*.56, by=hz-H*.13, bw=W*.36, bh=H*.29;
+  x.fillStyle='#1f4e79'; rr(x,bx,by,bw,bh,10*K); x.fill();
+  x.fillStyle='#d8e6f0'; rr(x,bx+bw*.05,by+bh*.14,bw*.55,bh*.36,6*K); x.fill();
+  x.fillStyle='#0b1720'; rr(x,bx+bw*.66,by+bh*.06,bw*.28,bh*.20,4*K); x.fill();
+  x.fillStyle='#ffd24d'; x.font=`700 ${26*K}px "Helvetica Neue",Arial,sans-serif`;
+  x.fillText('874-T', bx+bw*.80, by+bh*.16);
+  x.fillStyle='#0b1720';
+  x.beginPath(); x.arc(bx+bw*.20,by+bh,bh*.15,0,7); x.fill();
+  x.beginPath(); x.arc(bx+bw*.82,by+bh,bh*.15,0,7); x.fill();
+
+  // semáforo
+  const tx=W*.475, ty=hz-H*.30;
+  x.fillStyle='#3a4148'; x.fillRect(tx,ty,7*K,H*.42);
+  x.fillStyle='#22282e'; rr(x,tx-11*K,ty-H*.115,29*K,H*.115,5*K); x.fill();
+  const luzes=[['#7a2020',.28],['#7a6a20',.28],['#2fd15f',1]];
+  luzes.forEach((l,i)=>{ x.globalAlpha=l[1]; x.fillStyle=l[0];
+    x.beginPath(); x.arc(tx+3.5*K, ty-H*.098+i*H*.035, 8*K,0,7); x.fill(); x.globalAlpha=1; });
+
+  // pedestres (um deles bem na periferia — alvo do módulo de glaucoma)
+  const pess=[[W*.055,1.0,'#c25b4a'],[W*.335,.86,'#3f6f8f'],[W*.955,1.05,'#6a5f8c']];
+  for(const [px,s,cor] of pess){
+    const ph=H*.19*s, py=hz+H*.085;
+    x.fillStyle=cor; rr(x,px-ph*.17,py-ph*.72,ph*.34,ph*.48,ph*.09); x.fill();
+    x.fillStyle='#3b3f45'; x.fillRect(px-ph*.14,py-ph*.26,ph*.11,ph*.30);
+    x.fillRect(px+ph*.03,py-ph*.26,ph*.11,ph*.30);
+    x.fillStyle='#e0b48c'; x.beginPath(); x.arc(px,py-ph*.83,ph*.12,0,7); x.fill();
+    x.fillStyle='#2e2a26'; x.beginPath(); x.arc(px,py-ph*.88,ph*.12,Math.PI,0); x.fill();
+  }
+}
+
+function cenaNoite(x){
+  const hz=H*.46;
+  let g=x.createLinearGradient(0,0,0,hz);
+  g.addColorStop(0,'#050a14'); g.addColorStop(1,'#12203a');
+  x.fillStyle=g; x.fillRect(0,0,W,hz);
+  x.fillStyle='#0b0d10'; x.fillRect(0,hz,W,H-hz);
+  x.fillStyle='#191d22';
+  x.beginPath(); x.moveTo(W*.40,hz); x.lineTo(W*.60,hz); x.lineTo(W*1.22,H); x.lineTo(W*-.22,H); x.closePath(); x.fill();
+  x.fillStyle='#e8e4d8';
+  for(let i=0;i<9;i++){ const t=i/9,t2=(i+.45)/9;
+    const y1=hz+(H-hz)*t*t, y2=hz+(H-hz)*t2*t2, w1=3*K*(1+t*9), w2=3*K*(1+t2*9);
+    x.beginPath(); x.moveTo(W/2-w1,y1); x.lineTo(W/2+w1,y1); x.lineTo(W/2+w2,y2); x.lineTo(W/2-w2,y2); x.closePath(); x.fill(); }
+  x.strokeStyle='rgba(232,228,216,.7)'; x.lineWidth=2*K;
+  x.beginPath(); x.moveTo(W*.405,hz); x.lineTo(W*-.20,H); x.stroke();
+  x.beginPath(); x.moveTo(W*.595,hz); x.lineTo(W*1.20,H); x.stroke();
+
+  const sw=310*K, sh=132*K, sx=W*.70, sy=hz-sh-42*K;
+  x.fillStyle='#3a3f45'; x.fillRect(sx+sw*.42,sy+sh,9*K,180*K);
+  rr(x,sx,sy,sw,sh,12*K); x.fillStyle='#0f5c3f'; x.fill();
+  x.strokeStyle='#eef3f0'; x.lineWidth=4*K; rr(x,sx+9*K,sy+9*K,sw-18*K,sh-18*K,7*K); x.stroke();
+  x.fillStyle='#f4f8f6'; x.textBaseline='middle'; x.textAlign='left';
+  x.font=`700 ${32*K}px -apple-system,Segoe UI,sans-serif`; x.fillText('Av. Paulista', sx+26*K, sy+sh*.36);
+  x.font=`600 ${24*K}px -apple-system,Segoe UI,sans-serif`; x.fillText('saída 2 km', sx+26*K, sy+sh*.70);
+
+  for(const [px,ph] of [[W*.13,.62],[W*.30,.42],[W*.86,.55]]){
+    const ly=hz-H*ph*.55;
+    x.strokeStyle='#22272d'; x.lineWidth=6*K;
+    x.beginPath(); x.moveTo(px,hz); x.lineTo(px,ly); x.stroke();
+    x.fillStyle='#fff3d0'; x.beginPath(); x.arc(px,ly,9*K,0,7); x.fill();
+    halo(x,px,ly,46*K,.34,'255,238,190');
+    LUZES.push([px,ly,1.3,'255,238,190']);
+  }
+  for(const [cx,cy,s] of [[W*.30,hz+26*K,1],[W*.355,hz+58*K,1.5],[W*.245,hz+120*K,2.4]])
+    for(const dx of [-26*K*s,26*K*s]){
+      x.fillStyle='#fff'; x.beginPath(); x.arc(cx+dx,cy,7*K*s,0,7); x.fill();
+      halo(x,cx+dx,cy,34*K*s,.42,'255,252,235');
+      LUZES.push([cx+dx,cy,s,'255,252,235']);
+    }
+  for(const [cx,cy,s] of [[W*.66,hz+90*K,2],[W*.72,hz+200*K,3.2]])
+    for(const dx of [-30*K*s,30*K*s]){
+      x.fillStyle='#ff3b30'; x.beginPath(); x.arc(cx+dx,cy,6*K*s,0,7); x.fill();
+      halo(x,cx+dx,cy,26*K*s,.34,'255,70,60');
+      LUZES.push([cx+dx,cy,s*.7,'255,90,70']);
+    }
+}
+const LUZES=[];   // fontes de luz da cena atual, para glare de catarata
+
+function cenaLeitura(x){
+  x.fillStyle='#241f1a'; x.fillRect(0,0,W,H);
+  const px=W*.05,py=H*.04,pw=W*.90,ph=H*.92;
+  x.fillStyle='#f6f1e6'; rr(x,px,py,pw,ph,5*K); x.fill();
+  x.textAlign='left'; x.textBaseline='top';
+  const mx=px+58*K;
+  x.fillStyle='#1a1712'; x.font=`700 ${42*K}px Georgia,serif`;
+  x.fillText('A luz e o olho', mx, py+44*K);
+  x.fillStyle='#8a8175'; x.font=`400 ${19*K}px Georgia,serif`;
+  x.fillText('CAPÍTULO TRÊS · PÁGINA 47', mx, py+104*K);
+  x.fillRect(mx,py+134*K,pw-116*K,1.6*K);
+  const fs=20*K, lh=fs*1.62, maxW=pw-116*K;
+  x.font=`400 ${fs}px Georgia,serif`; x.fillStyle='#231f1a';
+  const texto='A retina não registra a cena inteira com a mesma qualidade. O centro, a mácula, resolve o detalhe fino e a leitura; a periferia detecta movimento e organiza o espaço em volta. Quando uma dessas regiões adoece, a queixa muda de natureza. Perder o centro é perder o rosto e a palavra. Perder a periferia é esbarrar no batente e não ver o carro que vem do lado. O paciente costuma descrever o segundo caso tarde demais, porque o cérebro preenche o que falta.';
+  let line='',y=py+174*K;
+  for(const w of texto.split(' ')){ const t=line?line+' '+w:w;
+    if(x.measureText(t).width>maxW){ x.fillText(line,mx,y); line=w; y+=lh; } else line=t; }
+  x.fillText(line,mx,y);
+  x.font=`400 ${14*K}px Georgia,serif`; x.fillStyle='#6f665a';
+  x.fillText('Nota de rodapé em corpo menor.', mx, y+lh*1.6);
+}
+
+function cenaRosto(x){
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#c8d8dd'); g.addColorStop(1,'#9fb3ba');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  const cx=W*.5, cy=H*.44, R=Math.min(W,H)*.24;
+  // ombros
+  x.fillStyle='#4d6f7a'; x.beginPath();
+  x.ellipse(cx,H*1.12,R*2.5,R*1.7,0,0,7); x.fill();
+  x.fillStyle='#e9f0f2'; x.beginPath(); x.ellipse(cx,H*1.14,R*.7,R*1.2,0,0,7); x.fill();
+  // pescoço + cabeça
+  x.fillStyle='#d9a982'; x.fillRect(cx-R*.28,cy+R*.6,R*.56,R*.7);
+  x.fillStyle='#e8bb92'; x.beginPath(); x.ellipse(cx,cy,R*.80,R*1.02,0,0,7); x.fill();
+  // cabelo
+  x.fillStyle='#4a3b32'; x.beginPath();
+  x.ellipse(cx,cy-R*.30,R*.86,R*.78,0,Math.PI,0); x.fill();
+  x.beginPath(); x.ellipse(cx-R*.80,cy-R*.05,R*.16,R*.42,0,0,7); x.fill();
+  x.beginPath(); x.ellipse(cx+R*.80,cy-R*.05,R*.16,R*.42,0,0,7); x.fill();
+  // olhos
+  for(const s of [-1,1]){
+    const ex=cx+s*R*.32, ey=cy-R*.06;
+    x.fillStyle='#fbfbf8'; x.beginPath(); x.ellipse(ex,ey,R*.19,R*.105,0,0,7); x.fill();
+    x.fillStyle='#4a6b57'; x.beginPath(); x.arc(ex,ey,R*.082,0,7); x.fill();
+    x.fillStyle='#14181c'; x.beginPath(); x.arc(ex,ey,R*.036,0,7); x.fill();
+    x.fillStyle='#fff'; x.beginPath(); x.arc(ex-R*.03,ey-R*.03,R*.016,0,7); x.fill();
+    x.strokeStyle='#4a3b32'; x.lineWidth=R*.045; x.lineCap='round';
+    x.beginPath(); x.arc(ex,ey-R*.02,R*.21,Math.PI*1.12,Math.PI*1.88); x.stroke();
+  }
+  // nariz, boca
+  x.strokeStyle='#c4906b'; x.lineWidth=R*.035;
+  x.beginPath(); x.moveTo(cx,cy-R*.02); x.lineTo(cx-R*.07,cy+R*.22); x.lineTo(cx+R*.03,cy+R*.24); x.stroke();
+  x.strokeStyle='#a4544c'; x.lineWidth=R*.055;
+  x.beginPath(); x.arc(cx,cy+R*.30,R*.26,Math.PI*.22,Math.PI*.78); x.stroke();
+
+  x.fillStyle='rgba(10,20,26,.55)'; x.textAlign='center'; x.textBaseline='alphabetic';
+  x.font=`600 ${17*K}px -apple-system,Segoe UI,sans-serif`;
+  x.fillText('Rosto a 1 metro — reconhecer expressão e olhar', cx, H*.965);
+}
+
+function cenaAmsler(x){
+  x.fillStyle='#f2f4f6'; x.fillRect(0,0,W,H);
+  const S=Math.min(W,H)*.80, gx=(W-S)/2, gy=(H-S)/2, n=20, st=S/n;
+  x.fillStyle='#fff'; x.fillRect(gx,gy,S,S);
+  x.strokeStyle='#2a3038'; x.lineWidth=Math.max(1,1.2*K);
+  x.beginPath();
+  for(let i=0;i<=n;i++){ x.moveTo(gx+i*st,gy); x.lineTo(gx+i*st,gy+S); x.moveTo(gx,gy+i*st); x.lineTo(gx+S,gy+i*st); }
+  x.stroke();
+  x.strokeStyle='#0f1216'; x.lineWidth=Math.max(1.5,2.2*K); x.strokeRect(gx,gy,S,S);
+  x.fillStyle='#0f1216'; x.beginPath(); x.arc(W/2,H/2,4.5*K,0,7); x.fill();
+  x.fillStyle='#6b7681'; x.textAlign='center'; x.textBaseline='alphabetic';
+  x.font=`500 ${15*K}px -apple-system,Segoe UI,sans-serif`;
+  x.fillText('Grade de Amsler — fixe o ponto central', W/2, gy+S+34*K);
+}
+
+/* --- cenas desenhadas de reserva, indexadas pelo campo `reserva` do manifesto --- */
+const RESERVAS={ rua:cenaRua, rosto:cenaRosto, leitura:cenaLeitura, celular:cenaLeitura,
+                 noite:cenaNoite, quadro:cenaRua, optotipos:cenaRua, amsler:cenaAmsler };
+
+/* Cenas: as do manifesto (mesmas fotos do módulo 01) + a grade de Amsler, que
+   continua desenhada porque a geometria dela precisa ser exata.               */
+const SCENES=[
+  ...(window.CENAS_OLHAR||[])
+     .filter(c=>c.arquivo)                       // optotipos não serve aqui
+     .map(c=>({...c, img:null, estado:'carregando'})),
+  {id:'amsler', nome:'Grade de Amsler', sub:'metamorfopsia e escotoma · desenhada',
+   arquivo:null, reserva:'amsler', estado:'desenhada'}
+];
+
+function carregarImagens(){
+  for(const c of SCENES){
+    if(!c.arquivo) continue;
+    const base=c.arquivo.replace(/\.(jpe?g|png|webp)$/i,'');
+    const cands=[...new Set([c.arquivo, base+'.jpg', base+'.jpeg', base+'.png', base+'.webp',
+                             c.arquivo+'.png', c.arquivo+'.jpg'])];
+    (function tenta(i){
+      if(i>=cands.length){ c.estado='ausente'; buildScenes(); return; }
+      const im=new Image();
+      im.onload =()=>{ c.img=im; c.nw=im.naturalWidth; c.nh=im.naturalHeight;
+                       c.estado='foto'; c.usado=cands[i]; buildScenes();
+                       if(S.scene===c) render(); };
+      im.onerror=()=>tenta(i+1);
+      im.src='cenas/'+cands[i];
+    })(0);
+  }
+}
+
+/* enquadramento "contain": a foto inteira sempre cabe, nada é cortado */
+function geo(sc){
+  if(!sc.img) return {ox:0, oy:0, w:W, h:H};
+  const k=Math.min(W/sc.nw, H/sc.nh), w=sc.nw*k, h=sc.nh*k;
+  return {ox:(W-w)/2, oy:(H-h)/2, w, h};
+}
+
+function desenharCena(x){
+  const sc=S.scene;
+  clearX(x); LUZES.length=0;
+  if(sc.img){
+    const {ox,oy,w,h}=geo(sc);
+    if(ox>1||oy>1){                       // leito borrado no lugar de tarja preta
+      const kc=Math.max(W/sc.nw,H/sc.nh), cw=sc.nw*kc, ch=sc.nh*kc;
+      x.save(); if(supportsFilter) x.filter=`blur(${20*K}px)`;
+      x.drawImage(sc.img,(W-cw)/2,(H-ch)/2,cw,ch); x.restore();
+      x.fillStyle='rgba(5,8,11,.58)'; x.fillRect(0,0,W,H);
+    }
+    x.drawImage(sc.img,ox,oy,w,h);
+  } else {
+    (RESERVAS[sc.reserva]||cenaRua)(x);
+  }
+}
+
+/* Halos e starbursts.
+   Nas cenas desenhadas as fontes de luz são conhecidas (LUZES). Numa foto não
+   são — e ler os pixels quebraria com imagem local. A saída é isolar o alto-luz
+   por composição: multiplicar a imagem por ela mesma realça só o que é claro. */
+function bloom(x, forca, raio){
+  if(forca<=.01) return;
+  clearX(poolX);
+  poolX.drawImage(x.canvas,0,0);
+  poolX.globalCompositeOperation='multiply';
+  poolX.drawImage(x.canvas,0,0); poolX.drawImage(x.canvas,0,0);
+  poolX.globalCompositeOperation='source-over';
+  x.save();
+  x.globalCompositeOperation='lighter';
+  x.globalAlpha=Math.min(1,forca);
+  if(supportsFilter) x.filter=`blur(${raio}px)`;
+  x.drawImage(poolC,0,0);
+  x.restore();
+}
+
+/* aplica o realce de luz na cena atual, desenhada ou foto */
+function realceLuz(x, fn, forca, raio){
+  if(LUZES.length){ x.globalCompositeOperation='lighter';
+                    for(const l of LUZES) fn(l);
+                    x.globalCompositeOperation='source-over'; }
+  else bloom(x, forca, raio);
+}
+
+/* ==========================================================================
+   PATOLOGIAS
+   Cada `apply(x, src, s, t, o)` escreve o resultado em `x` a partir de `src`.
+   s = severidade 0..1 · t = tempo (s) · o = {fill, anim}
+   ========================================================================== */
+
+/* --- CATARATA: perda de contraste, amarelecimento, espalhamento, glare --- */
+function pCatarata(x,src,s,t,o){
+  blurTo(x, src, s*7*K);
+  // espalhamento intraocular: véu luminoso que come o contraste
+  x.globalCompositeOperation='lighter';
+  x.fillStyle=`rgba(214,205,168,${.05+s*.30})`; x.fillRect(0,0,W,H);
+  x.globalCompositeOperation='source-over';
+  // amarelecimento do cristalino
+  x.globalCompositeOperation='multiply';
+  x.fillStyle=`rgba(228,186,96,${s*.42})`; x.fillRect(0,0,W,H);
+  x.globalCompositeOperation='source-over';
+  // dessaturação leve
+  x.fillStyle=`rgba(150,145,130,${s*.10})`; x.fillRect(0,0,W,H);
+  // halos exagerados nas fontes de luz
+  realceLuz(x, ([lx,ly,ls,c])=>{
+    halo(x,lx,ly,(30+s*190)*K*ls, .10+s*.55, c);
+    if(s>.3){                                   // starburst
+      x.strokeStyle=`rgba(${c},${(s-.3)*.5})`; x.lineWidth=1.6*K;
+      for(let a=0;a<10;a++){ const A=a*Math.PI/5;
+        x.beginPath(); x.moveTo(lx,ly);
+        x.lineTo(lx+Math.cos(A)*(70+s*220)*K*ls, ly+Math.sin(A)*(70+s*220)*K*ls); x.stroke(); }
+    }
+  }, .25+s*.85, (14+s*90)*K);
+}
+
+/* --- GLAUCOMA: perda periférica concêntrica, com degrau nasal superior --- */
+function pGlaucoma(x,src,s,t,o){
+  clearX(x); x.drawImage(src,0,0);
+  if(s<.02) return;
+  const R=Math.hypot(W,H)/2;
+  const raio = R*(1.02 - s*0.80);         // ilha central remanescente
+  const soft = R*(0.40*(1-s*.55));        // transição — nunca borda dura
+  const perif = tmpC;
+  if(o.fill){
+    // percepção real: periferia perde detalhe e cor, sem virar preto
+    blurTo(tmpX, src, (6+s*26)*K);
+    tmpX.fillStyle=`rgba(126,126,126,${.30+s*.42})`; tmpX.fillRect(0,0,W,H);
+  } else {
+    // modo didático: escurecimento
+    blurTo(tmpX, src, 3*K);
+    tmpX.fillStyle=`rgba(4,6,9,${.55+s*.44})`; tmpX.fillRect(0,0,W,H);
+  }
+  maskDraw(x, perif, m=>{
+    const g=m.createRadialGradient(W/2,H/2,Math.max(0,raio-soft),W/2,H/2,raio+soft*.3);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.55,'rgba(0,0,0,.55)'); g.addColorStop(1,'rgba(0,0,0,1)');
+    m.fillStyle=g; m.fillRect(0,0,W,H);
+  });
+  // escotoma arqueado de Bjerrum (nasal superior) — assinatura do glaucoma
+  if(s>.18){
+    const a=(s-.18)/.82;
+    maskDraw(x, perif, m=>{
+      m.save(); m.translate(W/2,H/2); m.filter=supportsFilter?`blur(${22*K}px)`:'none';
+      m.fillStyle='rgba(0,0,0,'+(0.55+a*0.45)+')';
+      m.beginPath();
+      m.arc(0,0, R*(0.16+a*0.10), Math.PI*1.06, Math.PI*1.60);
+      m.arc(0,0, R*(0.40+a*0.16), Math.PI*1.60, Math.PI*1.06, true);
+      m.closePath(); m.fill(); m.restore();
+    });
+  }
+}
+
+/* --- DMRI: escotoma central + metamorfopsia ao redor --- */
+function pDmri(x,src,s,t,o){
+  if(s<.02){ clearX(x); x.drawImage(src,0,0); return; }   // evita o warp desnecessário
+  const R=Math.min(W,H)*.5;
+  const amp=s*14*K, zona=R*(.30+s*.32);
+  // 1. distorção das linhas em volta da mácula
+  warp(tmpX, src, (px,py)=>{
+    const dx=px-W/2, dy=py-H/2, r=Math.hypot(dx,dy);
+    const f=Math.exp(-Math.pow(r/(zona*1.5),2))*(1-Math.exp(-Math.pow(r/(zona*.35),2)));
+    return [ amp*f*Math.sin(py/(28*K)), amp*f*Math.sin(px/(24*K)) ];
+  });
+  clearX(x); x.drawImage(tmpC,0,0);
+  if(s<.02) return;
+  // 2. borrão e depois vazio no centro
+  const rc=R*(.10+s*.30);
+  blurTo(poolX, tmpC, (4+s*30)*K);
+  maskDraw(x, poolC, m=>{
+    const g=m.createRadialGradient(W/2,H/2,0,W/2,H/2,rc*1.9);
+    g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(.55,'rgba(0,0,0,.8)'); g.addColorStop(1,'rgba(0,0,0,0)');
+    m.fillStyle=g; m.fillRect(0,0,W,H);
+  });
+  const g=x.createRadialGradient(W/2,H/2,0,W/2,H/2,rc);
+  const col = o.fill ? '150,148,142' : '18,18,20';
+  g.addColorStop(0,`rgba(${col},${.35+s*.62})`);
+  g.addColorStop(.62,`rgba(${col},${.25+s*.50})`);
+  g.addColorStop(1,`rgba(${col},0)`);
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+}
+
+/* --- RETINOPATIA DIABÉTICA: hemorragias dispersas + edema macular --- */
+function pRetinopatia(x,src,s,t,o){
+  clearX(x); x.drawImage(src,0,0);
+  if(s<.02) return;
+  // edema macular: borramento central
+  blurTo(poolX, src, (2+s*22)*K);
+  const rc=Math.min(W,H)*(.16+s*.20);
+  maskDraw(x, poolC, m=>{ const g=m.createRadialGradient(W/2,H/2,0,W/2,H/2,rc);
+    g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(1,'rgba(0,0,0,0)'); m.fillStyle=g; m.fillRect(0,0,W,H); });
+  // hemorragias e exsudatos
+  const r=rng(2024); const n=Math.round(s*34);
+  x.save(); if(supportsFilter) x.filter=`blur(${3*K}px)`;
+  for(let i=0;i<n;i++){
+    const px=r()*W, py=r()*H, rad=(6+r()*34)*K*(0.5+s);
+    const dark=r()>.28;
+    x.fillStyle = dark ? `rgba(24,14,12,${.45+r()*.40})` : `rgba(214,190,120,${.30+r()*.30})`;
+    x.beginPath();
+    x.ellipse(px,py,rad*(0.6+r()*0.9),rad*(0.5+r()*0.8),r()*3.14,0,7); x.fill();
+  }
+  x.restore();
+  // véu geral
+  x.fillStyle=`rgba(90,80,70,${s*.14})`; x.fillRect(0,0,W,H);
+}
+
+/* --- CERATOCONE: imagens fantasma em leque + halos --- */
+function pCeratocone(x,src,s,t,o){
+  clearX(x);
+  blurTo(poolX, src, s*3*K);
+  const base=poolC;
+  x.drawImage(base,0,0);
+  const n=7, span=s*46*K;
+  x.globalCompositeOperation='lighter';
+  for(let i=1;i<=n;i++){
+    const f=i/n, ang=-0.55+f*0.42;
+    x.globalAlpha=s*0.30*(1-f*0.55);
+    x.drawImage(base, Math.cos(ang)*span*f, Math.sin(ang)*span*f);
+  }
+  x.globalAlpha=1; x.globalCompositeOperation='source-over';
+  x.fillStyle=`rgba(200,200,205,${s*.12})`; x.fillRect(0,0,W,H);
+  realceLuz(x, ([lx,ly,ls,c])=>{
+    for(let i=0;i<7;i++){ const a=-0.55+i/6*0.42;
+      halo(x, lx+Math.cos(a)*span*(i/6), ly+Math.sin(a)*span*(i/6), (26+s*90)*K*ls, s*.30, c); }
+  }, s*.55, (10+s*46)*K);
+}
+
+/* --- MOSCAS VOLANTES --- */
+const FLOATERS = (()=>{ const r=rng(99), a=[];
+  for(let i=0;i<16;i++) a.push({x:r(),y:r(),sc:.4+r()*1.5,rot:r()*6.28,ph:r()*6.28,tipo:r(),sp:.3+r()*.7});
+  return a; })();
+function pFloaters(x,src,s,t,o){
+  clearX(x); x.drawImage(src,0,0);
+  if(s<.02) return;
+  x.save(); if(supportsFilter) x.filter=`blur(${(2.5+ (1-s)*3)*K}px)`;
+  for(const f of FLOATERS.slice(0, Math.max(1,Math.round(s*16)))){
+    const drift = o.anim ? Math.sin(t*f.sp+f.ph)*0.035 : 0;
+    const drift2= o.anim ? Math.cos(t*f.sp*.7+f.ph)*0.022 : 0;
+    const px=(f.x+drift)*W, py=(f.y+drift2+ (o.anim?((t*0.012*f.sp)%1)*0.06:0))*H;
+    const sc=f.sc*(14+s*30)*K;
+    x.save(); x.translate(px,py); x.rotate(f.rot+ (o.anim?Math.sin(t*.4+f.ph)*.3:0));
+    x.strokeStyle=`rgba(38,36,40,${.20+s*.42})`;
+    x.fillStyle  =`rgba(38,36,40,${.16+s*.34})`;
+    if(f.tipo<.45){ // filamento
+      x.lineWidth=sc*.16; x.lineCap='round';
+      x.beginPath(); x.moveTo(-sc,0);
+      x.bezierCurveTo(-sc*.3,-sc*.8, sc*.3,sc*.8, sc,0); x.stroke();
+    } else if(f.tipo<.78){ // anel de Weiss
+      x.lineWidth=sc*.14;
+      x.beginPath(); x.ellipse(0,0,sc*.6,sc*.44,0,0,7); x.stroke();
+    } else { // aglomerado
+      for(let k=0;k<4;k++){ x.beginPath();
+        x.ellipse(Math.cos(k*1.7)*sc*.35, Math.sin(k*1.9)*sc*.3, sc*.20, sc*.13, k, 0, 7); x.fill(); }
+    }
+    x.restore();
+  }
+  x.restore();
+}
+
+/* --- OLHO SECO: nitidez que degrada entre piscadas --- */
+function pOlhoSeco(x,src,s,t,o){
+  const ciclo=5.2;
+  const fase = o.anim ? ((t%ciclo)/ciclo) : 0.72;
+  const deg = Math.pow(fase,1.35);                 // filme lacrimal rompendo
+  const b = s*deg*9*K;
+  blurTo(x, src, b);
+  x.fillStyle=`rgba(235,240,246,${s*deg*.16})`; x.fillRect(0,0,W,H);
+  // estrias do menisco
+  x.save(); if(supportsFilter) x.filter=`blur(${6*K}px)`;
+  x.globalCompositeOperation='lighter';
+  const r=rng(31);
+  for(let i=0;i<7;i++){
+    x.fillStyle=`rgba(255,255,255,${s*deg*.11})`;
+    x.fillRect(0, r()*H, W, (3+r()*13)*K);
+  }
+  x.restore(); x.globalCompositeOperation='source-over';
+  realceLuz(x, ([lx,ly,ls,c])=>halo(x,lx,ly,(24+s*deg*120)*K*ls, s*deg*.4, c),
+            s*deg*.6, (10+s*deg*60)*K);
+}
+
+/* --- DESCOLAMENTO DE RETINA: cortina + fotopsias --- */
+function pDescolamento(x,src,s,t,o){
+  clearX(x); x.drawImage(src,0,0);
+  if(s<.02) return;
+  const borda = H*(1.06 - s*0.92);   // cortina descendo do superior
+  if(o.fill){ blurTo(poolX, src, 22*K); poolX.fillStyle='rgba(110,110,112,.72)'; poolX.fillRect(0,0,W,H); }
+  else      { blurTo(poolX, src, 4*K);  poolX.fillStyle='rgba(3,4,6,.95)';       poolX.fillRect(0,0,W,H); }
+  maskDraw(x, poolC, m=>{
+    m.save(); if(supportsFilter) m.filter=`blur(${16*K}px)`;
+    m.fillStyle='rgba(0,0,0,1)'; m.beginPath(); m.moveTo(0,0); m.lineTo(W,0);
+    for(let i=10;i>=0;i--){ const px=W*i/10;
+      m.lineTo(px, borda + Math.sin(i*1.7+2.1)*H*.045 + Math.sin(i*0.6)*H*.03); }
+    m.closePath(); m.fill(); m.restore();
+  });
+  // fotopsias na borda temporal
+  if(o.anim){
+    const p=(t*1.6)%3.4;
+    if(p<0.34){ const a=(1-p/0.34)*s;
+      x.globalCompositeOperation='lighter';
+      const g=x.createLinearGradient(W,0,W*0.55,0);
+      g.addColorStop(0,`rgba(255,250,225,${a*.55})`); g.addColorStop(1,'rgba(255,250,225,0)');
+      x.fillStyle=g; x.beginPath();
+      x.moveTo(W,H*.10); x.quadraticCurveTo(W*.62,H*.38,W,H*.72); x.closePath(); x.fill();
+      x.globalCompositeOperation='source-over';
+    }
+  }
+}
+
+const PATHOS=[
+  { id:'catarata', nome:'Catarata', sub:'opacidade do cristalino', anim:false, apply:pCatarata,
+    cap:['Catarata','As cores desbotam, o contraste cai e as luzes espalham. Não é sujeira no óculos — é o cristalino ficando opaco.'],
+    o:'Opacificação progressiva do cristalino. O feixe de luz sofre espalhamento antes de chegar à retina.',
+    q:'A visão não some — ela perde contraste, amarela e ganha ofuscamento. Trocar o grau melhora pouco; o incômodo com farol e sol melhora nada.',
+    f:'“Está tudo mais escuro e amarelado. À noite o farol do outro carro me cega.”' },
+
+  { id:'glaucoma', nome:'Glaucoma', sub:'perda do campo periférico', anim:false, apply:pGlaucoma,
+    cap:['Glaucoma','A visão central continua ótima — o que some é a lateral. E some sem escurecer, por isso passa despercebido por anos.'],
+    o:'Lesão progressiva do nervo óptico. A perda começa na região arqueada e avança de fora para dentro.',
+    q:'O campo perdido não aparece como mancha preta: o cérebro preenche. O paciente esbarra em objetos e não vê o carro que vem do lado — mas lê a menor linha da tabela.',
+    f:'“Minha visão está ótima, doutor. Só ando esbarrando nas coisas.”' },
+
+  { id:'dmri', nome:'DMRI', sub:'escotoma central e distorção', anim:false, apply:pDmri,
+    cap:['Degeneração macular','O centro do olhar falha. As linhas retas entortam e o rosto à frente some — mas a visão de canto permanece.'],
+    o:'Comprometimento da mácula, a região que resolve o detalhe fino. A periferia é poupada.',
+    q:'Metamorfopsia antes do escotoma: as linhas da grade de Amsler entortam. Depois vem a falha central que apaga rostos e palavras.',
+    f:'“Vejo a pessoa entrar na sala, mas não consigo ver o rosto dela.”' },
+
+  { id:'retinopatia', nome:'Retinopatia diabética', sub:'hemorragias e edema', anim:false, apply:pRetinopatia,
+    cap:['Retinopatia diabética','Manchas que flutuam, áreas apagadas e um borrão central que muda conforme a glicemia.'],
+    o:'Microangiopatia retiniana. Vazamento, hemorragia e edema macular em focos dispersos.',
+    q:'A visão fica irregular, não uniformemente borrada. O edema macular embaça o centro; as hemorragias criam falhas espalhadas.',
+    f:'“Tem dias que enxergo bem e dias que não. Apareceram manchas que se mexem.”' },
+
+  { id:'ceratocone', nome:'Ceratocone', sub:'imagem fantasma e halos', anim:false, apply:pCeratocone,
+    cap:['Ceratocone','A córnea deforma e a imagem se repete em leque. Não é vista dupla dos dois olhos — acontece com um olho só.'],
+    o:'Afinamento e protrusão da córnea, gerando astigmatismo irregular e aberrações de alta ordem.',
+    q:'Diplopia monocular e poliopia: a imagem se multiplica em leque. O grau do óculos muda a cada consulta e nunca chega a satisfazer.',
+    f:'“Troquei o óculos três vezes esse ano e nenhum resolve. Vejo sombra na letra.”' },
+
+  { id:'floaters', nome:'Moscas volantes', sub:'opacidades vítreas', anim:true, apply:pFloaters,
+    cap:['Moscas volantes','Sombras que flutuam no campo e acompanham o movimento do olho com um atraso.'],
+    o:'Condensações do vítreo projetando sombra sobre a retina.',
+    q:'Costumam ser benignas, mas surgimento súbito e em quantidade — sobretudo com flashes — exige mapeamento de retina no mesmo dia.',
+    f:'“Quando olho pro céu ou pra parede branca, vejo fiapos que fogem quando tento focar.”' },
+
+  { id:'seco', nome:'Olho seco', sub:'instabilidade do filme lacrimal', anim:true, apply:pOlhoSeco,
+    cap:['Olho seco','A nitidez vai e volta. Logo após piscar melhora; segundos depois embaça de novo.'],
+    o:'Ruptura precoce do filme lacrimal, degradando a primeira superfície refrativa do olho.',
+    q:'Queixa flutuante ao longo do dia, pior em tela e ar-condicionado. A acuidade medida na sala pode estar normal e a visão funcional, não.',
+    f:'“Meu olho cansa no computador. Pisco e melhora, aí embaça de novo.”' },
+
+  { id:'descolamento', nome:'Descolamento de retina', sub:'cortina e fotopsias', anim:true, apply:pDescolamento,
+    cap:['Descolamento de retina','Uma cortina que avança sobre o campo, precedida de flashes de luz. É urgência.'],
+    o:'Separação da retina neurossensorial do epitélio pigmentar. A área descolada deixa de transmitir sinal.',
+    q:'Fotopsias e chuva de moscas volantes precedem a cortina. Perda de campo em setor, indolor e progressiva em horas a dias.',
+    f:'“Apareceu uma sombra escura de cima pra baixo e não sai.”' },
+];
+
+/* ==========================================================================
+   ESTADO · RENDER · UI
+   ========================================================================== */
+const S={ scene:SCENES[0], patho:PATHOS[0], sev:0.55, mode:'split', split:0.5, fill:true, cap:true, anim:true };
+let t0=performance.now(), raf=null;
+
+function layout(){
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  const r=wrap.getBoundingClientRect();
+  W=Math.max(2,Math.round(r.width*DPR)); H=Math.max(2,Math.round(r.height*DPR));
+  K=W/1400;
+  for(const c of ALL){ c.width=W; c.height=H; }
+  render();
+}
+
+function render(){
+  if(!W) return;
+  const t=(performance.now()-t0)/1000;
+
+  desenharCena(sharpX);
+
+  clearX(workX);
+  S.patho.apply(workX, sharpC, S.sev, t, {fill:S.fill, anim:S.anim});
+
+  clearX(dctx);
+  const cut = S.mode==='split' ? W*S.split : (S.mode==='patho' ? W : 0);
+  dctx.drawImage(sharpC,0,0);
+  if(cut>0){ dctx.save(); dctx.beginPath(); dctx.rect(0,0,cut,H); dctx.clip();
+             dctx.drawImage(workC,0,0); dctx.restore(); }
+
+  const split=S.mode==='split';
+  handle.classList.toggle('hide',!split);
+  if(split) handle.style.left=(S.split*100)+'%';
+  tagL.style.opacity = S.mode==='normal'?0:1;
+  tagR.style.opacity = S.mode==='patho' ?0:1;
+}
+
+function loop(){ render(); raf=requestAnimationFrame(loop); }
+function syncLoop(){
+  const precisa = S.anim && S.patho.anim && S.sev>0.02;
+  if(precisa && !raf){ raf=requestAnimationFrame(loop); }
+  if(!precisa && raf){ cancelAnimationFrame(raf); raf=null; render(); }
+}
+
+function refreshUI(){
+  document.getElementById('sevOut').textContent=Math.round(S.sev*100)+'%';
+  document.getElementById('stageTitle').firstChild.nodeValue=S.patho.nome;
+  document.getElementById('stageMeta').textContent=`${S.scene.nome} · severidade ${Math.round(S.sev*100)}%`;
+  const p=S.patho;
+  document.getElementById('expl').innerHTML=
+    `<h3>${p.nome}</h3><p>${p.o}</p><p>${p.q}</p><p class="queixa">${p.f}</p>`;
+  capEl.querySelector('b').textContent=p.cap[0];
+  capEl.querySelector('span').textContent=p.cap[1];
+  capEl.classList.toggle('off', !S.cap || S.sev<0.02);
+}
+
+/* listas */
+function buildScenes(){
+  const el=document.getElementById('scenes'); el.innerHTML='';
+  for(const s of SCENES){
+    const b=document.createElement('button');
+    b.className='item'+(s===S.scene?' on':'');
+    const res=s.arquivo && s.estado!=='foto';
+    b.innerHTML=`<span class="dot${res?' res':''}"></span><span><b>${s.nome}</b><small>${
+      s.estado==='ausente'?'foto ausente — usando reserva':s.sub}</small></span>`;
+    b.onclick=()=>{ S.scene=s; buildScenes(); refreshUI(); syncLoop(); render(); };
+    el.appendChild(b);
+  }
+}
+function buildList(el, arr, key, after){
+  arr.forEach((it,i)=>{
+    const b=document.createElement('button');
+    b.className='item'+(i===0?' on':'');
+    b.innerHTML=`<span class="dot"></span><span><b>${it.nome}</b><small>${it.sub}</small></span>`;
+    b.onclick=()=>{ S[key]=it; [...el.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+                    after&&after(); refreshUI(); syncLoop(); render(); };
+    el.appendChild(b);
+  });
+}
+buildList(document.getElementById('pathos'), PATHOS, 'patho');
+buildScenes();
+
+const sev=document.getElementById('sev');
+sev.addEventListener('input',()=>{ S.sev=sev.value/100;
+  document.querySelectorAll('#presets button').forEach(b=>b.classList.remove('on'));
+  refreshUI(); syncLoop(); render(); });
+
+document.getElementById('presets').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  S.sev=+b.dataset.v/100; sev.value=b.dataset.v;
+  document.querySelectorAll('#presets button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); refreshUI(); syncLoop(); render();
+});
+
+document.getElementById('modeseg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  S.mode=b.dataset.mode;
+  document.querySelectorAll('#modeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); render();
+});
+
+for(const [id,key] of [['fill','fill'],['cap','cap'],['anim','anim']]){
+  const el=document.getElementById(id);
+  el.addEventListener('change',()=>{ S[key]=el.checked; refreshUI(); syncLoop(); render(); });
+}
+
+document.getElementById('toggleRail').onclick=()=>{
+  document.getElementById('rail').classList.toggle('hidden'); setTimeout(layout,300);
+};
+
+let dragging=false;
+const setSplit=e=>{ const r=wrap.getBoundingClientRect();
+  S.split=Math.max(0,Math.min(1,((e.clientX??e.touches[0].clientX)-r.left)/r.width)); render(); };
+disp.addEventListener('pointerdown',e=>{ if(S.mode!=='split')return; dragging=true; disp.setPointerCapture(e.pointerId); setSplit(e); });
+disp.addEventListener('pointermove',e=>{ if(dragging) setSplit(e); });
+disp.addEventListener('pointerup',()=>dragging=false);
+disp.addEventListener('pointercancel',()=>dragging=false);
+
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='c') document.querySelector('[data-mode="split"]').click();
+  if(k==='1') document.querySelector('[data-mode="patho"]').click();
+  if(k==='2') document.querySelector('[data-mode="normal"]').click();
+  if(k==='h') document.getElementById('toggleRail').click();
+  const pl=[...document.querySelectorAll('#pathos .item')], i=PATHOS.indexOf(S.patho);
+  if(e.key==='ArrowDown'){e.preventDefault(); pl[(i+1)%pl.length].click();}
+  if(e.key==='ArrowUp'){e.preventDefault(); pl[(i-1+pl.length)%pl.length].click();}
+  const sl=[...document.querySelectorAll('#scenes .item')], j=SCENES.indexOf(S.scene);
+  if(e.key==='ArrowRight'){e.preventDefault(); sl[(j+1)%sl.length].click();}
+  if(e.key==='ArrowLeft'){e.preventDefault(); sl[(j-1+sl.length)%sl.length].click();}
+});
+
+/* ==========================================================================
+   PONTE COM O SISTEMA OLHAR
+     URL       ?nome=Maria&patologia=glaucoma&sev=55&cena=avenida
+     mensagem  {tipo:'olhar:patologia', nome, patologia, sev, cena}
+   ========================================================================== */
+function aplicarPatologia(d){
+  if(d.patologia){ const p=PATHOS.find(x=>x.id===d.patologia); if(p) S.patho=p; }
+  if(d.cena){ const c=SCENES.find(x=>x.id===d.cena); if(c) S.scene=c; }
+  if(d.sev!=null){ const s=Math.min(100,Math.max(0,parseFloat(d.sev)||0));
+                   S.sev=s/100; document.getElementById('sev').value=s;
+                   document.querySelectorAll('#presets button').forEach(b=>b.classList.remove('on')); }
+  if(d.nome){
+    const t=document.getElementById('stageTitle');
+    let p=t.querySelector('.pill');
+    if(!p){ p=document.createElement('span'); p.className='pill'; t.appendChild(p); }
+    p.textContent=d.nome;
+  }
+  buildScenes(); refreshUI(); syncLoop(); render();
+}
+addEventListener('message',e=>{
+  if(e.data && e.data.tipo==='olhar:patologia') aplicarPatologia(e.data);
+});
+addEventListener('resize',layout);
+refreshUI(); buildScenes(); carregarImagens(); layout(); syncLoop();
+
+const q=new URLSearchParams(location.search);
+if([...q.keys()].length) aplicarPatologia({nome:q.get('nome'), patologia:q.get('patologia'),
+                                           sev:q.get('sev'), cena:q.get('cena')});
+try{ if(parent!==window) parent.postMessage({tipo:'olhar:pronto', modulo:'patologias'},'*'); }catch(e){}
+</script>
+</body>
+</html>
