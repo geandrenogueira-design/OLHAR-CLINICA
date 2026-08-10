@@ -9,7 +9,7 @@
    - API do Google Drive e demais: passam direto (sem cache).
    Para publicar uma versão nova do app, troque VERSION abaixo.
    ============================================================ */
-var VERSION = 'olhar-v5';
+var VERSION = 'olhar-v6';
 var CACHE   = 'olhar-cache-' + VERSION;
 
 /* Pré-cache: só o que é leve e indispensável para o app abrir offline.
@@ -91,21 +91,42 @@ self.addEventListener('fetch', function (e) {
 
   // 2) Estáticos do próprio site — cache primeiro, atualiza ao fundo
   //    (inclui os simuladores e as fotos em cenas/)
+  //
+  //    ATENÇÃO: este ramo NUNCA pode resolver para undefined. respondWith(undefined)
+  //    vira ERR_FAILED no navegador — e, como os simuladores agora abrem em janela
+  //    própria (navegação de topo, não mais iframe), isso derruba a página inteira.
+  //    Por isso todo caminho abaixo termina numa Response de verdade.
   if (url.origin === self.location.origin) {
     e.respondWith(
       caches.match(req).then(function (cached) {
         var net = fetch(req).then(function (r) {
           if (r && r.ok) { var cp = r.clone(); caches.open(CACHE).then(function (c) { c.put(req, cp); }); }
           return r;
-        }).catch(function () { return cached; });
-        return cached || net;
+        }).catch(function () { return null; });
+
+        if (cached) { net.catch(function () {}); return cached; }
+
+        return net.then(function (r) {
+          if (r) { return r; }
+          if (isSimulador) {
+            return new Response(
+              '<!DOCTYPE html><meta charset="utf-8">' +
+              '<div style="font:16px/1.6 system-ui;padding:48px;max-width:640px;margin:auto;color:#1a1a1a">' +
+              '<h1 style="font-size:22px">Este módulo ainda não está disponível offline</h1>' +
+              '<p>O arquivo <code>' + url.pathname.replace(/^\//, '') + '</code> não está no cache ' +
+              'e a rede não respondeu. Abra o app uma vez com internet para guardar a cópia local.</p>' +
+              '</div>',
+              { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+          }
+          return new Response('', { status: 504, statusText: 'sem rede e sem cache' });
+        });
       })
     );
     return;
   }
 
   // 3) Fontes Google / ícones unpkg — stale-while-revalidate
-  if (/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|unpkg\.com)/.test(url.host)) {
+  if (/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.jsdelivr\.net|unpkg\.com)/.test(url.host)) {
     e.respondWith(
       caches.open(CACHE).then(function (c) {
         return c.match(req).then(function (cached) {
