@@ -12,7 +12,7 @@
    - o fetch é criado do zero com redirect:"follow";
    - nunca devolve index.html no lugar de um simulador.
    ============================================================ */
-var VERSION = 'olhar-v10';
+var VERSION = 'olhar-v11';
 var CACHE = 'olhar-cache-' + VERSION;
 
 var PRECACHE = [
@@ -22,7 +22,8 @@ var PRECACHE = [
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-512.png',
-  './olhar-storage-idb.js',
+  './olhar-simulador-ametropia',
+  './olhar-simulador-patologias',
   './cenas/manifest.js'
 ];
 
@@ -97,14 +98,18 @@ function fetchSimulator(url, kind) {
 
   // Criamos um Request NOVO para não herdar redirect:"manual"
   // da navegação original controlada pelo Service Worker.
-  return fetch(new Request(canonical.href, {
+  var req = new Request(canonical.href, {
     method: 'GET',
     mode: 'same-origin',
     credentials: 'same-origin',
     redirect: 'follow',
     cache: 'no-store',
     headers: { 'Accept': 'text/html,application/xhtml+xml' }
-  })).then(function (response) {
+  });
+
+  // Com timeout: sem ele, numa rede ruim a janela do simulador fica
+  // pendurada em branco em vez de cair no cache.
+  return networkWithTimeout(req, 6000).then(function (response) {
     if (!response || !response.ok) {
       throw new Error('HTTP ' + (response ? response.status : 'sem resposta'));
     }
@@ -240,8 +245,15 @@ self.addEventListener('fetch', function (event) {
               cache.put(request, response.clone());
             }
             return response;
-          }).catch(function () { return cached; });
-          return cached || network;
+          }).catch(function () { return null; });
+
+          if (cached) { network.catch(function () {}); return cached; }
+
+          // respondWith(undefined) vira ERR_FAILED: todo caminho termina
+          // numa Response de verdade.
+          return network.then(function (response) {
+            return response || new Response('', { status: 504, statusText: 'sem rede e sem cache' });
+          });
         });
       })
     );
