@@ -1,0 +1,43 @@
+# ==========================================================================
+# OLHAR — cache e segurança no Cloudflare Pages
+# ==========================================================================
+
+# --- o service worker NUNCA pode ser cacheado -----------------------------
+# Se ele ficar preso em cache, o app trava numa versão antiga e nenhuma
+# publicação aparece. É a causa número um de "não mudou nada".
+/sw.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+
+# --- HTML: sempre revalidar ------------------------------------------------
+/index.html
+  Cache-Control: no-cache, must-revalidate, max-age=0
+/olhar-simulador-ametropia
+  Cache-Control: no-cache, must-revalidate, max-age=0
+/olhar-simulador-patologias
+  Cache-Control: no-cache, must-revalidate, max-age=0
+/olhar-simulador-ametropia.html
+  Cache-Control: no-cache, must-revalidate, max-age=0
+/olhar-simulador-patologias.html
+  Cache-Control: no-cache, must-revalidate, max-age=0
+
+# --- manifesto de cenas: muda quando você acrescenta foto ------------------
+/cenas/manifest.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# --- as fotos: pesadas e imutáveis, cache longo ----------------------------
+# Trocou uma foto? Renomeie o arquivo e atualize o manifest.js. Cache
+# imutável não revalida — sobrescrever o mesmo nome deixaria clientes
+# antigos com a imagem velha por um ano.
+/cenas/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/icon-192.png
+  Cache-Control: public, max-age=604800
+
+# --- segurança -------------------------------------------------------------
+# SAMEORIGIN, não DENY: os simuladores precisam poder rodar em iframe da
+# mesma origem. Sem esta linha, qualquer site pode embutir o app.
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
