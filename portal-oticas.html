@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Portal das Óticas — Instituto do Olhar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#1e2d68; --navy-d:#152150; --gold:#8a5f3a; --sky:#cde7f1;
+  --bg:#f4f6f7; --card:#ffffff; --line:#dde3e7; --line2:#cfd5d9;
+  --tx:#0a0a0a; --tx2:#3a3a3a; --tx3:#7a8390;
+  --ok:#15803d; --okl:rgba(21,128,61,.10);
+  --er:#c53030; --erl:rgba(197,48,48,.10);
+  --wn:#b45309; --wnl:rgba(180,83,9,.12);
+}
+html,body{background:var(--bg);color:var(--tx);font-family:'Outfit',system-ui,sans-serif;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+input,select{font:inherit;color:inherit;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;width:100%;outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--navy)}
+a{color:var(--navy);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* topo */
+.topbar{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(30,45,104,.15)}
+.mark{width:38px;height:38px;border-radius:50%;background:repeating-conic-gradient(from -38deg,var(--gold) 0deg 7deg,transparent 7deg 12deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 11px),#000 calc(100% - 10px));mask:radial-gradient(farthest-side,transparent calc(100% - 11px),#000 calc(100% - 10px))}
+.brand{display:flex;flex-direction:column;line-height:1.15}
+.brand b{font-weight:700;font-size:16px;letter-spacing:.3px}
+.brand span{font-size:11px;color:var(--sky);letter-spacing:.5px;text-transform:uppercase}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px}
+.top-right .who{color:var(--sky)}
+.top-right button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3);padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600}
+.top-right button:hover{background:rgba(255,255,255,.1)}
+
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+/* login */
+.login{max-width:400px;margin:60px auto 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:32px 28px;box-shadow:0 8px 28px rgba(30,45,104,.08)}
+.login h1{font-size:22px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.login .sub{font-size:13px;color:var(--tx2);margin-bottom:24px}
+.login .field{margin-bottom:14px}
+.login label{display:block;font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.login button.submit{margin-top:8px;width:100%;background:var(--navy);color:#fff;padding:13px;border-radius:10px;font-weight:700;font-size:14px}
+.login button.submit:hover{background:var(--navy-d)}
+.login button.submit:disabled{opacity:.5;cursor:wait}
+.msg{margin-top:14px;padding:11px 13px;border-radius:10px;font-size:13px;line-height:1.4}
+.msg.err{background:var(--erl);color:var(--er)}
+.msg.ok{background:var(--okl);color:var(--ok)}
+.msg.wn{background:var(--wnl);color:var(--wn)}
+
+/* documentos */
+.head-doc{display:flex;justify-content:space-between;align-items:end;margin-bottom:18px;gap:14px;flex-wrap:wrap}
+.head-doc h2{font-size:20px;color:var(--navy);font-weight:700}
+.head-doc .count{font-size:13px;color:var(--tx3)}
+
+.list{display:grid;gap:12px}
+.doc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;transition:border-color .15s,transform .1s}
+.doc:hover{border-color:var(--line2)}
+.doc .name{font-weight:700;font-size:15px;margin-bottom:3px}
+.doc .meta{font-size:12px;color:var(--tx3);display:flex;gap:12px;flex-wrap:wrap}
+.doc .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.badge.novo{background:var(--wnl);color:var(--wn)}
+.badge.visto{background:var(--okl);color:var(--ok)}
+.doc .actions{display:flex;gap:8px}
+.doc button.open{background:var(--navy);color:#fff;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.doc button.open:hover{background:var(--navy-d)}
+.doc button.open svg{width:14px;height:14px}
+
+.empty{text-align:center;padding:60px 20px;background:var(--card);border:1px dashed var(--line2);border-radius:14px;color:var(--tx3)}
+.empty h3{color:var(--tx2);font-weight:600;margin-bottom:6px}
+
+.foot{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);font-size:11px;color:var(--tx3);text-align:center;line-height:1.6}
+
+@media (max-width:520px){
+  .doc{grid-template-columns:1fr;gap:12px}
+  .doc .actions{justify-content:stretch}
+  .doc button.open{width:100%;justify-content:center}
+  .topbar{padding:12px 14px}
+  .top-right .who{display:none}
+  .wrap{padding:16px 14px 40px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="mark"></div>
+  <div class="brand"><b>Instituto do Olhar</b><span>Portal das Óticas Conveniadas</span></div>
+  <div class="top-right">
+    <span class="who" id="whoName"></span>
+    <button id="logoutBtn" style="display:none" onclick="doLogout()">Sair</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- tela de login -->
+  <section id="loginArea">
+    <div class="login">
+      <h1>Entrar no portal</h1>
+      <p class="sub">Use o usuário e o PIN fornecidos pela clínica.</p>
+      <div class="field">
+        <label for="username">Usuário</label>
+        <input id="username" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="pin">PIN</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12">
+      </div>
+      <button class="submit" id="loginBtn" onclick="doLogin()">Entrar</button>
+      <div id="loginMsg"></div>
+    </div>
+    <p class="foot">Este é um sistema de uso restrito. Todos os acessos são registrados.<br>
+      Se você não é ótica conveniada, feche esta página.</p>
+  </section>
+
+  <!-- lista de documentos -->
+  <section id="docsArea" style="display:none">
+    <div class="head-doc">
+      <div>
+        <h2>Suas receitas</h2>
+        <div class="count" id="docsCount"></div>
+      </div>
+      <button onclick="loadDocs()" style="background:transparent;color:var(--navy);font-weight:600;font-size:13px">Atualizar</button>
+    </div>
+    <div class="list" id="docsList"></div>
+    <p class="foot">
+      As receitas ficam disponíveis até serem revogadas pela clínica.<br>
+      Não compartilhe estes dados — cada visualização é registrada.
+    </p>
+  </section>
+
+</div>
+
+<script>
+'use strict';
+
+const API = '/api/portal';
+
+function h(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function msg(el, text, type){el.innerHTML='<div class="msg '+(type||'')+'">'+h(text)+'</div>'}
+function fmtDate(v){if(!v)return '—'; const p=String(v).split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:v}
+function fmtWhen(ms){if(!ms)return '—'; const d=new Date(ms), pad=n=>String(n).padStart(2,'0');
+  return pad(d.getDate())+'/'+pad(d.getMonth()+1)+' '+pad(d.getHours())+':'+pad(d.getMinutes())}
+function fmtSize(b){if(!b)return ''; if(b<1024)return b+' B'; if(b<1024*1024)return (b/1024).toFixed(0)+' KB'; return (b/1024/1024).toFixed(1)+' MB'}
+
+async function api(action, payload){
+  const body = Object.assign({action}, payload||{});
+  const r = await fetch(API, {
+    method:'POST', credentials:'same-origin', cache:'no-store',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify(body)
+  });
+  let data = {};
+  try { data = await r.json(); } catch(e) {}
+  if (!r.ok) { const e = new Error(data.error||'Erro '+r.status); e.status=r.status; e.code=data.code; throw e; }
+  return data;
+}
+
+async function doLogin(){
+  const u = document.getElementById('username').value.trim().toLowerCase();
+  const p = document.getElementById('pin').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const box = document.getElementById('loginMsg');
+  if (!u || !p) { msg(box, 'Preencha usuário e PIN.', 'err'); return; }
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  try {
+    const r = await api('login', {username:u, pin:p});
+    // sucesso — vai para lista
+    showDocs(r.optica);
+  } catch (e) {
+    msg(box, e.message, e.status===429?'wn':'err');
+    document.getElementById('pin').value = '';
+    document.getElementById('pin').focus();
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+async function doLogout(){
+  try { await api('logout'); } catch(e) {}
+  location.reload();
+}
+
+async function loadDocs(){
+  const list = document.getElementById('docsList');
+  const count = document.getElementById('docsCount');
+  list.innerHTML = '<div class="empty">Carregando…</div>';
+  try {
+    const r = await api('list');
+    document.getElementById('whoName').textContent = r.opticaName || '';
+    if (!r.documents.length) {
+      list.innerHTML = '<div class="empty"><h3>Nenhuma receita disponível</h3>Assim que a clínica enviar, aparece aqui.</div>';
+      count.textContent = '';
+      return;
+    }
+    count.textContent = r.documents.length + (r.documents.length===1?' receita':' receitas');
+    list.innerHTML = r.documents.map(d => `
+      <article class="doc">
+        <div>
+          <div class="name">${h(d.patientName)} <span class="badge ${d.status==='novo'?'novo':'visto'}">${d.status}</span></div>
+          <div class="meta">
+            <span>Data: ${h(fmtDate(d.rxDate))}</span>
+            <span>Enviado ${h(fmtWhen(d.createdAt))}</span>
+            ${d.viewedAt?`<span>Aberto ${h(fmtWhen(d.viewedAt))} (${d.viewCount}×)</span>`:''}
+            ${d.fileSize?`<span>${h(fmtSize(d.fileSize))}</span>`:''}
+          </div>
+        </div>
+        <div class="actions">
+          <button class="open" onclick="openDoc('${h(d.id)}','${h(d.fileName||'receita.pdf')}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v14m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
+            Abrir PDF
+          </button>
+        </div>
+      </article>
+    `).join('');
+  } catch (e) {
+    if (e.status === 401) { location.reload(); return; }
+    list.innerHTML = '<div class="msg err">'+h(e.message)+'</div>';
+    count.textContent = '';
+  }
+}
+
+// Abre em nova aba fazendo POST para /api/portal (não conseguimos usar <a href>
+// porque a rota é POST). Estratégia: POST via fetch → blob → objectURL → open.
+async function openDoc(id, fileName){
+  try {
+    const r = await fetch(API, {
+      method:'POST', credentials:'same-origin', cache:'no-store',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'view', id})
+    });
+    if (!r.ok) {
+      if (r.status === 401) { alert('Sessão expirou. Faça login novamente.'); location.reload(); return; }
+      let msg = 'Erro '+r.status;
+      try { const j = await r.json(); msg = j.error||msg; } catch(e){}
+      alert(msg); return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const w = window.open(url, '_blank');
+    // fallback: se o popup foi bloqueado, força download
+    if (!w) {
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName || 'receita.pdf';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    // recarrega em 800ms para atualizar o badge para "visualizado"
+    setTimeout(loadDocs, 800);
+  } catch (e) {
+    alert('Não foi possível abrir: '+e.message);
+  }
+}
+
+function showDocs(optica){
+  document.getElementById('loginArea').style.display = 'none';
+  document.getElementById('docsArea').style.display = 'block';
+  document.getElementById('logoutBtn').style.display = 'inline-block';
+  document.getElementById('whoName').textContent = (optica && optica.name) || '';
+  loadDocs();
+}
+
+// tenta entrar direto se já houver sessão
+(async function boot(){
+  try {
+    const r = await api('list');
+    // se chegou aqui, sessão válida
+    showDocs({name: r.opticaName});
+  } catch (e) {
+    // sem sessão — mostra login (já é o default)
+    document.getElementById('username').focus();
+  }
+})();
+
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Enter' && document.getElementById('loginArea').style.display !== 'none') {
+    doLogin();
+  }
+});
+</script>
+</body>
+</html>
