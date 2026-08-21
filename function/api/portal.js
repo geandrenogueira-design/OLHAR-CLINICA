@@ -1,0 +1,482 @@
+// ==========================================================================
+// OLHAR — Portal das Óticas Conveniadas
+// Backend: Cloudflare Pages Function
+//
+// Este arquivo responde POST /api/portal no domínio olharclinica.pages.dev.
+// Despacha por ação (body.action) para uma de duas famílias:
+//
+//   CLÍNICA (Dr. Geandré usando o sistema):
+//     - autenticada por header X-Clinic-Key (segredo compartilhado)
+//     - provision:      cria/atualiza acesso de uma ótica (username + PIN)
+//     - upload:         envia PDF de uma receita
+//     - revoke:         revoga um documento (apaga o pdfData, marca no D1)
+//     - clinic-list:    lista documentos, opcionalmente por ótica
+//
+//   ÓTICA (portal-oticas.html):
+//     - autenticada por cookie de sessão (criado no login)
+//     - login:          username + PIN -> sessão de 8h
+//     - list:           documentos ativos da ótica logada
+//     - view:           entrega o PDF, marca como visualizado
+//     - logout:         encerra sessão
+//
+// SEM R2: esta versão guarda o PDF inteiro em base64 dentro do próprio D1
+// (coluna documentos.pdfData), para não exigir cartão de crédito cadastrado
+// (o R2 pede cartão mesmo no plano gratuito). Teto de 700 KB por PDF original
+// (~933 KB em base64) — folgado para receitas A5 (30-80 KB típicos).
+//
+// Bindings esperados (configurados no painel Cloudflare Pages):
+//   env.DB               -> D1 database  (nome: olhar_portal, binding: DB)
+//   env.CLINIC_KEY       -> secret       (a chave privada da clínica)
+// ==========================================================================
+
+const COOKIE = 'olhar_portal_sess';
+const SESSION_MS = 8 * 60 * 60 * 1000;         // 8 horas
+// SEM R2: o PDF vira base64 dentro de uma linha do D1, que tem um teto prático
+// de ~1 MB por linha (bem abaixo do limite absoluto do SQLite, por segurança).
+// Base64 infla o tamanho em ~33%, então o teto do PDF ORIGINAL fica bem menor
+// que os antigos 3 MB — 700 KB de PDF vira ~933 KB em base64, com folga.
+// Receitas A5 típicas ficam entre 30-80 KB, então isso sobra muito.
+const MAX_PDF_BYTES = 700 * 1024;              // 700 KB por PDF (vira ~933 KB em base64 no D1)
+const MAX_FAILED_ATTEMPTS = 5;
+const BLOCK_MS_STEPS = [                       // bloqueio progressivo
+  15 * 60 * 1000,    // 5º erro:  15min
+  60 * 60 * 1000,    // 10º erro: 1h
+  6 * 60 * 60 * 1000 // 15º erro em diante: 6h
+];
+
+// -------------------------------------------------------------- utilidades
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+function json(data, init = {}) {
+  const headers = new Headers(init.headers || {});
+  headers.set('Content-Type', 'application/json; charset=utf-8');
+  headers.set('Cache-Control', 'no-store');
+  return new Response(JSON.stringify(data), { ...init, headers });
+}
+
+function err(message, status = 400, code) {
+  return json({ error: message, code }, { status });
+}
+
+function uuid() {
+  // Web Crypto no Workers já tem randomUUID
+  return crypto.randomUUID();
+}
+
+function nowMs() { return Date.now(); }
+
+function b64encode(bytes) {
+  let out = '';
+  for (let i = 0; i < bytes.length; i++) out += String.fromCharCode(bytes[i]);
+  return btoa(out);
+}
+function b64decode(s) {
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// Comparação em tempo constante — evita ataque de timing na chave da clínica.
+function constantTimeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
+}
+
+// PBKDF2-SHA256. Usamos no PIN da ótica. 100k iterações são o teto razoável
+// dentro do budget de CPU do Workers (~10ms por request no plano free).
+async function hashPin(pin, saltB64, iterations = 100000) {
+  const salt = b64decode(saltB64);
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(pin), { name: 'PBKDF2' }, false, ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+    keyMaterial, 256
+  );
+  return b64encode(new Uint8Array(bits));
+}
+
+function newSalt() {
+  const b = new Uint8Array(16);
+  crypto.getRandomValues(b);
+  return b64encode(b);
+}
+
+// Cookie parsing — sem depender de nada
+function parseCookies(header) {
+  const out = {};
+  if (!header) return out;
+  header.split(/;\s*/).forEach(p => {
+    const i = p.indexOf('=');
+    if (i > 0) out[p.slice(0, i)] = decodeURIComponent(p.slice(i + 1));
+  });
+  return out;
+}
+
+function setSessionCookie(id, expiresMs) {
+  const attrs = [
+    `${COOKIE}=${encodeURIComponent(id)}`,
+    'Path=/',
+    'HttpOnly',
+    'Secure',
+    'SameSite=Strict',
+    `Expires=${new Date(expiresMs).toUTCString()}`
+  ];
+  return attrs.join('; ');
+}
+function clearSessionCookie() {
+  return `${COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+}
+
+function getClientIP(request) {
+  return request.headers.get('CF-Connecting-IP') || '';
+}
+
+async function audit(env, actor, action, targetId, ip, detail) {
+  try {
+    await env.DB.prepare(
+      `INSERT INTO auditoria (ts, actor, action, targetId, ip, detail) VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(nowMs(), actor, action, targetId || null, ip || null, detail ? JSON.stringify(detail) : null).run();
+  } catch (e) {
+    // não deixamos falha de auditoria derrubar a operação principal
+    console.error('audit failed:', e);
+  }
+}
+
+// -------------------------------------------------------------- autenticação
+
+function checkClinicKey(request, env) {
+  const provided = request.headers.get('X-Clinic-Key');
+  const expected = env.CLINIC_KEY;
+  if (!expected) return { ok: false, why: 'CLINIC_KEY não configurada no ambiente' };
+  if (!provided) return { ok: false, why: 'Cabeçalho X-Clinic-Key ausente' };
+  if (!constantTimeEqual(provided, expected)) return { ok: false, why: 'Chave da clínica inválida' };
+  return { ok: true };
+}
+
+async function currentSession(request, env) {
+  const cookies = parseCookies(request.headers.get('Cookie'));
+  const sid = cookies[COOKIE];
+  if (!sid) return null;
+  const row = await env.DB.prepare(
+    `SELECT s.id, s.opticaId, s.expiresAt, o.name AS opticaName, o.username
+     FROM sessoes s JOIN opticas o ON o.id = s.opticaId
+     WHERE s.id = ? AND s.expiresAt > ?`
+  ).bind(sid, nowMs()).first();
+  return row || null;
+}
+
+// -------------------------------------------------------------- clínica: ações
+
+async function actionProvision(env, body, ip) {
+  const { externalId, name, username, pin } = body;
+  if (!externalId || !name) return err('externalId e name obrigatórios');
+  if (!/^[a-z0-9._-]{3,40}$/.test(username || '')) return err('Usuário inválido (3-40 chars, [a-z0-9._-])');
+  if (!/^\d{6,12}$/.test(pin || '')) return err('PIN inválido (6 a 12 dígitos)');
+
+  const now = nowMs();
+  const salt = newSalt();
+  const hash = await hashPin(pin, salt);
+
+  const existing = await env.DB.prepare(
+    `SELECT id FROM opticas WHERE externalId = ?`
+  ).bind(externalId).first();
+
+  // username tem que ser único mesmo entre óticas diferentes
+  const clash = await env.DB.prepare(
+    `SELECT id FROM opticas WHERE username = ? AND externalId != ?`
+  ).bind(username, externalId).first();
+  if (clash) return err('Nome de usuário já usado por outra ótica');
+
+  let opticaId;
+  if (existing) {
+    opticaId = existing.id;
+    await env.DB.prepare(
+      `UPDATE opticas SET name=?, username=?, pinSalt=?, pinHash=?, pinIterations=?,
+                          failedAttempts=0, blockedUntil=NULL, updatedAt=?
+       WHERE id=?`
+    ).bind(name, username, salt, hash, 100000, now, opticaId).run();
+  } else {
+    opticaId = uuid();
+    await env.DB.prepare(
+      `INSERT INTO opticas (id, externalId, name, username, pinSalt, pinHash, pinIterations,
+                             failedAttempts, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`
+    ).bind(opticaId, externalId, name, username, salt, hash, 100000, now, now).run();
+  }
+
+  // ao trocar credencial, invalida todas as sessões antigas dessa ótica
+  await env.DB.prepare(`DELETE FROM sessoes WHERE opticaId=?`).bind(opticaId).run();
+
+  await audit(env, 'clinic', existing ? 'provision_update' : 'provision_create', opticaId, ip);
+  return json({ ok: true, optica: { id: opticaId, name, username } });
+}
+
+async function actionUpload(env, body, ip) {
+  const { externalId, patientName, rxDate, fileName, rxSummary, pdfBase64 } = body;
+  if (!externalId || !patientName || !fileName || !pdfBase64) {
+    return err('externalId, patientName, fileName e pdfBase64 obrigatórios');
+  }
+  const optica = await env.DB.prepare(
+    `SELECT id, name FROM opticas WHERE externalId=?`
+  ).bind(externalId).first();
+  if (!optica) return err('Esta ótica ainda não tem acesso. Crie o usuário e o PIN primeiro.', 400, 'OPTICA_NOT_PROVISIONED');
+
+  let bytes;
+  try { bytes = b64decode(pdfBase64); }
+  catch (e) { return err('pdfBase64 inválido'); }
+  if (!bytes.length) return err('PDF vazio');
+  if (bytes.length > MAX_PDF_BYTES) return err(`PDF acima do limite (${Math.round(bytes.length/1024)} KB > ${MAX_PDF_BYTES/1024/1024} MB)`);
+  // sanidade: PDF começa com %PDF
+  if (!(bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46)) {
+    return err('Conteúdo enviado não parece PDF');
+  }
+
+  const docId = uuid();
+  // SEM R2: o PDF fica dentro do próprio D1, em base64, na coluna pdfData.
+  // pdfBase64 já chegou em base64 no body — gravamos direto, sem recodificar.
+  const now = nowMs();
+  await env.DB.prepare(
+    `INSERT INTO documentos (id, opticaId, patientName, rxDate, rxSummary, fileName, fileSize, pdfData, createdAt, viewCount)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`
+  ).bind(docId, optica.id, patientName, rxDate || null, rxSummary || null, fileName, bytes.length, pdfBase64, now).run();
+
+  await audit(env, 'clinic', 'upload', docId, ip, { opticaId: optica.id, patientName, bytes: bytes.length });
+  return json({ ok: true, document: { id: docId, opticaName: optica.name, status: 'novo' } });
+}
+
+async function actionRevoke(env, body, ip) {
+  const { id } = body;
+  if (!id) return err('id obrigatório');
+  const doc = await env.DB.prepare(`SELECT id, opticaId, revokedAt FROM documentos WHERE id=?`).bind(id).first();
+  if (!doc) return err('Documento não encontrado', 404);
+  if (doc.revokedAt) return json({ ok: true, alreadyRevoked: true });
+
+  const now = nowMs();
+  // SEM R2: apagamos o próprio pdfData da linha — não há objeto externo para limpar.
+  // A partir daqui a linha continua existindo (para o histórico), mas sem o PDF.
+  await env.DB.prepare(`UPDATE documentos SET revokedAt=?, pdfData=NULL WHERE id=?`).bind(now, id).run();
+
+  await audit(env, 'clinic', 'revoke', id, ip, { opticaId: doc.opticaId });
+  return json({ ok: true });
+}
+
+async function actionClinicList(env, body) {
+  const { externalId, limit } = body;
+  const cap = Math.min(Math.max(parseInt(limit) || 100, 1), 500);
+  let rows;
+  if (externalId) {
+    const opt = await env.DB.prepare(`SELECT id, name FROM opticas WHERE externalId=?`).bind(externalId).first();
+    if (!opt) return json({ documents: [] });
+    rows = await env.DB.prepare(
+      `SELECT d.id, d.patientName, d.rxDate, d.fileName, d.createdAt, d.viewedAt, d.viewCount, d.revokedAt, ? AS opticaName
+       FROM documentos d WHERE d.opticaId=? ORDER BY d.createdAt DESC LIMIT ?`
+    ).bind(opt.name, opt.id, cap).all();
+  } else {
+    rows = await env.DB.prepare(
+      `SELECT d.id, d.patientName, d.rxDate, d.fileName, d.createdAt, d.viewedAt, d.viewCount, d.revokedAt, o.name AS opticaName
+       FROM documentos d JOIN opticas o ON o.id = d.opticaId
+       ORDER BY d.createdAt DESC LIMIT ?`
+    ).bind(cap).all();
+  }
+  const documents = (rows.results || []).map(r => ({
+    id: r.id,
+    patientName: r.patientName,
+    rxDate: r.rxDate,
+    fileName: r.fileName,
+    opticaName: r.opticaName,
+    createdAt: r.createdAt,
+    viewedAt: r.viewedAt,
+    viewCount: r.viewCount,
+    status: r.revokedAt ? 'revogado' : (r.viewedAt ? 'visualizado' : 'novo')
+  }));
+  return json({ documents });
+}
+
+// -------------------------------------------------------------- ótica: ações
+
+function nextBlockDuration(previousAttempts) {
+  // 1º-4º erro: sem bloqueio; 5º: 15min; 10º: 1h; 15º+: 6h
+  const bracket = Math.floor(previousAttempts / MAX_FAILED_ATTEMPTS) - 1;
+  if (bracket < 0) return 0;
+  return BLOCK_MS_STEPS[Math.min(bracket, BLOCK_MS_STEPS.length - 1)];
+}
+
+async function actionLogin(env, body, request) {
+  const { username, pin } = body;
+  if (!username || !pin) return err('Usuário e PIN obrigatórios');
+
+  const optica = await env.DB.prepare(
+    `SELECT id, name, username, pinSalt, pinHash, pinIterations, failedAttempts, blockedUntil
+     FROM opticas WHERE username = ?`
+  ).bind(String(username).trim().toLowerCase()).first();
+
+  const ip = getClientIP(request);
+
+  // Se a ótica não existe, ainda consumimos tempo com um hash falso para
+  // não vazar informação via timing (username inválido vs correto).
+  if (!optica) {
+    await hashPin(String(pin), newSalt(), 100000);
+    await audit(env, 'unknown', 'login_fail', null, ip, { username, reason: 'unknown_user' });
+    return err('Usuário ou PIN incorretos', 401);
+  }
+
+  const now = nowMs();
+  if (optica.blockedUntil && optica.blockedUntil > now) {
+    const remaining = Math.ceil((optica.blockedUntil - now) / 60000);
+    await audit(env, 'optica:' + optica.id, 'login_fail', optica.id, ip, { reason: 'blocked' });
+    return err(`Acesso temporariamente bloqueado. Tente novamente em ${remaining} min.`, 429, 'BLOCKED');
+  }
+
+  const hash = await hashPin(String(pin), optica.pinSalt, optica.pinIterations);
+  if (!constantTimeEqual(hash, optica.pinHash)) {
+    const nowAttempts = (optica.failedAttempts || 0) + 1;
+    const blockMs = nextBlockDuration(nowAttempts);
+    const blockedUntil = blockMs ? now + blockMs : null;
+    await env.DB.prepare(
+      `UPDATE opticas SET failedAttempts=?, blockedUntil=? WHERE id=?`
+    ).bind(nowAttempts, blockedUntil, optica.id).run();
+    await audit(env, 'optica:' + optica.id, 'login_fail', optica.id, ip);
+    if (blockMs) {
+      return err(`Acesso bloqueado após ${nowAttempts} tentativas. Aguarde ${Math.ceil(blockMs/60000)} min.`, 429, 'BLOCKED');
+    }
+    return err('Usuário ou PIN incorretos', 401);
+  }
+
+  // sucesso: cria sessão, zera contadores
+  const sid = uuid();
+  const expires = now + SESSION_MS;
+  await env.DB.prepare(
+    `INSERT INTO sessoes (id, opticaId, createdAt, expiresAt, userAgent, ip) VALUES (?, ?, ?, ?, ?, ?)`
+  ).bind(sid, optica.id, now, expires, (request.headers.get('User-Agent') || '').slice(0, 200), ip).run();
+  await env.DB.prepare(
+    `UPDATE opticas SET failedAttempts=0, blockedUntil=NULL WHERE id=?`
+  ).bind(optica.id).run();
+
+  // limpeza oportunística de sessões expiradas dessa ótica
+  await env.DB.prepare(`DELETE FROM sessoes WHERE opticaId=? AND expiresAt < ?`).bind(optica.id, now).run();
+
+  await audit(env, 'optica:' + optica.id, 'login', optica.id, ip);
+
+  return json(
+    { ok: true, optica: { name: optica.name, username: optica.username } },
+    { headers: { 'Set-Cookie': setSessionCookie(sid, expires) } }
+  );
+}
+
+async function actionOpticaList(env, session) {
+  const rows = await env.DB.prepare(
+    `SELECT id, patientName, rxDate, fileName, fileSize, createdAt, viewedAt, viewCount
+     FROM documentos WHERE opticaId=? AND revokedAt IS NULL
+     ORDER BY createdAt DESC LIMIT 200`
+  ).bind(session.opticaId).all();
+  const documents = (rows.results || []).map(r => ({
+    id: r.id, patientName: r.patientName, rxDate: r.rxDate,
+    fileName: r.fileName, fileSize: r.fileSize,
+    createdAt: r.createdAt, viewedAt: r.viewedAt, viewCount: r.viewCount,
+    status: r.viewedAt ? 'visualizado' : 'novo'
+  }));
+  return json({ documents, opticaName: session.opticaName });
+}
+
+async function actionOpticaView(env, session, id, ip) {
+  if (!id) return err('id obrigatório');
+  const doc = await env.DB.prepare(
+    `SELECT id, opticaId, fileName, revokedAt, pdfData FROM documentos WHERE id=?`
+  ).bind(id).first();
+  if (!doc) return err('Documento não encontrado', 404);
+  if (doc.opticaId !== session.opticaId) return err('Acesso negado', 403);
+  if (doc.revokedAt) return err('Documento revogado', 410);
+  if (!doc.pdfData) return err('Arquivo indisponível', 404);
+
+  // SEM R2: o PDF vem em base64 direto da linha do D1 — decodifica para bytes
+  let bytes;
+  try { bytes = b64decode(doc.pdfData); }
+  catch (e) { return err('Arquivo corrompido no banco', 500); }
+
+  // marca primeira visualização; sempre incrementa contador
+  const now = nowMs();
+  await env.DB.prepare(
+    `UPDATE documentos SET viewedAt=COALESCE(viewedAt, ?), viewCount=viewCount+1 WHERE id=?`
+  ).bind(now, doc.id).run();
+
+  await audit(env, 'optica:' + session.opticaId, 'view', doc.id, ip);
+
+  const headers = new Headers();
+  headers.set('Content-Type', 'application/pdf');
+  headers.set('Content-Disposition', `inline; filename="${doc.fileName.replace(/"/g,'')}"`);
+  headers.set('Cache-Control', 'no-store');
+  headers.set('X-Content-Type-Options', 'nosniff');
+  return new Response(bytes, { headers });
+}
+
+async function actionLogout(env, request) {
+  const cookies = parseCookies(request.headers.get('Cookie'));
+  const sid = cookies[COOKIE];
+  if (sid) await env.DB.prepare(`DELETE FROM sessoes WHERE id=?`).bind(sid).run();
+  return json({ ok: true }, { headers: { 'Set-Cookie': clearSessionCookie() } });
+}
+
+// -------------------------------------------------------------- despacho
+
+export async function onRequestPost({ request, env }) {
+  const ip = getClientIP(request);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch (e) {
+    return err('Corpo inválido (esperado JSON)');
+  }
+
+  const action = String(body.action || '').trim();
+  if (!action) return err('Campo "action" obrigatório');
+
+  // rota especial: view devolve PDF binário
+  if (action === 'view') {
+    const session = await currentSession(request, env);
+    if (!session) return err('Sessão inválida', 401);
+    return actionOpticaView(env, session, body.id, ip);
+  }
+
+  // ações da ótica autenticada
+  if (action === 'list' || action === 'logout') {
+    if (action === 'logout') return actionLogout(env, request);
+    const session = await currentSession(request, env);
+    if (!session) return err('Sessão inválida', 401);
+    return actionOpticaList(env, session);
+  }
+
+  if (action === 'login') return actionLogin(env, body, request);
+
+  // daqui pra baixo: só a clínica
+  const auth = checkClinicKey(request, env);
+  if (!auth.ok) return err(auth.why, 401);
+
+  switch (action) {
+    case 'provision':    return actionProvision(env, body, ip);
+    case 'upload':       return actionUpload(env, body, ip);
+    case 'revoke':       return actionRevoke(env, body, ip);
+    case 'clinic-list':  return actionClinicList(env, body);
+  }
+
+  return err('Ação desconhecida: ' + action, 400);
+}
+
+// GET não é suportado — devolve 405 com uma dica curta.
+export async function onRequestGet() {
+  return err('Este endpoint aceita apenas POST', 405);
+}
+
+// Qualquer outro método também
+export async function onRequest({ request }) {
+  if (request.method === 'POST') return onRequestPost(arguments[0]);
+  if (request.method === 'GET')  return onRequestGet();
+  return err('Método não permitido', 405);
+}
