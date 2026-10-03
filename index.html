@@ -662,7 +662,7 @@ function rOptPat(){const q=(document.getElementById('opSearch')||{}).value?.toLo
 function rRxL(){const s=D.prescriptions.slice().sort((a,b)=>b.date.localeCompare(a.date));const tb=document.getElementById('rxTbl');if(!tb)return;if(!s.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="ei">📝</div><h4>Sem receitas</h4></div></td></tr>';return}tb.innerHTML=s.map(r=>'<tr><td>'+fd(r.date)+'</td><td><strong>'+pn(r.patientId)+'</strong></td><td>'+(r.esfOd||'—')+'/'+(r.cilOd||'—')+'</td><td>'+(r.esfOe||'—')+'/'+(r.cilOe||'—')+'</td><td>'+(r.add||'—')+'</td><td class="acts"><button class="btn bsm bs" onclick="viewRx(\''+r.id+'\')">&oplus;</button><button class="btn bsm bs" onclick="dR(\''+r.id+'\')">&times;</button></td></tr>').join('')}
 function viewRx(id){const r=D.prescriptions.find(x=>x.id===id);if(!r)return;const p=D.patients.find(x=>x.id===r.patientId);const h='<div class="modal mlg"><div style="border:2px solid var(--bdr);border-radius:10px;padding:36px 44px"><div style="display:flex;gap:16px;margin-bottom:6px"><div style="width:44px;height:44px;border:3px solid var(--o);border-radius:50%;position:relative"><div style="width:12px;height:12px;background:var(--o);border-radius:50%;position:absolute;top:5px;left:50%;transform:translateX(-50%)"></div></div><div><div style="font-family:var(--font-h);font-size:26px;color:var(--o);font-weight:700">Olhar</div><div style="font-family:var(--font-h);font-style:italic;color:var(--gold);font-size:16px">Clínica da visão</div></div></div><div style="text-align:center;margin:24px 0 20px;font-size:18px;font-weight:800">Avaliação Optométrica</div><p><strong>Paciente:</strong> '+(p?p.name:'—')+' &nbsp; <strong>Data:</strong> '+fd(r.date)+'</p><table class="rxtbl"><thead><tr><th>AV/SC</th><th></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV/CC</th><th>AV/%</th></tr></thead><tbody><tr><td>'+(r.avscOd||'—')+'</td><td><strong>OD</strong></td><td>'+(r.esfOd||'—')+'</td><td>'+(r.cilOd||'—')+'</td><td>'+(r.eixoOd||'—')+'</td><td>'+(r.avccOd||'—')+'</td><td>'+(r.avpOd||'—')+'</td></tr><tr><td>'+(r.avscOe||'—')+'</td><td><strong>OE</strong></td><td>'+(r.esfOe||'—')+'</td><td>'+(r.cilOe||'—')+'</td><td>'+(r.eixoOe||'—')+'</td><td>'+(r.avccOe||'—')+'</td><td>'+(r.avpOe||'—')+'</td></tr></tbody></table><p><strong>AD:</strong> '+(r.add||'—')+' &nbsp; <strong>DP:</strong> '+(r.dp||'—')+'</p><p><strong>Material:</strong> '+(r.material||'—')+'</p><p><strong>Tratamento:</strong> '+(r.tratamento||'—')+'</p>'+(r.tonoOd||r.tonoOe?'<p><strong>Tono:</strong> OD '+(r.tonoOd||'—')+' / OE '+(r.tonoOe||'—')+' mmHg</p>':'')+'<div style="margin-top:32px;padding-top:16px;border-top:2px solid var(--o);display:flex;justify-content:space-between"><div style="text-align:center"><strong>'+D.cfg.pn+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.pt+'<br>'+D.cfg.pr+'</div></div><div style="text-align:center"><strong>'+D.cfg.ad+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.ad2+'</div></div></div></div><div class="mft"><button class="btn bs" onclick="clM()">Fechar</button></div></div>';document.getElementById('mC').innerHTML='<div class="mbg" onclick="if(event.target===this)clM()">'+h+'</div>'}
 
-const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
+const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_od_m','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_oe_m','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
 
 var SEC_CHAVES=["pac", "ana", "lem", "avi", "ref_pup", "mot", "bio", "oft", "cer", "ref", "rxf", "mat"];
 var SEC_TITULOS={"pac": "Dados do Paciente", "ana": "Anamnese", "lem": "Lensometria", "avi": "Acuidade Visual", "ref_pup": "Reflexos Pupilares", "mot": "Exame Motor", "bio": "Biomicroscopia", "oft": "Oftalmoscopia", "cer": "Ceratometria", "ref": "Refração", "rxf": "RX Final", "mat": "Material e Disposição"};
@@ -791,7 +791,7 @@ sec('<i class="ph-bold ph-ruler"></i>','Ceratometria e Lentes de Contato','<div 
   '</div>'+
   '<div id="lc_monovisao_box" style="display:none;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:12px 16px;margin-top:4px"></div>','cer')+
 sec('<i class="ph-bold ph-hospital"></i>','Refração','<div class="st">Retinoscopia 1ª</div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="r1_od_e"></td><td><input id="r1_od_c"></td><td><input id="r1_od_x"></td><td><input id="r1_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="r1_oe_e"></td><td><input id="r1_oe_c"></td><td><input id="r1_oe_x"></td><td><input id="r1_oe_v"></td></tr></tbody></table><div class="st">Retinoscopia 2ª</div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="r2_od_e"></td><td><input id="r2_od_c"></td><td><input id="r2_od_x"></td><td><input id="r2_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="r2_oe_e"></td><td><input id="r2_oe_c"></td><td><input id="r2_oe_x"></td><td><input id="r2_oe_v"></td></tr></tbody></table><div class="st">Subjetivo</div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="sb_od_e"></td><td><input id="sb_od_c"></td><td><input id="sb_od_x"></td><td><input id="sb_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="sb_oe_e"></td><td><input id="sb_oe_c"></td><td><input id="sb_oe_x"></td><td><input id="sb_oe_v"></td></tr></tbody></table><div class="st">Afinamento</div><div class="fg"><label>Técnica</label><input id="af_tc"></div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="af_od_e"></td><td><input id="af_od_c"></td><td><input id="af_od_x"></td><td><input id="af_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="af_oe_e"></td><td><input id="af_oe_c"></td><td><input id="af_oe_x"></td><td><input id="af_oe_v"></td></tr></tbody></table><div class="st">ADD / PIO</div><div class="fr fr5"><div class="fg"><label>ADD OD</label><input id="ad_od"></div><div class="fg"><label>ADD OE</label><input id="ad_oe"></div><div class="fg"><label>PIO OD</label><input id="pi_od"></div><div class="fg"><label>PIO OE</label><input id="pi_oe"></div><div class="fg"><label>Hora</label><input id="pi_hr"></div></div>','ref')+
-sec('<i class="ph-bold ph-check-circle"></i>','RX Final',"<div style=\"display:flex;justify-content:flex-end;margin-bottom:10px\"><button type=\"button\" class=\"btn bs\" onclick=\"puxarLensometria()\" title=\"Copia ESF/CIL/EIXO/ADD/DP da Lensometria para o RX Final — ponto de partida, ajuste antes de salvar\"><i class=\"ph-bold ph-arrow-line-down\"></i> Puxar lensometria</button></div>"+'<table class="et"><thead><tr><th class="el">RX</th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>DP</th><th>AV C/C</th><th>AV %</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="rx_od_e"></td><td><input id="rx_od_c"></td><td><input id="rx_od_x"></td><td><input id="rx_od_a"></td><td><input id="rx_od_d"></td><td><input id="rx_od_avcc"></td><td><input id="rx_od_avp" readonly></td></tr><tr><td class="ec">OE</td><td><input id="rx_oe_e"></td><td><input id="rx_oe_c"></td><td><input id="rx_oe_x"></td><td><input id="rx_oe_a"></td><td><input id="rx_oe_d"></td><td><input id="rx_oe_avcc"></td><td><input id="rx_oe_avp" readonly></td></tr></tbody></table><div class="fg"><label>Obs <button type="button" class="vbtn" id="vb_rx_ob" onclick="toggleVoice(\'rx_ob\')"><span class="vdot"></span><span id="vt_rx_ob"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="rx_ob"></textarea></div>','rxf')+
+sec('<i class="ph-bold ph-check-circle"></i>','RX Final',"<div style=\"display:flex;justify-content:flex-end;margin-bottom:10px\"><button type=\"button\" class=\"btn bs\" onclick=\"puxarLensometria()\" title=\"Copia ESF/CIL/EIXO/ADD/DP da Lensometria para o RX Final — ponto de partida, ajuste antes de salvar\"><i class=\"ph-bold ph-arrow-line-down\"></i> Puxar lensometria</button></div>"+'<table class="et"><thead><tr><th class="el">RX</th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>DNP</th><th>ALT</th><th>AV C/C</th><th>AV %</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="rx_od_e"></td><td><input id="rx_od_c"></td><td><input id="rx_od_x"></td><td><input id="rx_od_a"></td><td><input id="rx_od_d"></td><td><input id="rx_od_m"></td><td><input id="rx_od_avcc"></td><td><input id="rx_od_avp" readonly></td></tr><tr><td class="ec">OE</td><td><input id="rx_oe_e"></td><td><input id="rx_oe_c"></td><td><input id="rx_oe_x"></td><td><input id="rx_oe_a"></td><td><input id="rx_oe_d"></td><td><input id="rx_oe_m"></td><td><input id="rx_oe_avcc"></td><td><input id="rx_oe_avp" readonly></td></tr></tbody></table><div class="fg"><label>Obs <button type="button" class="vbtn" id="vb_rx_ob" onclick="toggleVoice(\'rx_ob\')"><span class="vdot"></span><span id="vt_rx_ob"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="rx_ob"></textarea></div>','rxf')+
 sec('<i class="ph-bold ph-package"></i>','Material e Disposição','<div class="fr fr3"><div class="fg"><label>Material</label><input id="mt_m_"></div><div class="fg"><label>Filtro</label><input id="mt_f_"></div><div class="fg"><label>Prisma</label><input id="mt_p_"></div></div><div class="fr fr2"><div class="fg"><label>Tipo Lente</label><input id="mt_l_"></div><div class="fg"><label>Uso</label><input id="mt_u_"></div></div><div class="fg"><label>Resultados <button type="button" class="vbtn" id="vb_mt_r_" onclick="toggleVoice(\'mt_r_\')"><span class="vdot"></span><span id="vt_mt_r_"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="mt_r_"></textarea></div><div class="fg"><label>Disposição <button type="button" class="vbtn" id="vb_mt_d_" onclick="toggleVoice(\'mt_d_\')"><span class="vdot"></span><span id="vt_mt_d_"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="mt_d_"></textarea></div>','mat')
 }
 
@@ -917,9 +917,9 @@ function verRegistroHistorico(id){
 // prefixos mais comuns e caímos no nome técnico como fallback.
 var ROTULOS_HIST = {
   rx_od_e:'RX Final OD — Esf', rx_od_c:'RX Final OD — Cil', rx_od_x:'RX Final OD — Eixo',
-  rx_od_a:'RX Final OD — Adição', rx_od_d:'RX Final OD — DP',
+  rx_od_a:'RX Final OD — Adição', rx_od_d:'RX Final OD — DNP', rx_od_m:'RX Final OD — Altura',
   rx_oe_e:'RX Final OE — Esf', rx_oe_c:'RX Final OE — Cil', rx_oe_x:'RX Final OE — Eixo',
-  rx_oe_a:'RX Final OE — Adição', rx_oe_d:'RX Final OE — DP',
+  rx_oe_a:'RX Final OE — Adição', rx_oe_d:'RX Final OE — DNP', rx_oe_m:'RX Final OE — Altura',
   rx_od_avcc:'RX Final OD — AV c/c', rx_oe_avcc:'RX Final OE — AV c/c',
   rx_ob:'RX Final — Observações',
   pl_od_e:'Lensometria OD — Esf', pl_od_c:'Lensometria OD — Cil', pl_od_x:'Lensometria OD — Eixo',
@@ -1826,7 +1826,7 @@ window.exportBackup=function(){try{saveBlob('backup_olhar_'+stamp()+'.json',JSON
 window.importBackup=function(file){if(!file)return;const r=new FileReader();r.onload=function(){try{const parsed=JSON.parse(r.result);const data=parsed.data||parsed;if(!data||!Array.isArray(data.patients))throw new Error('Arquivo incompatível.');if(!confirm('Importar este backup substituirá os dados locais atuais. Continuar?'))return;D=Object.assign(D,data);sv();toast('Backup importado');setTimeout(function(){location.reload()},500)}catch(e){alert('Não foi possível importar: '+e.message)}};r.readAsText(file)};
 function ensureHardbar(){if(byId('hardbar'))return;const bar=document.createElement('div');bar.className='hardbar';bar.id='hardbar';bar.style.display='none';bar.innerHTML='<button class="btn bs bsm" onclick="exportBackup()">Backup</button><label class="btn bs bsm" style="cursor:pointer">Importar<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=\'\'"></label><button class="btn bs bsm" onclick="changeRolePin()">PIN</button>';document.body.appendChild(bar)}
 const oldEnterAs=enterAs;
-enterAs=function(r){const pins=getPins();const label=r==='opto'?'Dr. Geandré':'Secretaria';const ok=sessionStorage.getItem(SESSION_KEY+'_'+r)==='ok';if(!ok){const pin=prompt('Digite o PIN de acesso — '+label+':');if(pin===null)return;if(String(pin)!==String(pins[r])){alert('PIN incorreto.');return}sessionStorage.setItem(SESSION_KEY+'_'+r,'ok')}oldEnterAs(r);ensureHardbar();byId('hardbar').style.display='flex'};
+enterAs=function(r){const go=function(){oldEnterAs(r);ensureHardbar();byId('hardbar').style.display='flex'};if(sessionStorage.getItem(SESSION_KEY+'_'+r)==='ok'){go();return}if(typeof window.olharPinGate==='function'){window.olharPinGate(r,go);return}alert('Módulo de acesso indisponível. Recarregue a página.')};
 switchRole=function(){const target=role==='sec'?'opto':'sec';sessionStorage.removeItem(SESSION_KEY+'_'+target);enterAs(target)};
 window.changeRolePin=function(){const current=role||'opto';const pins=getPins();const old=prompt('PIN atual de '+(current==='opto'?'Dr. Geandré':'Secretaria')+':');if(old===null)return;if(String(old)!==String(pins[current])){alert('PIN atual incorreto.');return}const np=prompt('Novo PIN numérico, mínimo 4 dígitos:');if(np===null)return;if(!/^\d{4,12}$/.test(np)){alert('Use apenas números, com 4 a 12 dígitos.');return}pins[current]=np;localStorage.setItem(PIN_KEY,JSON.stringify(pins));sessionStorage.setItem(SESSION_KEY+'_'+current,'ok');toast('PIN atualizado')};
 
@@ -3685,8 +3685,8 @@ table{
   var usoList=['Uso contínuo','Visão de longe','Visão de perto','Leitura','Computador/Intermediário','Multifocal uso geral','Sob demanda'];
   var optoList=['Snellen','LogMAR/ETDRS','Tumbling E','Anéis de Landolt','Figuras (Lea/Allen)','HOTV','Cartões de Teller'];
 
-  var SUF={ esf:' D', cil:' D', add:' D', axis:'°', prism:'Δ', dpmono:' mm', dm:' mm', k:' D', pio:' mmHg' };
-  var GEN={ esf:esfList, cil:cilList, add:addList, axis:axisList, prism:prismList, dpmono:dpMonoList, dm:dmList, k:kList, pio:pioList,
+  var SUF={ esf:' D', cil:' D', add:' D', axis:'°', prism:'Δ', dpmono:' mm', dm:' mm', alt:' mm', k:' D', pio:' mmHg' };
+  var GEN={ esf:esfList, cil:cilList, add:addList, axis:axisList, prism:prismList, dpmono:dpMonoList, dm:dmList, alt:function(){return ['Medir'].concat(dmList())}, k:kList, pio:pioList,
             av:function(){return avList}, tecAfin:function(){return tecAfin}, mat:function(){return matList},
             trat:function(){return tratList}, lens:function(){return lensList}, uso:function(){return usoList}, opto:function(){return optoList} };
 
@@ -3712,7 +3712,7 @@ table{
     ad_od:'add', ad_oe:'add', pi_od:'pio', pi_oe:'pio',
     // RX Final
     rx_od_e:'esf', rx_oe_e:'esf', rx_od_c:'cil', rx_oe_c:'cil', rx_od_x:'axis', rx_oe_x:'axis',
-    rx_od_a:'add', rx_oe_a:'add', rx_od_d:'dpmono', rx_oe_d:'dpmono',
+    rx_od_a:'add', rx_oe_a:'add', rx_od_d:'dpmono', rx_oe_d:'dpmono', rx_od_m:'alt', rx_oe_m:'alt',
     rx_od_avcc:'av', rx_oe_avcc:'av',
     // Material e Disposição
     mt_m_:'mat', mt_f_:'trat', mt_l_:'lens', mt_u_:'uso',
@@ -3856,7 +3856,7 @@ table{
     r2:{r2_od_e:'r2_oe_e',r2_od_c:'r2_oe_c',r2_od_x:'r2_oe_x',r2_od_v:'r2_oe_v'},
     sb:{sb_od_e:'sb_oe_e',sb_od_c:'sb_oe_c',sb_od_x:'sb_oe_x',sb_od_v:'sb_oe_v'},
     af:{af_od_e:'af_oe_e',af_od_c:'af_oe_c',af_od_x:'af_oe_x',af_od_v:'af_oe_v'},
-    rx:{rx_od_e:'rx_oe_e',rx_od_c:'rx_oe_c',rx_od_x:'rx_oe_x',rx_od_a:'rx_oe_a',rx_od_d:'rx_oe_d'}
+    rx:{rx_od_e:'rx_oe_e',rx_od_c:'rx_oe_c',rx_od_x:'rx_oe_x',rx_od_a:'rx_oe_a',rx_od_d:'rx_oe_d',rx_od_m:'rx_oe_m'}
   };
 
   function addAllBars(){
@@ -4688,7 +4688,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v27 · IndexedDB';
+    var BUILD='Olhar v28 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -5546,4 +5546,525 @@ var observer=new MutationObserver(addPortalButtons);observer.observe(document.do
   window.addEventListener('load', function(){ setTimeout(processar, 200); });
 })();
 </script>
+<script id="olhar-sprint1-seguranca-rx">
+/* ============================================================
+   OLHAR — Sprint 1 (out/2026): acesso seguro + receita multifocal
+   1. PIN em tela própria (campo mascarado), guardado como hash
+      PBKDF2-SHA256; troca obrigatória dos PINs de fábrica;
+      bloqueio progressivo após 5 erros; código de recuperação.
+   2. Bloqueio automático por inatividade (padrão 5 min).
+   3. Receita: conferência antes de imprimir lente multifocal/
+      bifocal/ocupacional (DNP e altura), "Plano" no esférico
+      zero, vírgula decimal e sinal tipográfico em todas as
+      impressões (miolo A5, Documentos, Receitas A4/A5).
+   ============================================================ */
+(function(){
+'use strict';
+
+var DBK=(typeof DB!=='undefined'?DB:'olhar_v3');
+var LEGACY_KEY=DBK+'_pins_v3', V4_KEY=DBK+'_pins_v4', LOCK_KEY=DBK+'_pin_lock', IDLE_KEY=DBK+'_idle_min';
+var SESSION_KEY=DBK+'_session_v3';
+var FACTORY={opto:'1726',sec:'0000'};
+var ITER=150000;
+var LABEL={opto:'Dr. Geandré',sec:'Secretaria'};
+
+function $(id){return document.getElementById(id)}
+function H(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function lsGet(k,def){try{var v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function say(m){try{if(typeof toast==='function')toast(m)}catch(e){}}
+
+/* ---------------- hash do PIN ---------------- */
+function b64(buf){var s='',a=new Uint8Array(buf);for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s)}
+function unb64(s){var b=atob(s),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+function hasSubtle(){return !!(window.crypto&&crypto.subtle&&crypto.subtle.importKey)}
+function derive(pin,salt,iter){
+  var enc=new TextEncoder().encode(String(pin));
+  return crypto.subtle.importKey('raw',enc,'PBKDF2',false,['deriveBits']).then(function(k){
+    return crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:salt,iterations:iter},k,256);
+  }).then(b64);
+}
+function makeRecord(pin){
+  var salt=crypto.getRandomValues(new Uint8Array(16));
+  return derive(pin,salt,ITER).then(function(h){return {s:b64(salt),h:h,i:ITER,t:Date.now()}});
+}
+function sameHash(pin,rec){return derive(pin,unb64(rec.s),rec.i||ITER).then(function(h){return h===rec.h})}
+
+function v4(){return lsGet(V4_KEY,{})}
+function legacyPins(){return Object.assign({},FACTORY,lsGet(LEGACY_KEY,{}))}
+function dropLegacy(role){var l=lsGet(LEGACY_KEY,{});delete l[role];lsSet(LEGACY_KEY,l)}
+
+function weakReason(pin,role){
+  pin=String(pin||'');
+  if(!/^\d{4,12}$/.test(pin)) return 'Use de 4 a 12 números.';
+  if(pin===FACTORY.opto||pin===FACTORY.sec) return 'Esse é um PIN de fábrica. Escolha outro.';
+  if(/^(\d)\1+$/.test(pin)) return 'Números todos iguais são fáceis de adivinhar.';
+  var asc='01234567890123456789', desc='98765432109876543210';
+  if(asc.indexOf(pin)>=0||desc.indexOf(pin)>=0) return 'Sequências (1234, 4321…) são fáceis de adivinhar.';
+  if(/^(19|20)\d{2}$/.test(pin)) return 'Evite anos (ex.: 1990, 2024).';
+  return '';
+}
+
+/* verifica PIN; devolve {ok, mustChange} */
+function verify(role,pin){
+  var rec=v4()[role];
+  if(rec&&hasSubtle()) return sameHash(pin,rec).then(function(ok){return {ok:ok,mustChange:false}});
+  var legacy=legacyPins()[role];
+  var ok=String(pin)===String(legacy);
+  var must=ok&&(String(legacy)===FACTORY[role]||!!weakReason(legacy,role));
+  if(ok&&!must&&hasSubtle()){ // migra PIN antigo (forte) para hash
+    return makeRecord(pin).then(function(r){var all=v4();all[role]=r;lsSet(V4_KEY,all);dropLegacy(role);return {ok:true,mustChange:false}});
+  }
+  return Promise.resolve({ok:ok,mustChange:must});
+}
+function storePin(role,pin){
+  if(!hasSubtle()){ var l=lsGet(LEGACY_KEY,{}); l[role]=pin; lsSet(LEGACY_KEY,l); return Promise.resolve(); }
+  return makeRecord(pin).then(function(r){var all=v4();all[role]=r;if(!lsSet(V4_KEY,all))throw new Error('Sem espaço para gravar o PIN.');dropLegacy(role)});
+}
+
+/* ---------------- tentativas erradas ---------------- */
+function lockState(role){var s=lsGet(LOCK_KEY,{});return s[role]||{n:0,until:0}}
+function setLock(role,st){var s=lsGet(LOCK_KEY,{});s[role]=st;lsSet(LOCK_KEY,s)}
+function registerFail(role){
+  var st=lockState(role); st.n=(st.n||0)+1;
+  if(st.n>=5){ var mult=Math.pow(2,Math.min(st.n-5,5)); st.until=Date.now()+Math.min(30000*mult,15*60000); }
+  setLock(role,st); return st;
+}
+function clearFails(role){setLock(role,{n:0,until:0})}
+function waitText(ms){var s=Math.ceil(ms/1000);return s<60?(s+' s'):(Math.ceil(s/60)+' min')}
+
+/* ---------------- código de recuperação (só Dr.) ---------------- */
+var REC_KEY=DBK+'_pin_recovery';
+function newRecoveryCode(){
+  var abc='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', v=crypto.getRandomValues(new Uint32Array(8)), s='';
+  for(var i=0;i<8;i++){ s+=abc[v[i]%abc.length]; if(i===3)s+='-'; }
+  return s;
+}
+function normCode(c){return String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function storeRecovery(code){return makeRecord(normCode(code)).then(function(r){lsSet(REC_KEY,r)})}
+function checkRecovery(code){var r=lsGet(REC_KEY,null);if(!r||!hasSubtle())return Promise.resolve(false);return sameHash(normCode(code),r)}
+
+/* ---------------- UI ---------------- */
+var css=document.createElement('style');
+css.textContent=
+'.sx-ov{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,14,28,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}'+
+'.sx-ov.sx-lock{background:rgba(10,14,28,.82)}'+
+'.sx-card{width:100%;max-width:400px;background:var(--bg2,#fff);color:var(--tx,#0a0a0a);border:1px solid var(--bdr,#dde3e7);border-radius:18px;padding:26px 24px 22px;box-shadow:0 24px 60px rgba(0,0,0,.28);font-family:var(--font,system-ui,sans-serif);max-height:calc(100vh - 32px);overflow:auto}'+
+'.sx-card.sx-wide{max-width:520px}'+
+'.sx-k{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--o,#8a5f3a);font-weight:700;margin-bottom:6px}'+
+'.sx-t{font-size:21px;font-weight:800;margin:0 0 6px;color:var(--pri,#1e2d68)}'+
+'.sx-p{font-size:13.5px;line-height:1.5;color:var(--tx3,#4a5568);margin:0 0 16px}'+
+'.sx-l{display:block;font-size:12px;font-weight:700;color:var(--tx2,#232830);margin:12px 0 6px}'+
+'.sx-in{width:100%;box-sizing:border-box;padding:14px 14px;font-size:22px;letter-spacing:8px;text-align:center;border:1.5px solid var(--bdr2,#cfd5d9);border-radius:12px;background:var(--bg3,#fff);color:var(--tx,#0a0a0a);font-family:var(--font-m,ui-monospace,monospace)}'+
+'.sx-in.sx-sm{font-size:16px;letter-spacing:1px;padding:11px 10px}'+
+'.sx-in:focus{outline:none;border-color:var(--pri,#1e2d68);box-shadow:0 0 0 3px var(--pril,rgba(30,45,104,.1))}'+
+'.sx-err{min-height:20px;font-size:13px;color:var(--red,#c53030);margin-top:10px;font-weight:600}'+
+'.sx-ok{color:#16803a}'+
+'.sx-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}'+
+'.sx-b{flex:1;min-height:48px;border-radius:12px;border:1.5px solid var(--bdr2,#cfd5d9);background:var(--bg3,#fff);color:var(--tx,#0a0a0a);font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;padding:0 14px}'+
+'.sx-b.sx-pri{background:var(--pri,#1e2d68);border-color:var(--pri,#1e2d68);color:#fff}'+
+'.sx-b.sx-warn{background:var(--o,#8a5f3a);border-color:var(--o,#8a5f3a);color:#fff}'+
+'.sx-b:disabled{opacity:.5;cursor:default}'+
+'.sx-link{background:none;border:0;color:var(--pri,#1e2d68);font-size:13px;font-weight:600;cursor:pointer;padding:10px 0 0;font-family:inherit;text-decoration:underline}'+
+'.sx-code{font-family:var(--font-m,ui-monospace,monospace);font-size:28px;font-weight:800;letter-spacing:4px;text-align:center;padding:16px;border:2px dashed var(--o,#8a5f3a);border-radius:12px;color:var(--pri,#1e2d68);margin:6px 0 4px;user-select:all}'+
+'.sx-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}'+
+'.sx-sel{width:100%;padding:11px;border-radius:10px;border:1.5px solid var(--bdr2,#cfd5d9);background:var(--bg3,#fff);color:var(--tx,#0a0a0a);font-size:14px;font-family:inherit}'+
+'.sx-sec{border-top:1px solid var(--bdr,#dde3e7);margin-top:18px;padding-top:14px}'+
+'.sx-list{margin:0 0 6px;padding-left:18px;font-size:13.5px;line-height:1.6;color:var(--tx2,#232830)}'+
+'.sx-chk{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--tx2,#232830);margin-top:12px}'+
+'.sx-chk input{margin-top:3px}'+
+'@media print{.sx-ov{display:none!important}}';
+document.head.appendChild(css);
+
+function overlay(html,cls){
+  var o=document.createElement('div'); o.className='sx-ov'+(cls?' '+cls:'');
+  o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true');
+  o.innerHTML='<div class="sx-card'+(cls&&cls.indexOf('wide')>=0?' sx-wide':'')+'">'+html+'</div>';
+  document.body.appendChild(o); return o;
+}
+function q(o,sel){return o.querySelector(sel)}
+function onEnter(input,fn){input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();fn()}})}
+function digitsOnly(input){input.addEventListener('input',function(){var v=input.value.replace(/\D/g,'').slice(0,12);if(v!==input.value)input.value=v})}
+function pinInput(id,ph){return '<input class="sx-in" id="'+id+'" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="12" placeholder="'+(ph||'••••')+'">'}
+
+/* --- passo: criar PIN novo (obrigatório ou voluntário) --- */
+function askNewPin(role,opts,done){
+  opts=opts||{};
+  var o=overlay(
+    '<div class="sx-k">'+H(LABEL[role])+'</div>'+
+    '<h2 class="sx-t">'+(opts.forced?'Crie seu PIN pessoal':'Novo PIN')+'</h2>'+
+    '<p class="sx-p">'+(opts.forced?'O PIN de fábrica não protege mais o sistema. Defina agora um PIN só seu, de 4 a 12 números. Recomendo 6.':'Defina o novo PIN, de 4 a 12 números.')+'</p>'+
+    '<label class="sx-l" for="sxN1">Novo PIN</label>'+pinInput('sxN1','')+
+    '<label class="sx-l" for="sxN2">Repita o novo PIN</label>'+pinInput('sxN2','')+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row">'+(opts.forced?'':'<button class="sx-b" id="sxCancel" type="button">Cancelar</button>')+'<button class="sx-b sx-pri" id="sxGo" type="button">Salvar PIN</button></div>'
+  , opts.lockStyle?'sx-lock':'');
+  var a=q(o,'#sxN1'), b=q(o,'#sxN2'), err=q(o,'#sxErr'), go=q(o,'#sxGo');
+  digitsOnly(a); digitsOnly(b);
+  setTimeout(function(){a.focus()},50);
+  function submit(){
+    var p1=a.value, p2=b.value, w=weakReason(p1,role);
+    if(w){err.textContent=w;a.focus();return}
+    if(p1!==p2){err.textContent='Os dois PINs não conferem.';b.value='';b.focus();return}
+    go.disabled=true; err.textContent='';
+    storePin(role,p1).then(function(){
+      clearFails(role);
+      o.remove();
+      if(role==='opto'&&hasSubtle()&&(opts.forced||!lsGet(REC_KEY,null))) showRecovery(function(){done&&done()});
+      else done&&done();
+    }).catch(function(e){go.disabled=false;err.textContent='Não consegui gravar: '+e.message});
+  }
+  onEnter(a,function(){b.focus()}); onEnter(b,submit);
+  go.onclick=submit;
+  if(q(o,'#sxCancel')) q(o,'#sxCancel').onclick=function(){o.remove()};
+}
+
+function showRecovery(done){
+  var code=newRecoveryCode();
+  storeRecovery(code).then(function(){
+    var o=overlay(
+      '<div class="sx-k">Guarde em lugar seguro</div>'+
+      '<h2 class="sx-t">Código de recuperação</h2>'+
+      '<p class="sx-p">Se você esquecer o PIN, este código libera a criação de um PIN novo. Ele aparece <strong>só agora</strong>. Anote no papel ou no gerenciador de senhas. Não guarde junto do tablet.</p>'+
+      '<div class="sx-code">'+H(code)+'</div>'+
+      '<label class="sx-chk"><input type="checkbox" id="sxSaw"> Anotei o código em lugar seguro.</label>'+
+      '<div class="sx-row"><button class="sx-b sx-pri" id="sxGo" type="button" disabled>Continuar</button></div>');
+    q(o,'#sxSaw').onchange=function(){q(o,'#sxGo').disabled=!this.checked};
+    q(o,'#sxGo').onclick=function(){o.remove();done&&done()};
+  }).catch(function(){done&&done()});
+}
+
+function askRecovery(done){
+  var o=overlay(
+    '<div class="sx-k">Dr. Geandré</div><h2 class="sx-t">Esqueci o PIN</h2>'+
+    '<p class="sx-p">Digite o código de recuperação que apareceu quando o PIN foi criado (formato XXXX-XXXX).</p>'+
+    '<input class="sx-in sx-sm" id="sxRc" autocomplete="off" autocapitalize="characters" placeholder="XXXX-XXXX">'+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row"><button class="sx-b" id="sxCancel" type="button">Voltar</button><button class="sx-b sx-pri" id="sxGo" type="button">Verificar</button></div>','sx-lock');
+  var inp=q(o,'#sxRc'), err=q(o,'#sxErr');
+  setTimeout(function(){inp.focus()},50);
+  function submit(){
+    var st=lockState('rec'); if(st.until>Date.now()){err.textContent='Muitas tentativas. Aguarde '+waitText(st.until-Date.now())+'.';return}
+    checkRecovery(inp.value).then(function(ok){
+      if(!ok){var s=registerFail('rec');err.textContent='Código não confere.'+(s.until>Date.now()?' Aguarde '+waitText(s.until-Date.now())+'.':'');return}
+      clearFails('rec'); o.remove();
+      askNewPin('opto',{forced:true,lockStyle:true},done);
+    });
+  }
+  onEnter(inp,submit); q(o,'#sxGo').onclick=submit; q(o,'#sxCancel').onclick=function(){o.remove()};
+}
+
+/* --- portão de entrada: pede PIN, depois chama proceed() --- */
+var gateOpen=false;
+function pinGate(role,proceed,opts){
+  opts=opts||{};
+  if(gateOpen) return; gateOpen=true;
+  var lockStyle=!!opts.lock;
+  var hasRec=role==='opto'&&!!lsGet(REC_KEY,null);
+  var o=overlay(
+    '<div class="sx-k">'+(lockStyle?'Sessão bloqueada':'Acesso')+'</div>'+
+    '<h2 class="sx-t">'+H(LABEL[role])+'</h2>'+
+    '<p class="sx-p">'+(lockStyle?'O sistema foi bloqueado por inatividade. Digite o PIN para continuar de onde parou.':'Digite seu PIN de acesso.')+'</p>'+
+    pinInput('sxPin')+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row">'+(lockStyle?'<button class="sx-b" id="sxOut" type="button">Trocar de usuário</button>':'<button class="sx-b" id="sxCancel" type="button">Cancelar</button>')+'<button class="sx-b sx-pri" id="sxGo" type="button">Entrar</button></div>'+
+    (role==='opto'?'<button class="sx-link" id="sxForgot" type="button">Esqueci o PIN</button>':'<p class="sx-p" style="margin:12px 0 0;font-size:12px">Esqueceu? O Dr. Geandré redefine o PIN da Secretaria no menu <strong>PIN</strong>.</p>')
+  , lockStyle?'sx-lock':'');
+  var inp=q(o,'#sxPin'), err=q(o,'#sxErr'), go=q(o,'#sxGo');
+  digitsOnly(inp);
+  setTimeout(function(){inp.focus()},60);
+  function close(){o.remove();gateOpen=false}
+  function showWait(){var st=lockState(role);if(st.until>Date.now()){err.textContent='Muitas tentativas erradas. Aguarde '+waitText(st.until-Date.now())+'.';return true}return false}
+  showWait();
+  function submit(){
+    if(showWait())return;
+    var pin=inp.value; if(!pin){inp.focus();return}
+    go.disabled=true;
+    verify(role,pin).then(function(r){
+      go.disabled=false;
+      if(!r.ok){
+        var st=registerFail(role); inp.value=''; inp.focus();
+        err.textContent=st.until>Date.now()?('PIN incorreto. Bloqueado por '+waitText(st.until-Date.now())+'.'):('PIN incorreto.'+(st.n>=3?' Restam '+(5-st.n)+' tentativa(s) antes de uma pausa.':''));
+        return;
+      }
+      clearFails(role); close();
+      try{sessionStorage.setItem(SESSION_KEY+'_'+role,'ok')}catch(e){}
+      if(r.mustChange) askNewPin(role,{forced:true,lockStyle:lockStyle},proceed);
+      else proceed();
+    }).catch(function(e){go.disabled=false;err.textContent='Erro ao verificar: '+e.message});
+  }
+  onEnter(inp,submit); go.onclick=submit;
+  if(q(o,'#sxCancel')) q(o,'#sxCancel').onclick=close;
+  if(q(o,'#sxOut')) q(o,'#sxOut').onclick=function(){
+    try{sessionStorage.removeItem(SESSION_KEY+'_opto');sessionStorage.removeItem(SESSION_KEY+'_sec')}catch(e){}
+    location.reload();
+  };
+  if(q(o,'#sxForgot')) q(o,'#sxForgot').onclick=function(){
+    if(!lsGet(REC_KEY,null)){err.textContent='Ainda não existe código de recuperação neste aparelho. Ele é criado na primeira troca de PIN.';return}
+    close(); askRecovery(function(){try{sessionStorage.setItem(SESSION_KEY+'_opto','ok')}catch(e){} proceed()});
+  };
+}
+window.olharPinGate=pinGate;
+
+/* ---------------- bloqueio por inatividade ---------------- */
+function idleMin(){var m=Number(lsGet(IDLE_KEY,5));return [2,5,10,15,30].indexOf(m)>=0?m:5}
+var last=Date.now(), locked=false;
+function bump(){if(!locked)last=Date.now()}
+['pointerdown','keydown','wheel','touchstart','input','scroll'].forEach(function(ev){document.addEventListener(ev,bump,{passive:true,capture:true})});
+function inApp(){
+  var mc=$('mainC'), ls=$('loginScreen');
+  return typeof role!=='undefined'&&!!role&&mc&&mc.style.display!=='none'&&(!ls||ls.style.display==='none');
+}
+function lockNow(){
+  if(locked||!inApp()) return;
+  locked=true;
+  var r=role;
+  try{sessionStorage.removeItem(SESSION_KEY+'_'+r)}catch(e){}
+  pinGate(r,function(){locked=false;last=Date.now()},{lock:true});
+}
+function check(){ if(!locked&&inApp()&&Date.now()-last>idleMin()*60000) lockNow(); }
+setInterval(check,10000);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check()});
+window.olharLockNow=lockNow;
+
+/* ---------------- menu "PIN" → Segurança ---------------- */
+window.changeRolePin=function(){
+  var r=(typeof role!=='undefined'&&role)?role:'opto';
+  var m=idleMin();
+  var opts=[2,5,10,15,30].map(function(x){return '<option value="'+x+'"'+(x===m?' selected':'')+'>'+x+' minutos</option>'}).join('');
+  var o=overlay(
+    '<div class="sx-k">'+H(LABEL[r])+'</div><h2 class="sx-t">Segurança</h2>'+
+    '<label class="sx-l" for="sxCur">Para alterar, digite o PIN atual</label>'+pinInput('sxCur')+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row"><button class="sx-b sx-pri" id="sxChange" type="button">Trocar meu PIN</button></div>'+
+    (r==='opto'?'<div class="sx-row" style="margin-top:10px"><button class="sx-b" id="sxSec" type="button">Redefinir PIN da Secretaria</button></div><div class="sx-row" style="margin-top:10px"><button class="sx-b" id="sxRec" type="button">Gerar novo código de recuperação</button></div>':'')+
+    '<div class="sx-sec"><label class="sx-l" for="sxIdle">Bloquear automaticamente após</label><select class="sx-sel" id="sxIdle">'+opts+'</select></div>'+
+    '<div class="sx-row"><button class="sx-b" id="sxLockNow" type="button">Bloquear agora</button><button class="sx-b" id="sxClose" type="button">Fechar</button></div>','sx-wide');
+  var cur=q(o,'#sxCur'), err=q(o,'#sxErr');
+  digitsOnly(cur); setTimeout(function(){cur.focus()},50);
+  function withCurrent(fn){
+    var st=lockState(r); if(st.until>Date.now()){err.textContent='Aguarde '+waitText(st.until-Date.now())+'.';return}
+    if(!cur.value){err.textContent='Digite o PIN atual primeiro.';cur.focus();return}
+    verify(r,cur.value).then(function(res){
+      if(!res.ok){registerFail(r);err.textContent='PIN atual incorreto.';cur.value='';cur.focus();return}
+      clearFails(r); o.remove(); fn();
+    });
+  }
+  q(o,'#sxChange').onclick=function(){withCurrent(function(){askNewPin(r,{},function(){say('PIN atualizado')})})};
+  if(q(o,'#sxSec')) q(o,'#sxSec').onclick=function(){withCurrent(function(){askNewPin('sec',{},function(){clearFails('sec');say('PIN da Secretaria redefinido')})})};
+  if(q(o,'#sxRec')) q(o,'#sxRec').onclick=function(){withCurrent(function(){showRecovery(function(){say('Novo código de recuperação gerado')})})};
+  q(o,'#sxIdle').onchange=function(){lsSet(IDLE_KEY,Number(this.value));last=Date.now();say('Bloqueio automático: '+this.value+' min')};
+  q(o,'#sxLockNow').onclick=function(){o.remove();lockNow()};
+  q(o,'#sxClose').onclick=function(){o.remove()};
+};
+
+/* ============================================================
+   RECEITA — formatação e conferência de montagem
+   ============================================================ */
+function num(v){
+  if(v==null) return null;
+  var s=String(v).trim().replace(/−/g,'-').replace(',','.').replace(/[°\sD]/g,'');
+  if(!/^[+-]?\d+(\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+function br2(n){return Math.abs(n).toFixed(2).replace('.',',')}
+function fmtEsf(v){var n=num(v);if(n===null)return null;if(Math.abs(n)<0.005)return 'Plano';return (n<0?'−':'+')+br2(n)}
+function fmtCil(v){var n=num(v);if(n===null)return null;if(Math.abs(n)<0.005)return '—';return (n<0?'−':'+')+br2(n)}
+function fmtAdd(v){var n=num(v);if(n===null)return null;if(Math.abs(n)<0.005)return '—';return '+'+br2(n)}
+function mm(n){return (Math.round(n*2)/2).toFixed(1).replace('.',',')}
+window.olharFmtRx={esf:fmtEsf,cil:fmtCil,add:fmtAdd};
+
+var MULTI_RE=/multifoca|progressiv|bifoca|ocupacional|office|varilux|kryptok|ultex|panoptik|biovis/i;
+
+function recordFor(pid,date){
+  var recs=((window.D&&D.records)||[]).filter(function(r){return r.patientId===pid&&r.data});
+  if(!recs.length) return null;
+  if(date){var same=recs.filter(function(r){return String(r.date||'').slice(0,10)===String(date).slice(0,10)});if(same.length)recs=same}
+  recs.sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))});
+  return recs[0];
+}
+
+/* monta o contexto clínico da receita a partir das fontes disponíveis */
+function ctxFrom(src){
+  var rec=src.pid?recordFor(src.pid,src.date):null, d=(rec&&rec.data)||{};
+  var lens=[src.lens,d.mt_l_].filter(Boolean).join(' ');
+  var lensName=[d.mt_l_].concat(String(src.lens||'').split(/\s+[—\/–-]\s+/)).filter(function(x){return x&&MULTI_RE.test(x)})[0]||'';
+  var add=num(src.add); if(add===null) add=num(d.rx_od_a)||num(d.rx_oe_a);
+  return {
+    rec:rec, multi:MULTI_RE.test(lens), lens:lens, lensName:lensName.trim(), add:add,
+    dnpOd:num(d.rx_od_d), dnpOe:num(d.rx_oe_d), dnpBin:num(src.dp),
+    altOd:num(d.rx_od_m), altOe:num(d.rx_oe_m),
+    dnpMedir:String(src.dp||'').trim()==='Medir'||d.rx_od_d==='Medir'||d.rx_oe_d==='Medir',
+    altMedir:d.rx_od_m==='Medir'||d.rx_oe_m==='Medir'
+  };
+}
+function problems(c){
+  var bad=[], miss=[];
+  function mono(v,l){if(v!==null&&(v<24||v>40))bad.push('DNP '+l+' = '+mm(v)+' mm está fora da faixa possível (24–40 mm).')}
+  mono(c.dnpOd,'OD'); mono(c.dnpOe,'OE');
+  if(c.dnpBin!==null&&(c.dnpOd===null&&c.dnpOe===null)&&(c.dnpBin<44||c.dnpBin>80)) bad.push('DNP total = '+mm(c.dnpBin)+' mm está fora da faixa possível.');
+  function alt(v,l){if(v!==null&&(v<8||v>40))bad.push('Altura '+l+' = '+mm(v)+' mm está fora da faixa possível (8–40 mm).')}
+  alt(c.altOd,'OD'); alt(c.altOe,'OE');
+  if(c.multi){
+    if(c.dnpOd===null||c.dnpOe===null) miss.push(c.dnpBin!==null?'DNP monocular (só há a DNP total)':'DNP');
+    if(c.altOd===null||c.altOe===null) miss.push('Altura de montagem');
+  }
+  return {bad:bad,miss:miss};
+}
+
+/* bloco "Montagem" que vai impresso */
+function montagemLines(c){
+  var out=[];
+  if(c.dnpOd!==null&&c.dnpOe!==null) out.push(['DNP','OD '+mm(c.dnpOd)+' mm · OE '+mm(c.dnpOe)+' mm']);
+  else if(c.dnpBin!==null) out.push(['DNP',mm(c.dnpBin)+' mm']);
+  else if(c.multi||c.dnpMedir) out.push(['DNP','medir na ótica (monocular)']);
+  if(c.altOd!==null&&c.altOe!==null) out.push(['Altura de montagem','OD '+mm(c.altOd)+' mm · OE '+mm(c.altOe)+' mm']);
+  else if(c.multi) out.push(['Altura de montagem','medir na ótica, com a armação escolhida']);
+  return out;
+}
+
+/* modal de conferência; cb(ctxFinal) ou nada se o usuário voltar */
+function confirmGate(c,cb){
+  var pr=problems(c);
+  var needsAsk=pr.bad.length||pr.miss.length||(!c.multi&&c.add!==null&&c.add>0&&!c.lens);
+  if(!needsAsk){cb(c);return}
+  var v=function(x){return x===null?'':mm(x).replace(',','.')};
+  var fields=
+    '<div class="sx-g2"><div><label class="sx-l">DNP OD (mm)</label><input class="sx-in sx-sm" id="sxDo" inputmode="decimal" value="'+v(c.dnpOd)+'"></div>'+
+    '<div><label class="sx-l">DNP OE (mm)</label><input class="sx-in sx-sm" id="sxDe" inputmode="decimal" value="'+v(c.dnpOe)+'"></div>'+
+    '<div><label class="sx-l">Altura OD (mm)</label><input class="sx-in sx-sm" id="sxAo" inputmode="decimal" value="'+v(c.altOd)+'"></div>'+
+    '<div><label class="sx-l">Altura OE (mm)</label><input class="sx-in sx-sm" id="sxAe" inputmode="decimal" value="'+v(c.altOe)+'"></div></div>'+
+    (c.rec?'<label class="sx-chk"><input type="checkbox" id="sxSaveRec" checked> Gravar estes valores no RX Final do prontuário de '+H(String(c.rec.date||'').split('-').reverse().join('/'))+'</label>':'');
+  var intro, buttons;
+  if(pr.bad.length){
+    intro='<p class="sx-p">Há valor impossível na receita. Corrija antes de imprimir:</p><ul class="sx-list">'+pr.bad.map(function(x){return '<li>'+H(x)+'</li>'}).join('')+'</ul>';
+  } else if(pr.miss.length){
+    intro='<p class="sx-p">Receita de lente <strong>'+H(c.lensName||'multifocal')+'</strong>. Para o laboratório montar, faltam:</p><ul class="sx-list">'+pr.miss.map(function(x){return '<li>'+H(x)+'</li>'}).join('')+'</ul><p class="sx-p">Preencha abaixo, ou imprima indicando que a ótica vai medir.</p>';
+  } else {
+    intro='<p class="sx-p">A receita tem adição de <strong>+'+br2(c.add)+' D</strong>, mas o tipo de lente não foi definido. Confira se é monofocal de perto, bifocal ou multifocal.</p>';
+  }
+  var o=overlay('<div class="sx-k">Conferência antes de imprimir</div><h2 class="sx-t">Dados de montagem</h2>'+intro+
+    (c.multi||pr.bad.length?fields:'')+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row"><button class="sx-b" id="sxBack" type="button">Voltar e corrigir</button>'+
+    (c.multi||pr.bad.length?'<button class="sx-b sx-pri" id="sxUse" type="button">Imprimir com estes valores</button>':'')+
+    (!pr.bad.length?'<button class="sx-b sx-warn" id="sxAnyway" type="button">'+(pr.miss.length?'Imprimir: medir na ótica':'Imprimir assim')+'</button>':'')+'</div>','sx-wide');
+  var err=q(o,'#sxErr');
+  q(o,'#sxBack').onclick=function(){o.remove()};
+  if(q(o,'#sxAnyway')) q(o,'#sxAnyway').onclick=function(){o.remove();cb(c)};
+  if(q(o,'#sxUse')) q(o,'#sxUse').onclick=function(){
+    var n=Object.assign({},c);
+    n.dnpOd=num(q(o,'#sxDo').value); n.dnpOe=num(q(o,'#sxDe').value);
+    n.altOd=num(q(o,'#sxAo').value); n.altOe=num(q(o,'#sxAe').value);
+    var p2=problems(n);
+    if(p2.bad.length){err.textContent=p2.bad[0];return}
+    if(p2.miss.length&&!confirm('Ainda falta: '+p2.miss.join(', ')+'. Imprimir indicando "medir na ótica"?')) return;
+    var save=q(o,'#sxSaveRec');
+    if(save&&save.checked&&n.rec){
+      var d=n.rec.data, w=function(k,val){if(val!==null)d[k]=val.toFixed(2)};
+      w('rx_od_d',n.dnpOd); w('rx_oe_d',n.dnpOe); w('rx_od_m',n.altOd); w('rx_oe_m',n.altOe);
+      try{if(typeof sv==='function')sv()}catch(e){}
+    }
+    o.remove(); cb(n);
+  };
+}
+
+/* aplica "Plano", vírgula e sinal tipográfico nas tabelas de RX dentro de root */
+function polishTables(root){
+  Array.prototype.forEach.call(root.querySelectorAll('table'),function(t){
+    var heads=Array.prototype.map.call(t.querySelectorAll('thead th'),function(th){return th.textContent.trim().toUpperCase()});
+    if(heads.indexOf('ESF')<0) return;
+    var ci={esf:heads.indexOf('ESF'),cil:heads.indexOf('CIL'),add:heads.indexOf('ADD')};
+    Array.prototype.forEach.call(t.querySelectorAll('tbody tr'),function(tr){
+      var cells=tr.children, first=(cells[0]&&cells[0].textContent.trim().toUpperCase())||'';
+      function fix(i,f){var td=cells[i];if(!td||td.children.length)return;var out=f(td.textContent);if(out!==null)td.textContent=out}
+      Array.prototype.forEach.call(cells,function(td){if(/^DP:/i.test(td.textContent.trim()))td.textContent=''});
+      var second=(cells[1]&&cells[1].textContent.trim().toUpperCase())||'';
+      if(first==='AD'||second==='AD'){fix(ci.esf,fmtAdd);return}
+      fix(ci.esf,fmtEsf); fix(ci.cil,fmtCil); if(ci.add>=0) fix(ci.add,fmtAdd);
+    });
+  });
+}
+
+/* --- 1) miolo A5 (Documentos → Imprimir miolo / impressão rápida) --- */
+function docCtx(){
+  var pid=($('docPat')||{}).value||'';
+  var val=function(id){return (($(id)||{}).value||'').trim()};
+  return ctxFrom({pid:pid,date:null,lens:[val('drx_mat')].join(' '),add:val('drx_add'),dp:val('drx_dp')});
+}
+var _miolo=window.printMiolo;
+if(typeof _miolo==='function'){
+  window.printMiolo=function(){
+    var t=(typeof curDocType!=='undefined')?curDocType:null;
+    if(t!=='rx') return _miolo.apply(this,arguments);
+    var self=this,args=arguments;
+    confirmGate(docCtx(),function(c){
+      _miolo.apply(self,args);
+      var pa=$('docPrintArea'); if(!pa) return;
+      polishTables(pa);
+      var box=pa.querySelector('.miolo-rx'); if(!box) return;
+      Array.prototype.forEach.call(box.querySelectorAll('.mrx-info'),function(el){var s=el.querySelector('strong');if(s&&/^DNP/.test(s.textContent.trim()))el.remove()});
+      var obs=box.querySelector('.mrx-obs');
+      montagemLines(c).forEach(function(l){
+        var div=document.createElement('div'); div.className='mrx-info';
+        div.innerHTML='<strong>'+H(l[0])+':</strong> '+H(l[1]);
+        if(obs) box.insertBefore(div,obs); else box.appendChild(div);
+      });
+    });
+  };
+}
+
+/* --- 2) Documentos → Imprimir (página completa) --- */
+var _printDoc=window.printDoc;
+if(typeof _printDoc==='function'){
+  window.printDoc=function(){
+    var t=(typeof curDocType!=='undefined')?curDocType:null;
+    if(t!=='rx') return _printDoc.apply(this,arguments);
+    var self=this,args=arguments;
+    confirmGate(docCtx(),function(c){
+      _printDoc.apply(self,args);
+      var pa=$('docPrintArea'); if(!pa) return;
+      polishTables(pa);
+      var tbl=pa.querySelector('.dp-rxtbl');
+      if(tbl){
+        var lines=montagemLines(c), after=tbl;
+        lines.forEach(function(l){
+          var div=document.createElement('div'); div.className='dp-field';
+          div.innerHTML='<strong>'+H(l[0])+':</strong> '+H(l[1]);
+          after.parentNode.insertBefore(div,after.nextSibling); after=div;
+        });
+      }
+    });
+  };
+}
+
+/* --- 3) Receitas → Imprimir A4 / A5 (janela própria) --- */
+var _rxFmt=window.printRxFormat;
+if(typeof _rxFmt==='function'){
+  window.printRxFormat=function(id,format){
+    var r=((window.D&&D.prescriptions)||[]).find(function(x){return x.id===id});
+    if(!r) return _rxFmt.apply(this,arguments);
+    var self=this,args=arguments;
+    var c=ctxFrom({pid:r.patientId,date:r.date,lens:[r.lensType,r.material].filter(Boolean).join(' '),add:r.add,dp:r.dp});
+    confirmGate(c,function(c2){
+      var opened=null, realOpen=window.open;
+      window.open=function(){opened=realOpen.apply(window,arguments);return opened};
+      try{_rxFmt.apply(self,args)}finally{window.open=realOpen}
+      if(!opened) return;
+      try{
+        var doc=opened.document; polishTables(doc);
+        var t=doc.querySelector('table'); if(!t) return;
+        var html='';
+        var hasAdRow=Array.prototype.some.call(t.querySelectorAll('tbody tr'),function(tr){return tr.children[0]&&tr.children[0].textContent.trim().toUpperCase()==='AD'||tr.children[1]&&tr.children[1].textContent.trim().toUpperCase()==='AD'});
+        if(!hasAdRow&&c2.add!==null&&c2.add>0) html+='<div style="margin:6px 0"><strong>Adição:</strong> '+H(fmtAdd(c2.add))+' D</div>';
+        montagemLines(c2).forEach(function(l){html+='<div style="margin:6px 0"><strong>'+H(l[0])+':</strong> '+H(l[1])+'</div>'});
+        if(html){var box=doc.createElement('div');box.style.cssText='font-size:13px;margin:4px 0 12px';box.innerHTML=html;t.parentNode.insertBefore(box,t.nextSibling)}
+      }catch(e){console.error('[OLHAR] receita:',e)}
+    });
+  };
+}
+
+})();
+</script>
+
 </body></html>
