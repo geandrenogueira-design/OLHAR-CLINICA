@@ -1824,7 +1824,7 @@ const oldSv=sv;
 sv=function(){try{const previous=localStorage.getItem(DB);if(previous)localStorage.setItem(DB+'_last_good_backup',previous);if(!D._meta)D._meta={};D._meta.updatedAt=new Date().toISOString();localStorage.setItem(DB,JSON.stringify(D))}catch(e){alert('Não foi possível salvar. Exporte um backup agora.');console.error(e)}};
 window.exportBackup=function(){try{saveBlob('backup_olhar_'+stamp()+'.json',JSON.stringify({app:'Olhar Sistema',version:'v3-auditado',exportedAt:new Date().toISOString(),data:D},null,2));toast('Backup exportado')}catch(e){alert('Falha ao exportar backup: '+e.message)}};
 window.importBackup=function(file){if(!file)return;const r=new FileReader();r.onload=function(){try{const parsed=JSON.parse(r.result);const data=parsed.data||parsed;if(!data||!Array.isArray(data.patients))throw new Error('Arquivo incompatível.');if(!confirm('Importar este backup substituirá os dados locais atuais. Continuar?'))return;D=Object.assign(D,data);sv();toast('Backup importado');setTimeout(function(){location.reload()},500)}catch(e){alert('Não foi possível importar: '+e.message)}};r.readAsText(file)};
-function ensureHardbar(){if(byId('hardbar'))return;const bar=document.createElement('div');bar.className='hardbar';bar.id='hardbar';bar.style.display='none';bar.innerHTML='<button class="btn bs bsm" onclick="exportBackup()">Backup</button><label class="btn bs bsm" style="cursor:pointer">Importar<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=\'\'"></label><button class="btn bs bsm" onclick="changeRolePin()">PIN</button>';document.body.appendChild(bar)}
+function ensureHardbar(){if(byId('hardbar'))return;const bar=document.createElement('div');bar.className='hardbar';bar.id='hardbar';bar.style.display='none';bar.innerHTML='<button class="btn bs bsm" onclick="openBackupsPanel()">Backups</button><label class="btn bs bsm" style="cursor:pointer">Importar<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=\'\'"></label><button class="btn bs bsm" onclick="changeRolePin()">PIN</button>';document.body.appendChild(bar)}
 const oldEnterAs=enterAs;
 enterAs=function(r){const go=function(){oldEnterAs(r);ensureHardbar();byId('hardbar').style.display='flex'};if(sessionStorage.getItem(SESSION_KEY+'_'+r)==='ok'){go();return}if(typeof window.olharPinGate==='function'){window.olharPinGate(r,go);return}alert('Módulo de acesso indisponível. Recarregue a página.')};
 switchRole=function(){const target=role==='sec'?'opto':'sec';sessionStorage.removeItem(SESSION_KEY+'_'+target);enterAs(target)};
@@ -4608,7 +4608,8 @@ table{
   function doSave(){
     setStatus('Salvando…');
     ensureToken(function(){ findFile(function(existing){
-      var body=payload();
+      var C=window.OLHAR_STORAGE&&OLHAR_STORAGE.crypto;
+      (C?C.exportEnvelope():Promise.resolve(payload())).then(function(body){
       if(existing){
         fetch('https://www.googleapis.com/upload/drive/v3/files/'+existing.id+'?uploadType=media',{method:'PATCH',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:body})
           .then(function(r){return r.json();}).then(function(){ setStatus('Backup atualizado no Drive ✓ '+new Date().toLocaleString('pt-BR')); })
@@ -4620,6 +4621,7 @@ table{
           .then(function(r){return r.json();}).then(function(){ setStatus('Backup criado no Drive ✓ '+new Date().toLocaleString('pt-BR')); })
           .catch(function(e){ setStatus('Erro ao criar: '+e.message); });
       }
+      }).catch(function(e){ setStatus('Erro ao preparar o backup: '+e.message); });
     }); });
   }
   function doRestore(){
@@ -4688,7 +4690,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v28 · IndexedDB';
+    var BUILD='Olhar v29 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -4943,20 +4945,25 @@ window.addEventListener('beforeunload',function(){ fecha('amet'); fecha('pato');
 </script>
 
 
-<script id="olhar-indexeddb-v25">
+<script id="olhar-indexeddb-v26">
 /* ============================================================
-   OLHAR v25 — persistência com degradação segura
+   OLHAR v26 — persistência + criptografia em repouso
 
-   Muda em relação à v24:
-   - se o IndexedDB não abrir (bloqueado, indisponível, modo privado,
-     travado por outra aba), o app NÃO fica preso na tela de login:
-     cai para localStorage e continua funcionando, avisando uma vez;
-   - openDB tem timeout e onblocked rejeita — antes, uma aba antiga
-     segurando o banco deixava a promessa pendurada para sempre;
-   - o modo localStorage grava só a chave principal, sem as duas
-     cópias que estouravam a cota;
-   - beforeunload avisa se ainda há gravação na fila, porque sv()
-     é assíncrono e fechar a aba na hora errada perdia a última edição.
+   Mantém da v25: IndexedDB com timeout, queda para localStorage,
+   fila de gravação, cópia "previous", aviso ao fechar com fila.
+
+   Novo (Sprint 2, out/2026):
+   - Os dados podem ficar CRIPTOGRAFADOS no aparelho (AES-GCM 256).
+     Uma chave de dados aleatória (DEK) cifra tudo; ela própria é
+     guardada "embrulhada" três vezes: pelo PIN do Dr., pelo PIN
+     da Secretaria e pelo código de recuperação (PBKDF2-SHA256).
+     As três cópias embrulhadas viajam dentro do próprio registro
+     (schema 2) — sem a chave em outro lugar, o registro se basta.
+   - Enquanto ninguém digitou o PIN, D fica vazio e sv() se RECUSA
+     a gravar: nunca sobrescreve o banco protegido com dado vazio.
+   - Antes de apagar a cópia em texto aberto, a migração grava,
+     relê, decifra e compara byte a byte. Falhou → volta ao aberto.
+   - Exportação (arquivo, Drive, nuvem) sai no mesmo envelope.
    ============================================================ */
 (function(){
 'use strict';
@@ -4964,14 +4971,68 @@ window.addEventListener('beforeunload',function(){ fecha('amet'); fecha('pato');
 var LEGACY='olhar_v3', DBNAME='olhar_clinica', VER=1, STORE='state';
 var MAIN='main', PREV='previous';
 var ABRIR_MS=8000;
+var ENC_FLAG=LEGACY+'_encrypted';
+var ITER=150000;
 
 var db=null, modo='idb', queue=Promise.resolve(), pendentes=0, avisouModo=false;
 var initialEnter=(typeof enterAs==='function')?enterAs:null;
+
+/* estado da criptografia */
+var CR={active:false, dek:null, wraps:null, pending:null};
 
 function clone(x){ try{return structuredClone(x)}catch(e){return JSON.parse(JSON.stringify(x))} }
 function valid(x){return !!x&&typeof x==='object'&&Array.isArray(x.patients)&&Array.isArray(x.appointments)&&Array.isArray(x.records)}
 function ts(x){try{return Date.parse(x&&x._meta&&x._meta.updatedAt||'')||0}catch(e){return 0}}
 function aviso(m){ try{ if(typeof toast==='function'){toast(m);return} }catch(e){} try{console.warn('[OLHAR]',m)}catch(e){} }
+
+/* ---------- utilidades de criptografia ---------- */
+var te=new TextEncoder(), tdc=new TextDecoder();
+function hasSubtle(){return !!(window.crypto&&crypto.subtle&&window.isSecureContext!==false)}
+function b64(u8){ u8=(u8 instanceof Uint8Array)?u8:new Uint8Array(u8); var s='',CH=0x8000; for(var i=0;i<u8.length;i+=CH) s+=String.fromCharCode.apply(null,u8.subarray(i,i+CH)); return btoa(s) }
+function unb64(s){ var b=atob(s),a=new Uint8Array(b.length); for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i); return a }
+function rnd(n){return crypto.getRandomValues(new Uint8Array(n))}
+function normSecret(role,secret){ return role==='rec'?String(secret||'').toUpperCase().replace(/[^A-Z0-9]/g,''):String(secret||'') }
+
+function kek(secret,salt,iter){
+  return crypto.subtle.importKey('raw',te.encode(secret),'PBKDF2',false,['deriveKey']).then(function(base){
+    return crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:salt,iterations:iter},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  });
+}
+function wrapDek(dek,role,secret){
+  var salt=rnd(16), iv=rnd(12);
+  return Promise.all([kek(normSecret(role,secret),salt,ITER),crypto.subtle.exportKey('raw',dek)]).then(function(r){
+    return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},r[0],r[1]);
+  }).then(function(ct){ return {s:b64(salt),i:ITER,iv:b64(iv),ct:b64(ct),t:Date.now()} });
+}
+/* devolve a DEK ou rejeita (segredo errado → AES-GCM falha a autenticação) */
+function unwrapDek(w,role,secret){
+  return kek(normSecret(role,secret),unb64(w.s),w.i||ITER).then(function(k){
+    return crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(w.iv)},k,unb64(w.ct));
+  }).then(function(raw){
+    return crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},true,['encrypt','decrypt']);
+  });
+}
+function streamBytes(u8,Ctor,fmt){
+  var s=new Blob([u8]).stream().pipeThrough(new Ctor(fmt));
+  return new Response(s).arrayBuffer().then(function(b){return new Uint8Array(b)});
+}
+var CAN_GZIP=typeof CompressionStream==='function'&&typeof DecompressionStream==='function';
+function sealData(obj,dek,wraps){
+  var plain=te.encode(JSON.stringify(obj)), iv=rnd(12);
+  var zP=CAN_GZIP?streamBytes(plain,CompressionStream,'gzip'):Promise.resolve(plain);
+  return zP.then(function(z){ return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},dek,z) }).then(function(ct){
+    return {schema:2,updatedAt:(obj._meta&&obj._meta.updatedAt)||new Date().toISOString(),
+      enc:{alg:'AES-GCM-256',kdf:'PBKDF2-SHA256',z:CAN_GZIP?'gzip':'none'},wraps:clone(wraps),iv:b64(iv),ct:b64(ct)};
+  });
+}
+function openData(rec,dek){
+  return crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(rec.iv)},dek,unb64(rec.ct)).then(function(z){
+    z=new Uint8Array(z);
+    var z2=(rec.enc&&rec.enc.z==='gzip')?(typeof DecompressionStream==='function'?streamBytes(z,DecompressionStream,'gzip'):Promise.reject(new Error('Este navegador não descompacta o backup.'))):Promise.resolve(z);
+    return z2;
+  }).then(function(u8){ return JSON.parse(tdc.decode(u8)) });
+}
+function isEnvelope(x){ return !!x&&typeof x==='object'&&x.schema===2&&x.wraps&&x.iv&&x.ct }
 
 /* ---------- IndexedDB ---------- */
 function openDB(){return new Promise(function(resolve,reject){
@@ -4983,11 +5044,9 @@ function openDB(){return new Promise(function(resolve,reject){
   catch(e){ clearTimeout(t); reject(e); return; }
   r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};
   r.onsuccess=function(){ if(pronto)return; pronto=true; clearTimeout(t); db=r.result;
-    /* outra aba pedindo upgrade: solta o banco em vez de travá-la */
     db.onversionchange=function(){ try{db.close()}catch(e){} };
     resolve(db); };
   r.onerror=function(){ if(pronto)return; pronto=true; clearTimeout(t); reject(r.error||new Error('Falha ao abrir IndexedDB')) };
-  /* antes isto só escrevia no console e a promessa nunca resolvia */
   r.onblocked=function(){ if(pronto)return; pronto=true; clearTimeout(t);
     reject(new Error('IndexedDB bloqueado por outra aba do OLHAR aberta.')) };
 })}
@@ -4997,26 +5056,30 @@ function idbGet(k){return new Promise(function(resolve,reject){try{
   r.onsuccess=function(){resolve(r.result)}; r.onerror=function(){reject(r.error)};
 }catch(e){reject(e)}})}
 
-function idbPut(data){return new Promise(function(resolve,reject){try{
-  var tx=db.transaction(STORE,'readwrite'), st=tx.objectStore(STORE), g=st.get(MAIN);
-  g.onsuccess=function(){ if(g.result&&g.result.data)st.put(g.result,PREV);
-    st.put({schema:1,updatedAt:new Date().toISOString(),data:data},MAIN) };
-  g.onerror=function(){ st.put({schema:1,updatedAt:new Date().toISOString(),data:data},MAIN) };
+/* grava o registro em MAIN e desloca o anterior para PREV */
+function idbPutRecord(rec,alsoPrev){return new Promise(function(resolve,reject){try{
+  var tx=db.transaction(STORE,'readwrite'), st=tx.objectStore(STORE);
+  if(alsoPrev){ st.put(rec,MAIN); st.put(rec,PREV); }
+  else{
+    var g=st.get(MAIN);
+    g.onsuccess=function(){ if(g.result&&(g.result.data||g.result.ct))st.put(g.result,PREV); st.put(rec,MAIN) };
+    g.onerror=function(){ st.put(rec,MAIN) };
+  }
   tx.oncomplete=function(){resolve(true)};
   tx.onerror=function(){reject(tx.error||new Error('Falha de gravação'))};
   tx.onabort=function(){reject(tx.error||new Error('Gravação abortada'))};
 }catch(e){reject(e)}})}
+function plainRecord(data){ return {schema:1,updatedAt:new Date().toISOString(),data:data} }
+function idbPut(data){ return idbPutRecord(plainRecord(data)) }
 
 /* ---------- localStorage: modo de sobrevivência ---------- */
 function ehQuota(e){ return !!e && (e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'||e.code===22||e.code===1014) }
-
 function localPut(data){return new Promise(function(resolve,reject){
   var txt;
   try{ txt=JSON.stringify(data) }catch(e){ reject(e); return }
   try{ localStorage.setItem(LEGACY,txt); resolve(true); return }
   catch(e){
     if(!ehQuota(e)){ reject(e); return }
-    /* libera as cópias antigas e tenta de novo antes de desistir */
     try{ localStorage.removeItem(LEGACY+'_autosnapshot') }catch(_){}
     try{ localStorage.removeItem(LEGACY+'_last_good_backup') }catch(_){}
     try{ localStorage.setItem(LEGACY,txt); resolve(true) }
@@ -5024,19 +5087,37 @@ function localPut(data){return new Promise(function(resolve,reject){
   }
 })}
 
-function gravar(data){ return modo==='idb' ? idbPut(data) : localPut(data) }
+function gravar(data){
+  if(modo==='blocked') return Promise.reject(new Error('Banco protegido não abriu neste carregamento. Feche outras abas do Olhar e recarregue.'));
+  if(CR.active){
+    if(!CR.dek) return Promise.reject(new Error('Dados protegidos ainda bloqueados.'));
+    return sealData(data,CR.dek,CR.wraps).then(function(rec){return idbPutRecord(rec)});
+  }
+  return modo==='idb' ? idbPut(data) : localPut(data);
+}
 
 function legacy(){try{var r=localStorage.getItem(LEGACY);if(!r)return null;var x=JSON.parse(r);return valid(x)?x:null}catch(e){return null}}
 function mark(){try{localStorage.setItem(LEGACY+'_migrated',JSON.stringify({at:new Date().toISOString(),storage:modo}))}catch(e){}}
 function freeDuplicates(){try{localStorage.removeItem(LEGACY+'_last_good_backup')}catch(e){} try{localStorage.removeItem(LEGACY+'_autosnapshot')}catch(e){}}
+function dropPlainCopies(){ freeDuplicates(); try{localStorage.removeItem(LEGACY)}catch(e){} }
+function encFlag(){try{return !!localStorage.getItem(ENC_FLAG)}catch(e){return false}}
 
 /* ---------- inicialização: nunca rejeita ---------- */
 var storageReady=openDB().then(function(){
   return idbGet(MAIN).then(function(saved){
+    if(isEnvelope(saved)){
+      /* protegido: espera o PIN. Não toca no banco, não carrega nada. */
+      CR.active=true; CR.pending=saved; CR.wraps=clone(saved.wraps);
+      try{localStorage.setItem(ENC_FLAG,'1')}catch(e){}
+      mark();
+      try{console.info('[OLHAR] Banco protegido: aguardando PIN.')}catch(e){}
+      return 'idb';
+    }
     var old=legacy(), fromIDB=(saved&&valid(saved.data))?saved.data:null, chosen;
     if(fromIDB&&old) chosen=ts(old)>ts(fromIDB)?old:fromIDB;
     else chosen=fromIDB||old||D;
     if(!valid(chosen)) throw new Error('Estrutura de dados inválida');
+    if(encFlag()&&!fromIDB&&!old) throw new Error('Marca de banco protegido presente, mas o registro não foi encontrado.');
     return idbPut(clone(chosen)).then(function(){return idbGet(MAIN)}).then(function(check){
       if(!check||!valid(check.data)) throw new Error('A validação da migração falhou');
       D=Object.assign(D,check.data);
@@ -5046,8 +5127,14 @@ var storageReady=openDB().then(function(){
     });
   });
 }).catch(function(e){
-  /* Degradar, não travar. O app volta ao localStorage e segue aberto. */
-  try{console.error('[OLHAR] IndexedDB falhou, usando localStorage:',e)}catch(_){}
+  try{console.error('[OLHAR] IndexedDB falhou:',e)}catch(_){}
+  if(encFlag()){
+    /* banco protegido existe mas não abriu: NUNCA cair para o localStorage
+       vazio e gravar por cima. Bloqueia a gravação e avisa. */
+    modo='blocked';
+    setTimeout(function(){ alert('O banco protegido do Olhar não abriu agora ('+(e&&e.message?e.message:e)+').\n\nFeche outras abas ou janelas do Olhar e recarregue a página. Nada foi apagado.') },600);
+    return 'blocked';
+  }
   modo='local';
   var old=legacy();
   if(old&&valid(old)) D=Object.assign(D,old);
@@ -5060,9 +5147,13 @@ var storageReady=openDB().then(function(){
 /* ---------- salvamento ---------- */
 sv=function(){
   try{
+    if(modo==='blocked'||(CR.active&&!CR.dek)){
+      try{console.warn('[OLHAR] Gravação ignorada: banco protegido ainda não desbloqueado.')}catch(_){}
+      return Promise.resolve(false);
+    }
     if(!D._meta)D._meta={};
     D._meta.updatedAt=new Date().toISOString();
-    D._meta.storage=modo;
+    D._meta.storage=modo+(CR.active?'+enc':'');
     var snap=clone(D);
     pendentes++;
     queue=queue.catch(function(){})
@@ -5079,31 +5170,161 @@ sv=function(){
   }catch(e){ try{console.error(e)}catch(_){} return Promise.reject(e) }
 };
 window.sv=sv;
+function flush(){ return queue.catch(function(){}) }
 
-/* Fechar a aba com gravação na fila perdia a última edição, em silêncio. */
 window.addEventListener('beforeunload',function(ev){
   if(pendentes>0){ ev.preventDefault(); ev.returnValue=''; return '' }
 });
 
-/* Entrada espera o banco, mas agora storageReady sempre resolve. */
 if(initialEnter){
   enterAs=function(r){ storageReady.then(function(){ initialEnter(r) }) };
   window.enterAs=enterAs;
 }
 
-/* Importação confirma a gravação antes de recarregar. */
+/* ---------- API de criptografia (usada pelo módulo de acesso) ---------- */
+function replaceData(data){
+  ['patients','appointments','opticas','transactions','prescriptions','records','leads'].forEach(function(k){ if(!Array.isArray(data[k])) data[k]=[] });
+  Object.keys(data).forEach(function(k){ D[k]=data[k] });
+}
+var CRYPTO={
+  available:function(){ return hasSubtle()&&modo==='idb'&&!!db },
+  active:function(){ return CR.active },
+  unlocked:function(){ return !!CR.dek },
+  hasWrap:function(role){ return !!(CR.wraps&&CR.wraps[role]) },
+
+  /* confere o segredo; na 1ª vez, decifra e carrega os dados */
+  unlock:function(role,secret){
+    if(!CR.active) return Promise.resolve({ok:false,reason:'inactive'});
+    var w=CR.wraps&&CR.wraps[role];
+    if(!w) return Promise.resolve({ok:false,reason:'nowrap'});
+    return storageReady.then(function(){ return unwrapDek(w,role,secret).then(function(k){return k},function(){return null}) }).then(function(key){
+      if(!key) return {ok:false,reason:'wrong'};
+      if(CR.dek) return {ok:true};
+      return openData(CR.pending,key).then(function(data){
+        if(!valid(data)) throw new Error('Conteúdo protegido inválido.');
+        CR.dek=key;
+        /* cópia aberta mais nova (app antigo em outra aba)? adota e protege */
+        var old=legacy(), adopted=false;
+        if(old&&ts(old)>ts(data)){ data=old; adopted=true; }
+        replaceData(data); CR.pending=null; dropPlainCopies();
+        if(adopted) sv();
+        try{console.info('[OLHAR] Dados desbloqueados:',D.patients.length,'pacientes /',D.records.length,'prontuários')}catch(e){}
+        return {ok:true};
+      });
+    }).catch(function(e){
+      try{console.error('[OLHAR] unlock:',e)}catch(_){}
+      return {ok:false,reason:'error',message:e&&e.message||String(e)};
+    });
+  },
+
+  /* ativa a proteção: exige os três segredos; verifica antes de apagar o aberto */
+  enable:function(pins){
+    if(CR.active) return Promise.reject(new Error('A proteção já está ativa.'));
+    if(!CRYPTO.available()) return Promise.reject(new Error('Este navegador não oferece o banco seguro necessário.'));
+    var dek, wraps={}, snapshot;
+    return flush().then(function(){
+      if(!D._meta)D._meta={};
+      D._meta.updatedAt=new Date().toISOString(); D._meta.storage='idb+enc';
+      snapshot=clone(D);
+      if(!valid(snapshot)) throw new Error('Dados atuais inválidos.');
+      return crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']);
+    }).then(function(k){
+      dek=k;
+      return Promise.all([wrapDek(dek,'opto',pins.opto),wrapDek(dek,'sec',pins.sec),wrapDek(dek,'rec',pins.rec)]);
+    }).then(function(ws){
+      wraps={opto:ws[0],sec:ws[1],rec:ws[2]};
+      return sealData(snapshot,dek,wraps);
+    }).then(function(rec){
+      /* 1ª prova: abrir em memória, pelo PIN do Dr., antes de gravar */
+      return unwrapDek(rec.wraps.opto,'opto',pins.opto).then(function(k2){return openData(rec,k2)}).then(function(back){
+        if(JSON.stringify(back)!==JSON.stringify(snapshot)) throw new Error('A verificação em memória não conferiu.');
+        return idbPutRecord(rec,true);
+      }).then(function(){ return idbGet(MAIN) }).then(function(stored){
+        /* 2ª prova: reler do banco e decifrar pela chave de recuperação */
+        if(!isEnvelope(stored)) throw new Error('O registro protegido não foi gravado.');
+        return unwrapDek(stored.wraps.rec,'rec',pins.rec).then(function(k3){return openData(stored,k3)});
+      }).then(function(back2){
+        if(JSON.stringify(back2)!==JSON.stringify(snapshot)) throw new Error('A releitura do banco não conferiu.');
+        CR.active=true; CR.dek=dek; CR.wraps=wraps; CR.pending=null;
+        try{localStorage.setItem(ENC_FLAG,'1')}catch(e){}
+        dropPlainCopies();
+        return {ok:true,patients:snapshot.patients.length,records:snapshot.records.length};
+      }).catch(function(e){
+        /* qualquer falha depois de gravar: devolve o registro aberto */
+        return idbPutRecord(plainRecord(snapshot),true).then(function(){ throw e },function(){ throw e });
+      });
+    });
+  },
+
+  /* troca o segredo de um papel (exige banco desbloqueado) */
+  rewrap:function(role,secret){
+    if(!CR.active) return Promise.resolve(false);
+    if(!CR.dek) return Promise.reject(new Error('Desbloqueie o sistema antes.'));
+    return wrapDek(CR.dek,role,secret).then(function(w){ CR.wraps[role]=w; return sv() }).then(function(){return true});
+  },
+
+  /* envelope para arquivo / nuvem (texto) */
+  exportEnvelope:function(){
+    return flush().then(function(){
+      if(CR.active){
+        if(!CR.dek) throw new Error('Desbloqueie o sistema antes de exportar.');
+        return sealData(clone(D),CR.dek,CR.wraps).then(function(rec){
+          return JSON.stringify(Object.assign({app:'Olhar Sistema',format:'olhar-enc-v1',exportedAt:new Date().toISOString()},rec));
+        });
+      }
+      return JSON.stringify({app:'Olhar Sistema',version:'v26-aberto',exportedAt:new Date().toISOString(),data:D});
+    });
+  },
+
+  /* abre um envelope: tenta a chave atual e depois o segredo dado */
+  openEnvelope:function(env,secret){
+    if(!isEnvelope(env)) return Promise.reject(new Error('Arquivo não é um backup protegido.'));
+    var tryDek=CR.dek?openData(env,CR.dek).catch(function(){return null}):Promise.resolve(null);
+    return tryDek.then(function(d){
+      if(d) return d;
+      if(secret==null||secret==='') return null;
+      var roles=['opto','sec','rec'].filter(function(r){return env.wraps[r]});
+      var i=0;
+      function next(){
+        if(i>=roles.length) return null;
+        var r=roles[i++];
+        return unwrapDek(env.wraps[r],r,secret).then(function(k){return openData(env,k)},function(){return next()});
+      }
+      return next();
+    }).then(function(d){ if(d&&!valid(d)) throw new Error('Conteúdo do backup inválido.'); return d });
+  },
+
+  isEnvelope:isEnvelope,
+
+  /* substitui todos os dados (restauração) e grava */
+  replaceAll:function(data){
+    if(!valid(data)) return Promise.reject(new Error('Dados inválidos.'));
+    if(CR.active&&!CR.dek) return Promise.reject(new Error('Desbloqueie o sistema antes.'));
+    replaceData(clone(data));
+    return Promise.resolve(sv());
+  }
+};
+
+/* ---------- importação de arquivo (aberto ou protegido) ---------- */
 window.importBackup=function(file){
   if(!file)return; var r=new FileReader();
-  r.onload=function(){try{
-    var parsed=JSON.parse(r.result), data=parsed.data||parsed;
-    if(!valid(data))throw new Error('Arquivo incompatível.');
-    if(!confirm('Importar este backup substituirá os dados locais atuais. Continuar?'))return;
-    D=Object.assign(D,data);
-    Promise.resolve(sv()).then(function(){
-      try{toast('Backup importado')}catch(e){}
-      setTimeout(function(){location.reload()},200);
-    }).catch(function(e){ alert('A importação não foi gravada: '+(e&&e.message?e.message:e)) });
-  }catch(e){alert('Não foi possível importar: '+e.message)}};
+  r.onload=function(){
+    var parsed;
+    try{ parsed=JSON.parse(r.result) }catch(e){ alert('Não foi possível ler o arquivo: '+e.message); return }
+    if(isEnvelope(parsed)){
+      if(typeof window.olharImportEnvelope==='function'){ window.olharImportEnvelope(parsed); return }
+      alert('Backup protegido: abra pelo painel Backups.'); return;
+    }
+    try{
+      var data=parsed.data||parsed;
+      if(!valid(data))throw new Error('Arquivo incompatível.');
+      if(!confirm('Importar este backup substituirá os dados locais atuais. Continuar?'))return;
+      CRYPTO.replaceAll(data).then(function(){
+        try{toast('Backup importado')}catch(e){}
+        setTimeout(function(){location.reload()},200);
+      }).catch(function(e){ alert('A importação não foi gravada: '+(e&&e.message?e.message:e)) });
+    }catch(e){alert('Não foi possível importar: '+e.message)}
+  };
   r.readAsText(file);
 };
 
@@ -5112,14 +5333,18 @@ window.OLHAR_STORAGE={
   modo:function(){return modo},
   pendentes:function(){return pendentes},
   save:function(){return sv()},
+  flush:flush,
+  crypto:CRYPTO,
   info:function(){return storageReady.then(function(){
     return modo==='idb'?idbGet(MAIN):{updatedAt:(D._meta||{}).updatedAt};
-  }).then(function(x){return {armazenamento:modo,banco:modo==='idb'?DBNAME:LEGACY,
+  }).then(function(x){return {armazenamento:modo,protegido:CR.active,banco:modo==='idb'?DBNAME:LEGACY,
     updatedAt:x&&x.updatedAt,patients:D.patients.length,records:D.records.length}})},
   previous:function(){return storageReady.then(function(){return modo==='idb'?idbGet(PREV):null})}
 };
 
 })();
+</script>
+<script>
 
 /* ============================================================
    OLHAR — EDITOR RICO DO DOCUMENTO LIVRE
@@ -5467,6 +5692,7 @@ var observer=new MutationObserver(addPortalButtons);observer.observe(document.do
   'use strict';
   var MAPA = [
     [/exportBackup/,        'ph-arrow-line-up'],
+    [/openBackupsPanel/,    'ph-shield-check'],
     [/changeRolePin/,       'ph-key'],
     [/openDataAudit/,       'ph-clipboard-text'],
     [/openPremiumPdfPicker/,'ph-file-pdf'],
@@ -5548,7 +5774,8 @@ var observer=new MutationObserver(addPortalButtons);observer.observe(document.do
 </script>
 <script id="olhar-sprint1-seguranca-rx">
 /* ============================================================
-   OLHAR — Sprint 1 (out/2026): acesso seguro + receita multifocal
+   OLHAR — Sprint 1+2 (out/2026): acesso seguro, receita multifocal,
+   proteção dos dados e backups (ver bloco SPRINT 2 no fim)
    1. PIN em tela própria (campo mascarado), guardado como hash
       PBKDF2-SHA256; troca obrigatória dos PINs de fábrica;
       bloqueio progressivo após 5 erros; código de recuperação.
@@ -5605,8 +5832,18 @@ function weakReason(pin,role){
   return '';
 }
 
-/* verifica PIN; devolve {ok, mustChange} */
+function CRY(){return window.OLHAR_STORAGE&&OLHAR_STORAGE.crypto}
+/* verifica PIN; devolve {ok, mustChange, msg?, noCount?} */
 function verify(role,pin){
+  var c=CRY();
+  if(c&&c.active()){
+    return c.unlock(role,pin).then(function(r){
+      if(r.ok) return {ok:true,mustChange:false};
+      if(r.reason==='nowrap') return {ok:false,noCount:true,msg:'O PIN '+(role==='sec'?'da Secretaria':'deste usuário')+' ainda não foi definido neste aparelho. O Dr. Geandré define no menu PIN.'};
+      if(r.reason==='error') return {ok:false,noCount:true,msg:'Não consegui abrir os dados protegidos: '+(r.message||'erro desconhecido')+'. Nada foi apagado.'};
+      return {ok:false};
+    });
+  }
   var rec=v4()[role];
   if(rec&&hasSubtle()) return sameHash(pin,rec).then(function(ok){return {ok:ok,mustChange:false}});
   var legacy=legacyPins()[role];
@@ -5617,9 +5854,23 @@ function verify(role,pin){
   }
   return Promise.resolve({ok:ok,mustChange:must});
 }
-function storePin(role,pin){
+function storeHash(role,pin){
   if(!hasSubtle()){ var l=lsGet(LEGACY_KEY,{}); l[role]=pin; lsSet(LEGACY_KEY,l); return Promise.resolve(); }
   return makeRecord(pin).then(function(r){var all=v4();all[role]=r;if(!lsSet(V4_KEY,all))throw new Error('Sem espaço para gravar o PIN.');dropLegacy(role)});
+}
+/* grava o hash e, com a proteção ativa, reembrulha a chave dos dados */
+function storePin(role,pin){
+  return storeHash(role,pin).then(function(){
+    var c=CRY(); if(c&&c.active()&&c.unlocked()) return c.rewrap(role,pin);
+  });
+}
+/* impede que Secretaria e Dr. usem o mesmo PIN */
+function sameAsOther(role,pin){
+  var other=role==='opto'?'sec':'opto', c=CRY();
+  if(c&&c.active()) return c.hasWrap(other)?c.unlock(other,pin).then(function(r){return !!r.ok}):Promise.resolve(false);
+  var rec=v4()[other];
+  if(rec&&hasSubtle()) return sameHash(pin,rec);
+  return Promise.resolve(String(legacyPins()[other])===String(pin));
 }
 
 /* ---------------- tentativas erradas ---------------- */
@@ -5641,8 +5892,11 @@ function newRecoveryCode(){
   return s;
 }
 function normCode(c){return String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'')}
-function storeRecovery(code){return makeRecord(normCode(code)).then(function(r){lsSet(REC_KEY,r)})}
-function checkRecovery(code){var r=lsGet(REC_KEY,null);if(!r||!hasSubtle())return Promise.resolve(false);return sameHash(normCode(code),r)}
+function storeRecovery(code){return makeRecord(normCode(code)).then(function(r){lsSet(REC_KEY,r);var c=CRY();if(c&&c.active()&&c.unlocked())return c.rewrap('rec',code)})}
+function checkRecovery(code){
+  var c=CRY(); if(c&&c.active()) return c.unlock('rec',code).then(function(r){return !!r.ok});
+  var r=lsGet(REC_KEY,null);if(!r||!hasSubtle())return Promise.resolve(false);return sameHash(normCode(code),r)}
+function hasRecovery(){var c=CRY();return (c&&c.active())?c.hasWrap('rec'):!!lsGet(REC_KEY,null)}
 
 /* ---------------- UI ---------------- */
 var css=document.createElement('style');
@@ -5707,12 +5961,15 @@ function askNewPin(role,opts,done){
     if(w){err.textContent=w;a.focus();return}
     if(p1!==p2){err.textContent='Os dois PINs não conferem.';b.value='';b.focus();return}
     go.disabled=true; err.textContent='';
-    storePin(role,p1).then(function(){
+    sameAsOther(role,p1).then(function(same){
+      if(same){ throw new Error('Esse PIN já é usado pelo outro usuário. Escolha um diferente.') }
+      return storePin(role,p1);
+    }).then(function(){
       clearFails(role);
       o.remove();
-      if(role==='opto'&&hasSubtle()&&(opts.forced||!lsGet(REC_KEY,null))) showRecovery(function(){done&&done()});
-      else done&&done();
-    }).catch(function(e){go.disabled=false;err.textContent='Não consegui gravar: '+e.message});
+      if(role==='opto'&&hasSubtle()&&!opts.noRecovery&&(opts.forced||!hasRecovery())) showRecovery(function(){done&&done(p1)});
+      else done&&done(p1);
+    }).catch(function(e){go.disabled=false;err.textContent=(e&&e.message)||String(e)});
   }
   onEnter(a,function(){b.focus()}); onEnter(b,submit);
   go.onclick=submit;
@@ -5746,6 +6003,7 @@ function askRecovery(done){
   function submit(){
     var st=lockState('rec'); if(st.until>Date.now()){err.textContent='Muitas tentativas. Aguarde '+waitText(st.until-Date.now())+'.';return}
     checkRecovery(inp.value).then(function(ok){
+      if(ok) try{sessionStorage.setItem(SESSION_KEY+'_opto','ok')}catch(e){}
       if(!ok){var s=registerFail('rec');err.textContent='Código não confere.'+(s.until>Date.now()?' Aguarde '+waitText(s.until-Date.now())+'.':'');return}
       clearFails('rec'); o.remove();
       askNewPin('opto',{forced:true,lockStyle:true},done);
@@ -5782,6 +6040,7 @@ function pinGate(role,proceed,opts){
     go.disabled=true;
     verify(role,pin).then(function(r){
       go.disabled=false;
+      if(!r.ok&&r.msg){ err.textContent=r.msg; inp.value=''; if(!r.noCount) registerFail(role); return; }
       if(!r.ok){
         var st=registerFail(role); inp.value=''; inp.focus();
         err.textContent=st.until>Date.now()?('PIN incorreto. Bloqueado por '+waitText(st.until-Date.now())+'.'):('PIN incorreto.'+(st.n>=3?' Restam '+(5-st.n)+' tentativa(s) antes de uma pausa.':''));
@@ -5789,8 +6048,11 @@ function pinGate(role,proceed,opts){
       }
       clearFails(role); close();
       try{sessionStorage.setItem(SESSION_KEY+'_'+role,'ok')}catch(e){}
-      if(r.mustChange) askNewPin(role,{forced:true,lockStyle:lockStyle},proceed);
-      else proceed();
+      var c=CRY(), willEnable=!lockStyle&&role==='opto'&&c&&c.available()&&!c.active();
+      var done2=function(){ proceed(); setTimeout(function(){autoBackup(false)},8000); };
+      var after=function(finalPin){ if(willEnable) enableFlow(finalPin,done2); else done2(); };
+      if(r.mustChange) askNewPin(role,{forced:true,lockStyle:lockStyle,noRecovery:willEnable},after);
+      else after(pin);
     }).catch(function(e){go.disabled=false;err.textContent='Erro ao verificar: '+e.message});
   }
   onEnter(inp,submit); go.onclick=submit;
@@ -5800,7 +6062,7 @@ function pinGate(role,proceed,opts){
     location.reload();
   };
   if(q(o,'#sxForgot')) q(o,'#sxForgot').onclick=function(){
-    if(!lsGet(REC_KEY,null)){err.textContent='Ainda não existe código de recuperação neste aparelho. Ele é criado na primeira troca de PIN.';return}
+    if(!hasRecovery()){err.textContent='Ainda não existe código de recuperação neste aparelho. Ele é criado na primeira troca de PIN.';return}
     close(); askRecovery(function(){try{sessionStorage.setItem(SESSION_KEY+'_opto','ok')}catch(e){} proceed()});
   };
 }
@@ -6063,6 +6325,248 @@ if(typeof _rxFmt==='function'){
     });
   };
 }
+
+
+/* ============================================================
+   SPRINT 2 — proteção dos dados + backups
+   ============================================================ */
+var DEV_KEY=DBK+'_device', CLOUD_KEY=DBK+'_cloud_status', SNOOZE_KEY=DBK+'_enc_snooze';
+var API_BACKUP='/api/backup', PORTAL_KEY='olhar_portal_clinic_key';
+
+function fmtDT(ms){try{return new Date(ms).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}catch(e){return ''}}
+function fmtSize(n){n=Number(n)||0;return n<1024?(n+' B'):n<1048576?(Math.round(n/1024)+' KB'):((n/1048576).toFixed(1).replace('.',',')+' MB')}
+function counts(d){d=d||{};return {pac:(d.patients||[]).length,pront:(d.records||[]).length,rec:(d.prescriptions||[]).length}}
+function countsTxt(d){var c=counts(d);return c.pac+' pacientes · '+c.pront+' prontuários · '+c.rec+' receitas'}
+function sha256Hex(text){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return x.toString(16).padStart(2,'0')}).join('')})}
+function stampName(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())}
+function download(name,text){var blob=new Blob([text],{type:'application/json;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},400)}
+
+function device(){
+  var d=lsGet(DEV_KEY,null);
+  if(d&&d.id) return d;
+  var ua=navigator.userAgent||'', kind=/iPad|Tablet|SM-T|Tab/i.test(ua)||(/Android/i.test(ua)&&!/Mobile/i.test(ua))?'Tablet':/Mobile|iPhone|Android/i.test(ua)?'Celular':'Computador';
+  var br=/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':/Firefox\//.test(ua)?'Firefox':'Navegador';
+  var id=(crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),function(b){return b.toString(16).padStart(2,'0')}).join(''));
+  d={id:id,name:kind+' · '+br+' · '+id.slice(0,4).toUpperCase()};
+  lsSet(DEV_KEY,d); return d;
+}
+function portalKey(){try{return localStorage.getItem(PORTAL_KEY)||''}catch(e){return ''}}
+function cloudStatus(){return lsGet(CLOUD_KEY,{})}
+
+function api(action,payload){
+  var key=portalKey();
+  if(!key) return Promise.reject(new Error('Chave da clínica não configurada neste aparelho.'));
+  return fetch(API_BACKUP,{method:'POST',headers:{'Content-Type':'application/json','X-Clinic-Key':key},body:JSON.stringify(Object.assign({action:action},payload||{}))})
+    .then(function(r){return r.json().catch(function(){return {error:'Resposta inválida do servidor ('+r.status+')'}}).then(function(j){if(!r.ok||j.error)throw new Error(j.error||('Erro '+r.status));return j})});
+}
+
+/* ---------- ativação da proteção (no login do Dr.) ---------- */
+function enableFlow(optoPin,proceed){
+  var sn=lsGet(SNOOZE_KEY,0);
+  if(sn&&Date.now()-sn<6*3600000){ proceed(); return; }
+  var o=overlay(
+    '<div class="sx-k">Novo · proteção dos dados</div>'+
+    '<h2 class="sx-t">Criptografar os prontuários deste aparelho</h2>'+
+    '<p class="sx-p">Hoje os dados dos pacientes ficam abertos no navegador: quem copiar os arquivos do aparelho consegue ler tudo. Com a proteção, eles passam a ficar cifrados (AES-256) e só abrem com um PIN.</p>'+
+    '<p class="sx-p">A Secretaria também precisa abrir os dados, então defina aqui o <strong>PIN dela</strong> (pode ser o mesmo que ela já usa, mas não pode ser igual ao seu).</p>'+
+    '<label class="sx-l" for="sxS1">PIN da Secretaria</label>'+pinInput('sxS1','')+
+    '<label class="sx-l" for="sxS2">Repita o PIN da Secretaria</label>'+pinInput('sxS2','')+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row"><button class="sx-b" id="sxLater" type="button">Fazer depois</button><button class="sx-b sx-pri" id="sxGo" type="button">Proteger agora</button></div>','sx-wide');
+  var a=q(o,'#sxS1'), b=q(o,'#sxS2'), err=q(o,'#sxErr'), go=q(o,'#sxGo');
+  digitsOnly(a); digitsOnly(b); setTimeout(function(){a.focus()},60);
+  q(o,'#sxLater').onclick=function(){ lsSet(SNOOZE_KEY,Date.now()); o.remove(); say('A proteção será oferecida de novo no próximo acesso'); proceed(); };
+  function submit(){
+    var p1=a.value,p2=b.value,w=weakReason(p1,'sec');
+    if(w){err.textContent=w;a.focus();return}
+    if(p1!==p2){err.textContent='Os dois PINs não conferem.';b.value='';b.focus();return}
+    if(p1===String(optoPin)){err.textContent='O PIN da Secretaria não pode ser igual ao seu.';a.value='';b.value='';a.focus();return}
+    go.disabled=true; q(o,'#sxLater').disabled=true;
+    err.className='sx-err sx-ok'; err.textContent='Criptografando e conferindo os dados… não feche esta tela.';
+    var code=newRecoveryCode(), c=CRY();
+    c.enable({opto:optoPin,sec:p1,rec:code}).then(function(res){
+      return Promise.all([storeHash('opto',optoPin),storeHash('sec',p1),makeRecord(normCode(code)).then(function(r){lsSet(REC_KEY,r)})]).then(function(){return res});
+    }).then(function(res){
+      try{localStorage.removeItem(SNOOZE_KEY)}catch(e){}
+      o.remove();
+      var o2=overlay(
+        '<div class="sx-k">Proteção ativa ✓</div><h2 class="sx-t">Guarde o código de recuperação</h2>'+
+        '<p class="sx-p">'+H(res.patients)+' pacientes e '+H(res.records)+' prontuários foram criptografados e conferidos. A cópia aberta foi apagada deste aparelho.</p>'+
+        '<p class="sx-p"><strong>Sem PIN e sem este código, os dados não abrem — nem por mim, nem por ninguém.</strong> Ele substitui qualquer código anterior e aparece só agora.</p>'+
+        '<div class="sx-code">'+H(code)+'</div>'+
+        '<label class="sx-chk"><input type="checkbox" id="sxSaw"> Anotei o código em papel, guardado longe do tablet.</label>'+
+        '<div class="sx-row"><button class="sx-b sx-pri" id="sxGo2" type="button" disabled>Continuar</button></div>');
+      q(o2,'#sxSaw').onchange=function(){q(o2,'#sxGo2').disabled=!this.checked};
+      q(o2,'#sxGo2').onclick=function(){o2.remove();proceed();setTimeout(function(){autoBackup(true)},4000)};
+    }).catch(function(e){
+      err.className='sx-err';
+      err.textContent='A proteção não foi ativada: '+((e&&e.message)||e)+'. Seus dados continuam como estavam.';
+      go.disabled=false; q(o,'#sxLater').disabled=false; go.textContent='Tentar de novo';
+    });
+  }
+  onEnter(a,function(){b.focus()}); onEnter(b,submit); go.onclick=submit;
+}
+
+/* ---------- envio para a nuvem ---------- */
+var sending=false;
+function cloudPut(manual){
+  var c=CRY();
+  if(sending) return Promise.reject(new Error('Já há um backup em andamento.'));
+  if(!c||!c.active()) return Promise.reject(new Error('Ative a proteção dos dados antes: só backups criptografados vão para a nuvem.'));
+  if(!c.unlocked()) return Promise.reject(new Error('Sistema bloqueado.'));
+  sending=true;
+  var dev=device(), du=((window.D&&D._meta)||{}).updatedAt||'', payload;
+  return c.exportEnvelope().then(function(txt){payload=txt;return sha256Hex(txt)}).then(function(localSha){
+    return api('put',{device:dev.id,deviceName:dev.name,dataUpdatedAt:du,payload:payload}).then(function(j){
+      if(j.sha256!==localSha) throw new Error('O servidor gravou um arquivo diferente do enviado (SHA-256 não confere).');
+      var st={at:Date.now(),ok:true,dataUpdatedAt:du,id:j.id,size:j.size};
+      lsSet(CLOUD_KEY,st); return st;
+    });
+  }).catch(function(e){
+    lsSet(CLOUD_KEY,Object.assign(cloudStatus(),{at:Date.now(),ok:false,err:(e&&e.message)||String(e)}));
+    throw e;
+  }).finally(function(){sending=false;refreshPanel()});
+}
+function autoBackup(force){
+  var c=CRY();
+  if(!c||!c.active()||!c.unlocked()||!portalKey()||navigator.onLine===false||locked) return;
+  if(!inApp()) return;
+  var st=cloudStatus(), du=((window.D&&D._meta)||{}).updatedAt||'', now=Date.now();
+  if(!force){
+    if(st.ok&&st.dataUpdatedAt===du) return;                  // nada mudou
+    if(st.ok&&st.at&&now-st.at<60*60000) return;              // no máximo 1 por hora
+    if(!st.ok&&st.at&&now-st.at<10*60000) return;             // após erro, espera 10 min
+  }
+  cloudPut(false).catch(function(e){try{console.warn('[OLHAR] backup na nuvem:',e.message)}catch(_){}});
+}
+setInterval(function(){autoBackup(false)},5*60000);
+window.addEventListener('online',function(){setTimeout(function(){autoBackup(false)},3000)});
+
+/* ---------- abrir backup protegido (arquivo, Drive ou nuvem) ---------- */
+function askSecret(title,cb){
+  var o=overlay('<div class="sx-k">Backup protegido</div><h2 class="sx-t">'+H(title)+'</h2>'+
+    '<p class="sx-p">Este backup foi criado em outro aparelho (ou antes de uma troca de chave). Digite o <strong>PIN do Dr.</strong>, o <strong>PIN da Secretaria</strong> ou o <strong>código de recuperação</strong> que valiam no aparelho de origem.</p>'+
+    '<input class="sx-in sx-sm" id="sxSec" type="password" autocomplete="off" placeholder="PIN ou XXXX-XXXX">'+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row"><button class="sx-b" id="sxCancel" type="button">Cancelar</button><button class="sx-b sx-pri" id="sxGo" type="button">Abrir</button></div>');
+  var inp=q(o,'#sxSec'), err=q(o,'#sxErr'), go=q(o,'#sxGo');
+  setTimeout(function(){inp.focus()},50);
+  function submit(){ if(!inp.value){inp.focus();return} go.disabled=true; err.textContent='Conferindo…'; cb(inp.value,function(msg){go.disabled=false;err.textContent=msg||'';inp.value='';inp.focus()},function(){o.remove()}) }
+  onEnter(inp,submit); go.onclick=submit; q(o,'#sxCancel').onclick=function(){o.remove()};
+}
+function confirmRestore(data,origin){
+  var o=overlay('<div class="sx-k">Restaurar</div><h2 class="sx-t">Substituir os dados atuais?</h2>'+
+    '<p class="sx-p"><strong>Backup:</strong> '+H(origin)+'<br>'+H(countsTxt(data))+'</p>'+
+    '<p class="sx-p"><strong>Agora no aparelho:</strong><br>'+H(countsTxt(window.D))+'</p>'+
+    '<p class="sx-p">Antes de substituir, guardo uma cópia de segurança do estado atual (na nuvem, se configurada; senão, baixo o arquivo).</p>'+
+    '<div class="sx-err" id="sxErr"></div>'+
+    '<div class="sx-row"><button class="sx-b" id="sxCancel" type="button">Cancelar</button><button class="sx-b sx-warn" id="sxGo" type="button">Restaurar este backup</button></div>','sx-wide');
+  var err=q(o,'#sxErr'), go=q(o,'#sxGo');
+  q(o,'#sxCancel').onclick=function(){o.remove()};
+  go.onclick=function(){
+    go.disabled=true; err.className='sx-err sx-ok'; err.textContent='Guardando cópia de segurança…';
+    var c=CRY();
+    var safety=(c.active()&&portalKey())?cloudPut(true).then(function(){return 'nuvem'}):c.exportEnvelope().then(function(t){download('olhar_antes_de_restaurar_'+stampName()+'.json',t);return 'arquivo'});
+    safety.then(function(where){
+      err.textContent='Cópia de segurança salva ('+where+'). Restaurando…';
+      return c.replaceAll(data);
+    }).then(function(){ return OLHAR_STORAGE.flush() }).then(function(){
+      say('Backup restaurado'); setTimeout(function(){location.reload()},600);
+    }).catch(function(e){ err.className='sx-err'; err.textContent='Restauração cancelada: '+((e&&e.message)||e)+'. Nada foi alterado.'; go.disabled=false });
+  };
+}
+window.olharImportEnvelope=function(env,origin){
+  var c=CRY(); if(!c){alert('Módulo de armazenamento indisponível.');return}
+  origin=origin||('arquivo de '+fmtDT(Date.parse(env.updatedAt||env.exportedAt||'')||Date.now()));
+  c.openEnvelope(env,null).then(function(d){
+    if(d){confirmRestore(d,origin);return}
+    askSecret('Abrir backup',function(secret,fail,close){
+      c.openEnvelope(env,secret).then(function(d2){
+        if(!d2){fail('Esse PIN ou código não abre este backup.');return}
+        close(); confirmRestore(d2,origin);
+      }).catch(function(e){fail('Erro: '+e.message)});
+    });
+  }).catch(function(e){alert('Não foi possível abrir o backup: '+e.message)});
+};
+
+/* ---------- arquivo para baixar ---------- */
+window.exportBackup=function(){
+  var c=CRY(); if(!c){alert('Módulo de armazenamento indisponível.');return}
+  c.exportEnvelope().then(function(txt){
+    download((c.active()?'olhar_backup_protegido_':'olhar_backup_ABERTO_')+stampName()+'.json',txt);
+    say(c.active()?'Cópia criptografada baixada':'Cópia baixada (sem proteção: ative-a)');
+  }).catch(function(e){alert('Falha ao exportar: '+e.message)});
+};
+
+/* ---------- painel Backups ---------- */
+var panel=null;
+function refreshPanel(){ if(panel&&document.body.contains(panel)) renderPanel() }
+function renderPanel(){
+  var c=CRY(), st=cloudStatus(), key=portalKey(), dev=device(), r=(typeof role!=='undefined'&&role)||'';
+  var prot=c&&c.active()
+    ?'<div class="sx-p" style="margin:0"><strong style="color:#16803a">● Proteção ativa</strong> — dados criptografados (AES-256) neste aparelho.</div>'
+    :'<div class="sx-p" style="margin:0"><strong style="color:var(--red,#c53030)">● Proteção desativada</strong> — dados abertos neste aparelho.</div>'+(r==='opto'?'<div class="sx-row" style="margin-top:10px"><button class="sx-b sx-pri" id="bkEnable" type="button">Ativar proteção agora</button></div>':'<p class="sx-p" style="margin:6px 0 0">O Dr. Geandré ativa no próximo acesso dele.</p>');
+  var cloud;
+  if(!key) cloud='<p class="sx-p" style="margin:0">A <strong>chave da clínica</strong> (a mesma do Portal das Óticas) não está configurada neste aparelho, então o backup automático na nuvem está parado.</p><div class="sx-row" style="margin-top:10px"><button class="sx-b" id="bkKey" type="button">Configurar chave da clínica</button></div>';
+  else if(!c||!c.active()) cloud='<p class="sx-p" style="margin:0">O backup na nuvem começa assim que a proteção for ativada (só sobe arquivo criptografado).</p>';
+  else cloud='<p class="sx-p" style="margin:0">'+(st.at?(st.ok?'<strong style="color:#16803a">✓ Último backup:</strong> '+H(fmtDT(st.at))+' · '+H(fmtSize(st.size)):'<strong style="color:var(--red,#c53030)">✕ Falhou em '+H(fmtDT(st.at))+':</strong> '+H(st.err||'')):'Ainda não houve backup na nuvem neste aparelho.')+'<br><span style="font-size:12px">Automático: até 1 por hora quando há mudança. Guarda as 24 últimas versões e uma por dia nos 30 dias anteriores.</span></p>';
+  panel.querySelector('.sx-card').innerHTML=
+    '<div class="sx-k">'+H(dev.name)+'</div><h2 class="sx-t">Backups</h2>'+
+    '<div class="sx-sec" style="margin-top:6px;border-top:0;padding-top:0"><label class="sx-l">Neste aparelho</label>'+prot+'</div>'+
+    '<div class="sx-sec"><label class="sx-l">Nuvem (Cloudflare, criptografado)</label>'+cloud+
+      '<div class="sx-row"><button class="sx-b sx-pri" id="bkNow" type="button"'+((key&&c&&c.active())?'':' disabled')+'>Fazer backup agora</button></div>'+
+      '<div id="bkList" style="margin-top:12px"></div></div>'+
+    '<div class="sx-sec"><label class="sx-l">Arquivo</label><div class="sx-row" style="margin-top:6px"><button class="sx-b" id="bkDown" type="button">Baixar cópia</button><label class="sx-b" style="display:flex;align-items:center;justify-content:center;cursor:pointer">Restaurar de arquivo<input type="file" accept="application/json,.json" id="bkFile" style="display:none"></label></div></div>'+
+    '<div class="sx-err" id="bkErr"></div>'+
+    '<div class="sx-row"><button class="sx-b" id="bkClose" type="button">Fechar</button></div>';
+  var p=panel, err=q(p,'#bkErr');
+  q(p,'#bkClose').onclick=function(){p.remove();panel=null};
+  q(p,'#bkDown').onclick=function(){window.exportBackup()};
+  q(p,'#bkFile').onchange=function(){var f=this.files[0];this.value='';if(f)window.importBackup(f)};
+  if(q(p,'#bkKey')) q(p,'#bkKey').onclick=function(){ if(typeof window.configurePartnerPortalKey==='function'){window.configurePartnerPortalKey();renderPanel()} else err.textContent='Configuração da chave indisponível.' };
+  if(q(p,'#bkEnable')) q(p,'#bkEnable').onclick=function(){
+    p.remove(); panel=null;
+    var o=overlay('<div class="sx-k">Dr. Geandré</div><h2 class="sx-t">Confirme seu PIN</h2>'+pinInput('sxCur')+'<div class="sx-err" id="sxErr"></div><div class="sx-row"><button class="sx-b" id="sxCancel" type="button">Cancelar</button><button class="sx-b sx-pri" id="sxGo" type="button">Continuar</button></div>');
+    var cur=q(o,'#sxCur'); digitsOnly(cur); setTimeout(function(){cur.focus()},50);
+    function go(){ verify('opto',cur.value).then(function(res){ if(!res.ok){q(o,'#sxErr').textContent='PIN incorreto.';cur.value='';return} var pin=cur.value; o.remove(); try{localStorage.removeItem(SNOOZE_KEY)}catch(e){} enableFlow(pin,function(){}) }) }
+    onEnter(cur,go); q(o,'#sxGo').onclick=go; q(o,'#sxCancel').onclick=function(){o.remove()};
+  };
+  q(p,'#bkNow').onclick=function(){
+    var b=this; b.disabled=true; b.textContent='Enviando…'; err.textContent='';
+    cloudPut(true).then(function(){say('Backup na nuvem concluído')}).catch(function(e){err.textContent=e.message;b.disabled=false;b.textContent='Fazer backup agora'});
+  };
+  if(key) listCloud();
+}
+function listCloud(){
+  var box=panel&&q(panel,'#bkList'); if(!box) return;
+  box.innerHTML='<p class="sx-p" style="margin:0;font-size:12.5px">Carregando versões…</p>';
+  api('list',{limit:60}).then(function(j){
+    if(!panel) return;
+    var rows=(j.backups||[]);
+    if(!rows.length){box.innerHTML='<p class="sx-p" style="margin:0;font-size:12.5px">Nenhuma versão na nuvem ainda.</p>';return}
+    var me=device().id;
+    box.innerHTML='<div style="max-height:240px;overflow:auto;border:1px solid var(--bdr,#dde3e7);border-radius:12px">'+rows.map(function(b){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--bdr,#dde3e7);font-size:13px"><div style="flex:1;min-width:0"><strong>'+H(fmtDT(b.createdAt))+'</strong><div style="color:var(--tx3,#4a5568);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+H(b.deviceName||'Aparelho')+(b.device===me?' (este)':'')+' · '+H(fmtSize(b.size))+'</div></div><button class="sx-b" style="flex:0 0 auto;min-height:38px;font-size:13px" data-id="'+H(b.id)+'" data-when="'+H(fmtDT(b.createdAt))+'" data-dev="'+H(b.deviceName||'')+'" type="button">Restaurar</button></div>';
+    }).join('')+'</div>';
+    Array.prototype.forEach.call(box.querySelectorAll('button[data-id]'),function(btn){
+      btn.onclick=function(){
+        btn.disabled=true; btn.textContent='Baixando…';
+        api('get',{id:btn.dataset.id}).then(function(g){
+          return sha256Hex(g.payload).then(function(h){
+            if(h!==g.sha256) throw new Error('Arquivo chegou corrompido (SHA-256 não confere).');
+            var env=JSON.parse(g.payload);
+            if(panel){panel.remove();panel=null}
+            window.olharImportEnvelope(env,'nuvem, '+btn.dataset.when+' — '+btn.dataset.dev);
+          });
+        }).catch(function(e){btn.disabled=false;btn.textContent='Restaurar';var er=panel&&q(panel,'#bkErr');if(er)er.textContent=e.message});
+      };
+    });
+  }).catch(function(e){ box.innerHTML='<p class="sx-p" style="margin:0;font-size:12.5px;color:var(--red,#c53030)">Não consegui listar as versões: '+H(e.message)+'</p>' });
+}
+window.openBackupsPanel=function(){
+  if(panel&&document.body.contains(panel)) panel.remove();
+  panel=overlay('','sx-wide'); renderPanel();
+};
 
 })();
 </script>

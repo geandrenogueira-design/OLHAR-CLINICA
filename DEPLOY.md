@@ -220,3 +220,19 @@ A chave da clínica é o mesmo segredo para todos os aparelhos onde você usa
 o sistema. Se você suspeitar que vazou (notebook perdido, por exemplo), gera
 uma nova no Passo 2, atualiza no Passo 4 e reconfigura em cada aparelho no
 Passo 5. Isso invalida a chave antiga.
+
+---
+
+## Backup automático na nuvem (Sprint 2, out/2026)
+
+Arquivo: `functions/api/backup.js` → rota `POST /api/backup`.
+
+- Usa **os mesmos** bindings do Portal: `DB` (D1 `olhar_portal`) e `CLINIC_KEY`.
+  Nada novo para configurar no Cloudflare.
+- As tabelas `backups` e `backup_chunks` são criadas sozinhas na primeira chamada.
+- Só aceita arquivo **já criptografado** no aparelho (AES-256). O servidor nunca
+  recebe dado de paciente em aberto.
+- Retenção por aparelho: 24 versões mais recentes + 1 por dia nos 30 dias anteriores.
+
+Em cada aparelho que deve fazer backup automático, a chave da clínica precisa estar
+configurada (menu **Backups → Configurar chave da clínica**, a mesma do Portal).

@@ -12,7 +12,7 @@
    - o fetch é criado do zero com redirect:"follow";
    - nunca devolve index.html no lugar de um simulador.
    ============================================================ */
-var VERSION = 'olhar-v12';
+var VERSION = 'olhar-v13';
 var CACHE = 'olhar-cache-' + VERSION;
 
 var PRECACHE = [
