@@ -662,7 +662,7 @@ function rOptPat(){const q=(document.getElementById('opSearch')||{}).value?.toLo
 function rRxL(){const s=D.prescriptions.slice().sort((a,b)=>b.date.localeCompare(a.date));const tb=document.getElementById('rxTbl');if(!tb)return;if(!s.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="ei">📝</div><h4>Sem receitas</h4></div></td></tr>';return}tb.innerHTML=s.map(r=>'<tr><td>'+fd(r.date)+'</td><td><strong>'+pn(r.patientId)+'</strong></td><td>'+(r.esfOd||'—')+'/'+(r.cilOd||'—')+'</td><td>'+(r.esfOe||'—')+'/'+(r.cilOe||'—')+'</td><td>'+(r.add||'—')+'</td><td class="acts"><button class="btn bsm bs" onclick="viewRx(\''+r.id+'\')">&oplus;</button><button class="btn bsm bs" onclick="dR(\''+r.id+'\')">&times;</button></td></tr>').join('')}
 function viewRx(id){const r=D.prescriptions.find(x=>x.id===id);if(!r)return;const p=D.patients.find(x=>x.id===r.patientId);const h='<div class="modal mlg"><div style="border:2px solid var(--bdr);border-radius:10px;padding:36px 44px"><div style="display:flex;gap:16px;margin-bottom:6px"><div style="width:44px;height:44px;border:3px solid var(--o);border-radius:50%;position:relative"><div style="width:12px;height:12px;background:var(--o);border-radius:50%;position:absolute;top:5px;left:50%;transform:translateX(-50%)"></div></div><div><div style="font-family:var(--font-h);font-size:26px;color:var(--o);font-weight:700">Olhar</div><div style="font-family:var(--font-h);font-style:italic;color:var(--gold);font-size:16px">Clínica da visão</div></div></div><div style="text-align:center;margin:24px 0 20px;font-size:18px;font-weight:800">Avaliação Optométrica</div><p><strong>Paciente:</strong> '+(p?p.name:'—')+' &nbsp; <strong>Data:</strong> '+fd(r.date)+'</p><table class="rxtbl"><thead><tr><th>AV/SC</th><th></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV/CC</th><th>AV/%</th></tr></thead><tbody><tr><td>'+(r.avscOd||'—')+'</td><td><strong>OD</strong></td><td>'+(r.esfOd||'—')+'</td><td>'+(r.cilOd||'—')+'</td><td>'+(r.eixoOd||'—')+'</td><td>'+(r.avccOd||'—')+'</td><td>'+(r.avpOd||'—')+'</td></tr><tr><td>'+(r.avscOe||'—')+'</td><td><strong>OE</strong></td><td>'+(r.esfOe||'—')+'</td><td>'+(r.cilOe||'—')+'</td><td>'+(r.eixoOe||'—')+'</td><td>'+(r.avccOe||'—')+'</td><td>'+(r.avpOe||'—')+'</td></tr></tbody></table><p><strong>AD:</strong> '+(r.add||'—')+' &nbsp; <strong>DP:</strong> '+(r.dp||'—')+'</p><p><strong>Material:</strong> '+(r.material||'—')+'</p><p><strong>Tratamento:</strong> '+(r.tratamento||'—')+'</p>'+(r.tonoOd||r.tonoOe?'<p><strong>Tono:</strong> OD '+(r.tonoOd||'—')+' / OE '+(r.tonoOe||'—')+' mmHg</p>':'')+'<div style="margin-top:32px;padding-top:16px;border-top:2px solid var(--o);display:flex;justify-content:space-between"><div style="text-align:center"><strong>'+D.cfg.pn+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.pt+'<br>'+D.cfg.pr+'</div></div><div style="text-align:center"><strong>'+D.cfg.ad+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.ad2+'</div></div></div></div><div class="mft"><button class="btn bs" onclick="clM()">Fechar</button></div></div>';document.getElementById('mC').innerHTML='<div class="mbg" onclick="if(event.target===this)clM()">'+h+'</div>'}
 
-const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_od_m','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_oe_m','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
+const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
 
 var SEC_CHAVES=["pac", "ana", "lem", "avi", "ref_pup", "mot", "bio", "oft", "cer", "ref", "rxf", "mat"];
 var SEC_TITULOS={"pac": "Dados do Paciente", "ana": "Anamnese", "lem": "Lensometria", "avi": "Acuidade Visual", "ref_pup": "Reflexos Pupilares", "mot": "Exame Motor", "bio": "Biomicroscopia", "oft": "Oftalmoscopia", "cer": "Ceratometria", "ref": "Refração", "rxf": "RX Final", "mat": "Material e Disposição"};
@@ -791,7 +791,7 @@ sec('<i class="ph-bold ph-ruler"></i>','Ceratometria e Lentes de Contato','<div 
   '</div>'+
   '<div id="lc_monovisao_box" style="display:none;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:12px 16px;margin-top:4px"></div>','cer')+
 sec('<i class="ph-bold ph-hospital"></i>','Refração','<div class="st">Retinoscopia 1ª</div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="r1_od_e"></td><td><input id="r1_od_c"></td><td><input id="r1_od_x"></td><td><input id="r1_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="r1_oe_e"></td><td><input id="r1_oe_c"></td><td><input id="r1_oe_x"></td><td><input id="r1_oe_v"></td></tr></tbody></table><div class="st">Retinoscopia 2ª</div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="r2_od_e"></td><td><input id="r2_od_c"></td><td><input id="r2_od_x"></td><td><input id="r2_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="r2_oe_e"></td><td><input id="r2_oe_c"></td><td><input id="r2_oe_x"></td><td><input id="r2_oe_v"></td></tr></tbody></table><div class="st">Subjetivo</div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="sb_od_e"></td><td><input id="sb_od_c"></td><td><input id="sb_od_x"></td><td><input id="sb_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="sb_oe_e"></td><td><input id="sb_oe_c"></td><td><input id="sb_oe_x"></td><td><input id="sb_oe_v"></td></tr></tbody></table><div class="st">Afinamento</div><div class="fg"><label>Técnica</label><input id="af_tc"></div><table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="af_od_e"></td><td><input id="af_od_c"></td><td><input id="af_od_x"></td><td><input id="af_od_v"></td></tr><tr><td class="ec">OE</td><td><input id="af_oe_e"></td><td><input id="af_oe_c"></td><td><input id="af_oe_x"></td><td><input id="af_oe_v"></td></tr></tbody></table><div class="st">ADD / PIO</div><div class="fr fr5"><div class="fg"><label>ADD OD</label><input id="ad_od"></div><div class="fg"><label>ADD OE</label><input id="ad_oe"></div><div class="fg"><label>PIO OD</label><input id="pi_od"></div><div class="fg"><label>PIO OE</label><input id="pi_oe"></div><div class="fg"><label>Hora</label><input id="pi_hr"></div></div>','ref')+
-sec('<i class="ph-bold ph-check-circle"></i>','RX Final',"<div style=\"display:flex;justify-content:flex-end;margin-bottom:10px\"><button type=\"button\" class=\"btn bs\" onclick=\"puxarLensometria()\" title=\"Copia ESF/CIL/EIXO/ADD/DP da Lensometria para o RX Final — ponto de partida, ajuste antes de salvar\"><i class=\"ph-bold ph-arrow-line-down\"></i> Puxar lensometria</button></div>"+'<table class="et"><thead><tr><th class="el">RX</th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>DNP</th><th>ALT</th><th>AV C/C</th><th>AV %</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="rx_od_e"></td><td><input id="rx_od_c"></td><td><input id="rx_od_x"></td><td><input id="rx_od_a"></td><td><input id="rx_od_d"></td><td><input id="rx_od_m"></td><td><input id="rx_od_avcc"></td><td><input id="rx_od_avp" readonly></td></tr><tr><td class="ec">OE</td><td><input id="rx_oe_e"></td><td><input id="rx_oe_c"></td><td><input id="rx_oe_x"></td><td><input id="rx_oe_a"></td><td><input id="rx_oe_d"></td><td><input id="rx_oe_m"></td><td><input id="rx_oe_avcc"></td><td><input id="rx_oe_avp" readonly></td></tr></tbody></table><div class="fg"><label>Obs <button type="button" class="vbtn" id="vb_rx_ob" onclick="toggleVoice(\'rx_ob\')"><span class="vdot"></span><span id="vt_rx_ob"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="rx_ob"></textarea></div>','rxf')+
+sec('<i class="ph-bold ph-check-circle"></i>','RX Final',"<div style=\"display:flex;justify-content:flex-end;margin-bottom:10px\"><button type=\"button\" class=\"btn bs\" onclick=\"puxarLensometria()\" title=\"Copia ESF/CIL/EIXO/ADD/DP da Lensometria para o RX Final — ponto de partida, ajuste antes de salvar\"><i class=\"ph-bold ph-arrow-line-down\"></i> Puxar lensometria</button></div>"+'<table class="et"><thead><tr><th class="el">RX</th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>DP</th><th>AV C/C</th><th>AV %</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="rx_od_e"></td><td><input id="rx_od_c"></td><td><input id="rx_od_x"></td><td><input id="rx_od_a"></td><td><input id="rx_od_d"></td><td><input id="rx_od_avcc"></td><td><input id="rx_od_avp" readonly></td></tr><tr><td class="ec">OE</td><td><input id="rx_oe_e"></td><td><input id="rx_oe_c"></td><td><input id="rx_oe_x"></td><td><input id="rx_oe_a"></td><td><input id="rx_oe_d"></td><td><input id="rx_oe_avcc"></td><td><input id="rx_oe_avp" readonly></td></tr></tbody></table><div class="fg"><label>Obs <button type="button" class="vbtn" id="vb_rx_ob" onclick="toggleVoice(\'rx_ob\')"><span class="vdot"></span><span id="vt_rx_ob"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="rx_ob"></textarea></div>','rxf')+
 sec('<i class="ph-bold ph-package"></i>','Material e Disposição','<div class="fr fr3"><div class="fg"><label>Material</label><input id="mt_m_"></div><div class="fg"><label>Filtro</label><input id="mt_f_"></div><div class="fg"><label>Prisma</label><input id="mt_p_"></div></div><div class="fr fr2"><div class="fg"><label>Tipo Lente</label><input id="mt_l_"></div><div class="fg"><label>Uso</label><input id="mt_u_"></div></div><div class="fg"><label>Resultados <button type="button" class="vbtn" id="vb_mt_r_" onclick="toggleVoice(\'mt_r_\')"><span class="vdot"></span><span id="vt_mt_r_"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="mt_r_"></textarea></div><div class="fg"><label>Disposição <button type="button" class="vbtn" id="vb_mt_d_" onclick="toggleVoice(\'mt_d_\')"><span class="vdot"></span><span id="vt_mt_d_"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="mt_d_"></textarea></div>','mat')
 }
 
@@ -917,9 +917,9 @@ function verRegistroHistorico(id){
 // prefixos mais comuns e caímos no nome técnico como fallback.
 var ROTULOS_HIST = {
   rx_od_e:'RX Final OD — Esf', rx_od_c:'RX Final OD — Cil', rx_od_x:'RX Final OD — Eixo',
-  rx_od_a:'RX Final OD — Adição', rx_od_d:'RX Final OD — DNP', rx_od_m:'RX Final OD — Altura',
+  rx_od_a:'RX Final OD — Adição', rx_od_d:'RX Final OD — DP',
   rx_oe_e:'RX Final OE — Esf', rx_oe_c:'RX Final OE — Cil', rx_oe_x:'RX Final OE — Eixo',
-  rx_oe_a:'RX Final OE — Adição', rx_oe_d:'RX Final OE — DNP', rx_oe_m:'RX Final OE — Altura',
+  rx_oe_a:'RX Final OE — Adição', rx_oe_d:'RX Final OE — DP',
   rx_od_avcc:'RX Final OD — AV c/c', rx_oe_avcc:'RX Final OE — AV c/c',
   rx_ob:'RX Final — Observações',
   pl_od_e:'Lensometria OD — Esf', pl_od_c:'Lensometria OD — Cil', pl_od_x:'Lensometria OD — Eixo',
@@ -3685,8 +3685,8 @@ table{
   var usoList=['Uso contínuo','Visão de longe','Visão de perto','Leitura','Computador/Intermediário','Multifocal uso geral','Sob demanda'];
   var optoList=['Snellen','LogMAR/ETDRS','Tumbling E','Anéis de Landolt','Figuras (Lea/Allen)','HOTV','Cartões de Teller'];
 
-  var SUF={ esf:' D', cil:' D', add:' D', axis:'°', prism:'Δ', dpmono:' mm', dm:' mm', alt:' mm', k:' D', pio:' mmHg' };
-  var GEN={ esf:esfList, cil:cilList, add:addList, axis:axisList, prism:prismList, dpmono:dpMonoList, dm:dmList, alt:function(){return ['Medir'].concat(dmList())}, k:kList, pio:pioList,
+  var SUF={ esf:' D', cil:' D', add:' D', axis:'°', prism:'Δ', dpmono:' mm', dm:' mm', k:' D', pio:' mmHg' };
+  var GEN={ esf:esfList, cil:cilList, add:addList, axis:axisList, prism:prismList, dpmono:dpMonoList, dm:dmList, k:kList, pio:pioList,
             av:function(){return avList}, tecAfin:function(){return tecAfin}, mat:function(){return matList},
             trat:function(){return tratList}, lens:function(){return lensList}, uso:function(){return usoList}, opto:function(){return optoList} };
 
@@ -3712,7 +3712,7 @@ table{
     ad_od:'add', ad_oe:'add', pi_od:'pio', pi_oe:'pio',
     // RX Final
     rx_od_e:'esf', rx_oe_e:'esf', rx_od_c:'cil', rx_oe_c:'cil', rx_od_x:'axis', rx_oe_x:'axis',
-    rx_od_a:'add', rx_oe_a:'add', rx_od_d:'dpmono', rx_oe_d:'dpmono', rx_od_m:'alt', rx_oe_m:'alt',
+    rx_od_a:'add', rx_oe_a:'add', rx_od_d:'dpmono', rx_oe_d:'dpmono',
     rx_od_avcc:'av', rx_oe_avcc:'av',
     // Material e Disposição
     mt_m_:'mat', mt_f_:'trat', mt_l_:'lens', mt_u_:'uso',
@@ -3856,7 +3856,7 @@ table{
     r2:{r2_od_e:'r2_oe_e',r2_od_c:'r2_oe_c',r2_od_x:'r2_oe_x',r2_od_v:'r2_oe_v'},
     sb:{sb_od_e:'sb_oe_e',sb_od_c:'sb_oe_c',sb_od_x:'sb_oe_x',sb_od_v:'sb_oe_v'},
     af:{af_od_e:'af_oe_e',af_od_c:'af_oe_c',af_od_x:'af_oe_x',af_od_v:'af_oe_v'},
-    rx:{rx_od_e:'rx_oe_e',rx_od_c:'rx_oe_c',rx_od_x:'rx_oe_x',rx_od_a:'rx_oe_a',rx_od_d:'rx_oe_d',rx_od_m:'rx_oe_m'}
+    rx:{rx_od_e:'rx_oe_e',rx_od_c:'rx_oe_c',rx_od_x:'rx_oe_x',rx_od_a:'rx_oe_a',rx_od_d:'rx_oe_d'}
   };
 
   function addAllBars(){
@@ -4690,7 +4690,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v29 · IndexedDB';
+    var BUILD='Olhar v30 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -5781,7 +5781,7 @@ var observer=new MutationObserver(addPortalButtons);observer.observe(document.do
       bloqueio progressivo após 5 erros; código de recuperação.
    2. Bloqueio automático por inatividade (padrão 5 min).
    3. Receita: conferência antes de imprimir lente multifocal/
-      bifocal/ocupacional (DNP e altura), "Plano" no esférico
+      (revertido em 05/10: DNP e altura ficam com a ótica) — "Plano" no esférico
       zero, vírgula decimal e sinal tipográfico em todas as
       impressões (miolo A5, Documentos, Receitas A4/A5).
    ============================================================ */
@@ -6133,105 +6133,10 @@ function br2(n){return Math.abs(n).toFixed(2).replace('.',',')}
 function fmtEsf(v){var n=num(v);if(n===null)return null;if(Math.abs(n)<0.005)return 'Plano';return (n<0?'−':'+')+br2(n)}
 function fmtCil(v){var n=num(v);if(n===null)return null;if(Math.abs(n)<0.005)return '—';return (n<0?'−':'+')+br2(n)}
 function fmtAdd(v){var n=num(v);if(n===null)return null;if(Math.abs(n)<0.005)return '—';return '+'+br2(n)}
-function mm(n){return (Math.round(n*2)/2).toFixed(1).replace('.',',')}
 window.olharFmtRx={esf:fmtEsf,cil:fmtCil,add:fmtAdd};
 
-var MULTI_RE=/multifoca|progressiv|bifoca|ocupacional|office|varilux|kryptok|ultex|panoptik|biovis/i;
-
-function recordFor(pid,date){
-  var recs=((window.D&&D.records)||[]).filter(function(r){return r.patientId===pid&&r.data});
-  if(!recs.length) return null;
-  if(date){var same=recs.filter(function(r){return String(r.date||'').slice(0,10)===String(date).slice(0,10)});if(same.length)recs=same}
-  recs.sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))});
-  return recs[0];
-}
-
-/* monta o contexto clínico da receita a partir das fontes disponíveis */
-function ctxFrom(src){
-  var rec=src.pid?recordFor(src.pid,src.date):null, d=(rec&&rec.data)||{};
-  var lens=[src.lens,d.mt_l_].filter(Boolean).join(' ');
-  var lensName=[d.mt_l_].concat(String(src.lens||'').split(/\s+[—\/–-]\s+/)).filter(function(x){return x&&MULTI_RE.test(x)})[0]||'';
-  var add=num(src.add); if(add===null) add=num(d.rx_od_a)||num(d.rx_oe_a);
-  return {
-    rec:rec, multi:MULTI_RE.test(lens), lens:lens, lensName:lensName.trim(), add:add,
-    dnpOd:num(d.rx_od_d), dnpOe:num(d.rx_oe_d), dnpBin:num(src.dp),
-    altOd:num(d.rx_od_m), altOe:num(d.rx_oe_m),
-    dnpMedir:String(src.dp||'').trim()==='Medir'||d.rx_od_d==='Medir'||d.rx_oe_d==='Medir',
-    altMedir:d.rx_od_m==='Medir'||d.rx_oe_m==='Medir'
-  };
-}
-function problems(c){
-  var bad=[], miss=[];
-  function mono(v,l){if(v!==null&&(v<24||v>40))bad.push('DNP '+l+' = '+mm(v)+' mm está fora da faixa possível (24–40 mm).')}
-  mono(c.dnpOd,'OD'); mono(c.dnpOe,'OE');
-  if(c.dnpBin!==null&&(c.dnpOd===null&&c.dnpOe===null)&&(c.dnpBin<44||c.dnpBin>80)) bad.push('DNP total = '+mm(c.dnpBin)+' mm está fora da faixa possível.');
-  function alt(v,l){if(v!==null&&(v<8||v>40))bad.push('Altura '+l+' = '+mm(v)+' mm está fora da faixa possível (8–40 mm).')}
-  alt(c.altOd,'OD'); alt(c.altOe,'OE');
-  if(c.multi){
-    if(c.dnpOd===null||c.dnpOe===null) miss.push(c.dnpBin!==null?'DNP monocular (só há a DNP total)':'DNP');
-    if(c.altOd===null||c.altOe===null) miss.push('Altura de montagem');
-  }
-  return {bad:bad,miss:miss};
-}
-
-/* bloco "Montagem" que vai impresso */
-function montagemLines(c){
-  var out=[];
-  if(c.dnpOd!==null&&c.dnpOe!==null) out.push(['DNP','OD '+mm(c.dnpOd)+' mm · OE '+mm(c.dnpOe)+' mm']);
-  else if(c.dnpBin!==null) out.push(['DNP',mm(c.dnpBin)+' mm']);
-  else if(c.multi||c.dnpMedir) out.push(['DNP','medir na ótica (monocular)']);
-  if(c.altOd!==null&&c.altOe!==null) out.push(['Altura de montagem','OD '+mm(c.altOd)+' mm · OE '+mm(c.altOe)+' mm']);
-  else if(c.multi) out.push(['Altura de montagem','medir na ótica, com a armação escolhida']);
-  return out;
-}
-
-/* modal de conferência; cb(ctxFinal) ou nada se o usuário voltar */
-function confirmGate(c,cb){
-  var pr=problems(c);
-  var needsAsk=pr.bad.length||pr.miss.length||(!c.multi&&c.add!==null&&c.add>0&&!c.lens);
-  if(!needsAsk){cb(c);return}
-  var v=function(x){return x===null?'':mm(x).replace(',','.')};
-  var fields=
-    '<div class="sx-g2"><div><label class="sx-l">DNP OD (mm)</label><input class="sx-in sx-sm" id="sxDo" inputmode="decimal" value="'+v(c.dnpOd)+'"></div>'+
-    '<div><label class="sx-l">DNP OE (mm)</label><input class="sx-in sx-sm" id="sxDe" inputmode="decimal" value="'+v(c.dnpOe)+'"></div>'+
-    '<div><label class="sx-l">Altura OD (mm)</label><input class="sx-in sx-sm" id="sxAo" inputmode="decimal" value="'+v(c.altOd)+'"></div>'+
-    '<div><label class="sx-l">Altura OE (mm)</label><input class="sx-in sx-sm" id="sxAe" inputmode="decimal" value="'+v(c.altOe)+'"></div></div>'+
-    (c.rec?'<label class="sx-chk"><input type="checkbox" id="sxSaveRec" checked> Gravar estes valores no RX Final do prontuário de '+H(String(c.rec.date||'').split('-').reverse().join('/'))+'</label>':'');
-  var intro, buttons;
-  if(pr.bad.length){
-    intro='<p class="sx-p">Há valor impossível na receita. Corrija antes de imprimir:</p><ul class="sx-list">'+pr.bad.map(function(x){return '<li>'+H(x)+'</li>'}).join('')+'</ul>';
-  } else if(pr.miss.length){
-    intro='<p class="sx-p">Receita de lente <strong>'+H(c.lensName||'multifocal')+'</strong>. Para o laboratório montar, faltam:</p><ul class="sx-list">'+pr.miss.map(function(x){return '<li>'+H(x)+'</li>'}).join('')+'</ul><p class="sx-p">Preencha abaixo, ou imprima indicando que a ótica vai medir.</p>';
-  } else {
-    intro='<p class="sx-p">A receita tem adição de <strong>+'+br2(c.add)+' D</strong>, mas o tipo de lente não foi definido. Confira se é monofocal de perto, bifocal ou multifocal.</p>';
-  }
-  var o=overlay('<div class="sx-k">Conferência antes de imprimir</div><h2 class="sx-t">Dados de montagem</h2>'+intro+
-    (c.multi||pr.bad.length?fields:'')+
-    '<div class="sx-err" id="sxErr"></div>'+
-    '<div class="sx-row"><button class="sx-b" id="sxBack" type="button">Voltar e corrigir</button>'+
-    (c.multi||pr.bad.length?'<button class="sx-b sx-pri" id="sxUse" type="button">Imprimir com estes valores</button>':'')+
-    (!pr.bad.length?'<button class="sx-b sx-warn" id="sxAnyway" type="button">'+(pr.miss.length?'Imprimir: medir na ótica':'Imprimir assim')+'</button>':'')+'</div>','sx-wide');
-  var err=q(o,'#sxErr');
-  q(o,'#sxBack').onclick=function(){o.remove()};
-  if(q(o,'#sxAnyway')) q(o,'#sxAnyway').onclick=function(){o.remove();cb(c)};
-  if(q(o,'#sxUse')) q(o,'#sxUse').onclick=function(){
-    var n=Object.assign({},c);
-    n.dnpOd=num(q(o,'#sxDo').value); n.dnpOe=num(q(o,'#sxDe').value);
-    n.altOd=num(q(o,'#sxAo').value); n.altOe=num(q(o,'#sxAe').value);
-    var p2=problems(n);
-    if(p2.bad.length){err.textContent=p2.bad[0];return}
-    if(p2.miss.length&&!confirm('Ainda falta: '+p2.miss.join(', ')+'. Imprimir indicando "medir na ótica"?')) return;
-    var save=q(o,'#sxSaveRec');
-    if(save&&save.checked&&n.rec){
-      var d=n.rec.data, w=function(k,val){if(val!==null)d[k]=val.toFixed(2)};
-      w('rx_od_d',n.dnpOd); w('rx_oe_d',n.dnpOe); w('rx_od_m',n.altOd); w('rx_oe_m',n.altOe);
-      try{if(typeof sv==='function')sv()}catch(e){}
-    }
-    o.remove(); cb(n);
-  };
-}
-
-/* aplica "Plano", vírgula e sinal tipográfico nas tabelas de RX dentro de root */
+/* Formatação das tabelas de RX impressas: "Plano", vírgula e sinal tipográfico.
+   DNP e altura de montagem ficam a cargo da ótica (sem conferência na impressão). */
 function polishTables(root){
   Array.prototype.forEach.call(root.querySelectorAll('table'),function(t){
     var heads=Array.prototype.map.call(t.querySelectorAll('thead th'),function(th){return th.textContent.trim().toUpperCase()});
@@ -6240,7 +6145,6 @@ function polishTables(root){
     Array.prototype.forEach.call(t.querySelectorAll('tbody tr'),function(tr){
       var cells=tr.children, first=(cells[0]&&cells[0].textContent.trim().toUpperCase())||'';
       function fix(i,f){var td=cells[i];if(!td||td.children.length)return;var out=f(td.textContent);if(out!==null)td.textContent=out}
-      Array.prototype.forEach.call(cells,function(td){if(/^DP:/i.test(td.textContent.trim()))td.textContent=''});
       var second=(cells[1]&&cells[1].textContent.trim().toUpperCase())||'';
       if(first==='AD'||second==='AD'){fix(ci.esf,fmtAdd);return}
       fix(ci.esf,fmtEsf); fix(ci.cil,fmtCil); if(ci.add>=0) fix(ci.add,fmtAdd);
@@ -6249,30 +6153,13 @@ function polishTables(root){
 }
 
 /* --- 1) miolo A5 (Documentos → Imprimir miolo / impressão rápida) --- */
-function docCtx(){
-  var pid=($('docPat')||{}).value||'';
-  var val=function(id){return (($(id)||{}).value||'').trim()};
-  return ctxFrom({pid:pid,date:null,lens:[val('drx_mat')].join(' '),add:val('drx_add'),dp:val('drx_dp')});
-}
 var _miolo=window.printMiolo;
 if(typeof _miolo==='function'){
   window.printMiolo=function(){
+    var r=_miolo.apply(this,arguments);
     var t=(typeof curDocType!=='undefined')?curDocType:null;
-    if(t!=='rx') return _miolo.apply(this,arguments);
-    var self=this,args=arguments;
-    confirmGate(docCtx(),function(c){
-      _miolo.apply(self,args);
-      var pa=$('docPrintArea'); if(!pa) return;
-      polishTables(pa);
-      var box=pa.querySelector('.miolo-rx'); if(!box) return;
-      Array.prototype.forEach.call(box.querySelectorAll('.mrx-info'),function(el){var s=el.querySelector('strong');if(s&&/^DNP/.test(s.textContent.trim()))el.remove()});
-      var obs=box.querySelector('.mrx-obs');
-      montagemLines(c).forEach(function(l){
-        var div=document.createElement('div'); div.className='mrx-info';
-        div.innerHTML='<strong>'+H(l[0])+':</strong> '+H(l[1]);
-        if(obs) box.insertBefore(div,obs); else box.appendChild(div);
-      });
-    });
+    if(t==='rx'){ var pa=$('docPrintArea'); if(pa) polishTables(pa); }
+    return r;
   };
 }
 
@@ -6280,23 +6167,10 @@ if(typeof _miolo==='function'){
 var _printDoc=window.printDoc;
 if(typeof _printDoc==='function'){
   window.printDoc=function(){
+    var r=_printDoc.apply(this,arguments);
     var t=(typeof curDocType!=='undefined')?curDocType:null;
-    if(t!=='rx') return _printDoc.apply(this,arguments);
-    var self=this,args=arguments;
-    confirmGate(docCtx(),function(c){
-      _printDoc.apply(self,args);
-      var pa=$('docPrintArea'); if(!pa) return;
-      polishTables(pa);
-      var tbl=pa.querySelector('.dp-rxtbl');
-      if(tbl){
-        var lines=montagemLines(c), after=tbl;
-        lines.forEach(function(l){
-          var div=document.createElement('div'); div.className='dp-field';
-          div.innerHTML='<strong>'+H(l[0])+':</strong> '+H(l[1]);
-          after.parentNode.insertBefore(div,after.nextSibling); after=div;
-        });
-      }
-    });
+    if(t==='rx'){ var pa=$('docPrintArea'); if(pa) polishTables(pa); }
+    return r;
   };
 }
 
@@ -6304,25 +6178,10 @@ if(typeof _printDoc==='function'){
 var _rxFmt=window.printRxFormat;
 if(typeof _rxFmt==='function'){
   window.printRxFormat=function(id,format){
-    var r=((window.D&&D.prescriptions)||[]).find(function(x){return x.id===id});
-    if(!r) return _rxFmt.apply(this,arguments);
-    var self=this,args=arguments;
-    var c=ctxFrom({pid:r.patientId,date:r.date,lens:[r.lensType,r.material].filter(Boolean).join(' '),add:r.add,dp:r.dp});
-    confirmGate(c,function(c2){
-      var opened=null, realOpen=window.open;
-      window.open=function(){opened=realOpen.apply(window,arguments);return opened};
-      try{_rxFmt.apply(self,args)}finally{window.open=realOpen}
-      if(!opened) return;
-      try{
-        var doc=opened.document; polishTables(doc);
-        var t=doc.querySelector('table'); if(!t) return;
-        var html='';
-        var hasAdRow=Array.prototype.some.call(t.querySelectorAll('tbody tr'),function(tr){return tr.children[0]&&tr.children[0].textContent.trim().toUpperCase()==='AD'||tr.children[1]&&tr.children[1].textContent.trim().toUpperCase()==='AD'});
-        if(!hasAdRow&&c2.add!==null&&c2.add>0) html+='<div style="margin:6px 0"><strong>Adição:</strong> '+H(fmtAdd(c2.add))+' D</div>';
-        montagemLines(c2).forEach(function(l){html+='<div style="margin:6px 0"><strong>'+H(l[0])+':</strong> '+H(l[1])+'</div>'});
-        if(html){var box=doc.createElement('div');box.style.cssText='font-size:13px;margin:4px 0 12px';box.innerHTML=html;t.parentNode.insertBefore(box,t.nextSibling)}
-      }catch(e){console.error('[OLHAR] receita:',e)}
-    });
+    var opened=null, realOpen=window.open;
+    window.open=function(){opened=realOpen.apply(window,arguments);return opened};
+    try{_rxFmt.apply(this,arguments)}finally{window.open=realOpen}
+    if(opened){ try{polishTables(opened.document)}catch(e){console.error('[OLHAR] receita:',e)} }
   };
 }
 
