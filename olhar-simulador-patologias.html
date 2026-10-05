@@ -191,6 +191,8 @@
         <button data-mode="split" class="on">Comparar</button>
         <button data-mode="patho">Só a condição</button>
         <button data-mode="normal">Só o normal</button>
+        <button data-mode="retina">Retina</button>
+        <button data-mode="ambos">Visão + retina</button>
       </div>
     </div>
 
@@ -203,7 +205,7 @@
     </div>
 
     <div class="footer">
-      <b>Aproximação perceptual.</b> Reproduz o efeito descrito na queixa clínica, não o mecanismo retiniano completo. A visão real varia entre pacientes, entre olhos e ao longo do dia, e a adaptação neural reduz a percepção do próprio déficit. <b>Não substitui exame nem serve como estimativa de prognóstico.</b>
+      <b>Aproximação perceptual.</b> Reproduz o efeito descrito na queixa clínica, não o mecanismo retiniano completo. A visão real varia entre pacientes, entre olhos e ao longo do dia, e a adaptação neural reduz a percepção do próprio déficit. A retina exibida é uma ilustração didática da condição, não a imagem do exame deste paciente. <b>Não substitui exame nem serve como estimativa de prognóstico.</b>
     </div>
   </main>
 </div>
@@ -233,7 +235,7 @@ const ALL = [disp,sharpC,workC,tmpC,tmp2C,poolC,fbC];
 /* congela o conteúdo de tmpC para uso como camada (tmp2C é usado pelo maskDraw) */
 function freeze(){ clearX(poolX); poolX.drawImage(tmpC,0,0); return poolC; }
 
-let W=0,H=0,DPR=1,K=1;          // K = fator de escala (1 = 1000px de largura de referência)
+let W=0,H=0,DPR=1,K=1,DW=0,DH=0;          // K = fator de escala (1 = 1000px de largura de referência)
 const supportsFilter = (()=>{ const [c,x]=mk(); c.width=c.height=2; x.filter='blur(1px)'; return x.filter==='blur(1px)'; })();
 
 function clearX(x){ x.setTransform(1,0,0,1,0,0); x.globalAlpha=1; x.globalCompositeOperation='source-over'; x.filter='none'; x.clearRect(0,0,W,H); }
@@ -822,6 +824,290 @@ const PATHOS=[
     f:'“Apareceu uma sombra escura de cima pra baixo e não sai.”' },
 ];
 
+
+/* ==========================================================================
+   RETINA — fundo de olho ilustrado (olho direito), por patologia
+   Desenho didático, determinístico e escalável. Não é imagem de exame.
+   ========================================================================== */
+const RET={
+  catarata:['A retina na catarata','A retina costuma estar saudável. O que embaça é o cristalino, que fica à frente dela — por isso até a imagem do fundo de olho aparece velada no exame.'],
+  glaucoma:['O nervo óptico no glaucoma','A parte clara no centro do nervo (a escavação) aumenta à medida que as fibras nervosas se perdem. Esse dano não volta: o tratamento serve para frear a progressão.'],
+  dmri:['A mácula na degeneração macular','Depósitos amarelados (drusas) se acumulam na mácula, a área da visão central. Nas fases avançadas, o tecido da mácula afina e deixa de funcionar.'],
+  retinopatia:['A retina no diabetes','Os vasos pequenos vazam e sangram: surgem pontos vermelhos, manchas amarelas de gordura e, nas fases graves, vasos novos e frágeis.'],
+  ceratocone:['A retina no ceratocone','A retina está saudável. A córnea deformada distorce a imagem antes de ela chegar lá — inclusive a imagem que o examinador vê.'],
+  floaters:['Moscas volantes e a retina','A retina está no lugar. As sombras vêm de condensações no gel do olho (o vítreo), entre a luz e a retina.'],
+  seco:['A retina no olho seco','A retina está saudável. A instabilidade está na lágrima, na superfície do olho, a primeira lente por onde a luz passa.'],
+  descolamento:['A retina no descolamento','A retina se solta da parede do olho, em geral a partir de um rasgo. A parte solta fica acinzentada, ondulada e para de funcionar. É urgência.']
+};
+PATHOS.forEach(p=>{ p.ret=RET[p.id]||[p.nome,'']; });
+
+const FUND={cache:new Map(), tree:new Map()};
+function mkCanvas(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+function fGeo(w,h){
+  const R=Math.min(w,h)*0.46, cx=w/2, cy=h/2;
+  return {w,h,R,cx,cy, dx:cx+0.36*R, dy:cy-0.02*R, dr:0.085*R, mx:cx-0.10*R, my:cy+0.04*R};
+}
+function fClip(x,g){ x.beginPath(); x.arc(g.cx,g.cy,g.R,0,Math.PI*2); x.clip(); }
+
+function vesselTree(g){
+  const key=g.w+'x'+g.h; if(FUND.tree.has(key)) return FUND.tree.get(key);
+  const r=rng(31), segs=[];
+  function grow(x,y,a,len,wid,curve,depth,vein,jit){
+    const st=g.R*0.03, n=Math.max(5,Math.round(len/st)), pts=[[x,y]];
+    jit=jit==null?0.16:jit;
+    for(let i=0;i<n;i++){
+      a+=curve+(r()-.5)*jit; x+=Math.cos(a)*st; y+=Math.sin(a)*st;
+      if(Math.hypot(x-g.mx,y-g.my)<g.R*0.075 && i>1) break;   // fóvea é avascular
+      pts.push([x,y]);
+      if(depth>0 && i>2 && i<n-2 && r()<0.12){
+        let side=r()<.5?-1:1;
+        const na=a+side*(0.5+r()*0.5);
+        if(Math.hypot(x+Math.cos(na)*g.R*0.15-g.mx,y+Math.sin(na)*g.R*0.15-g.my)<g.R*0.12) side=-side;
+        grow(x,y,a+side*(0.5+r()*0.5),len*(0.28+r()*0.22)*(1-i/n*0.5),wid*0.62,(r()-.5)*0.04,depth-1,vein,0.18);
+      }
+    }
+    if(pts.length<2) return;
+    segs.push({pts,wid:Math.max(wid,g.R*0.0025),vein});
+  }
+  const R=g.R;
+  for(const vein of [true,false]){
+    const off=vein?0.07:-0.07, w0=(vein?0.017:0.012)*R;
+    grow(g.dx,g.dy,-2.0+off,1.45*R,w0,-0.019,3,vein,0.06);   // arcada temporal superior
+    grow(g.dx,g.dy, 2.0-off,1.45*R,w0, 0.019,3,vein,0.06);   // arcada temporal inferior
+    grow(g.dx,g.dy,-0.85+off,0.80*R,w0*.75, 0.010,2,vein);// nasal superior
+    grow(g.dx,g.dy, 0.85-off,0.80*R,w0*.75,-0.010,2,vein);// nasal inferior
+    grow(g.dx,g.dy,-1.45+off*.6,0.55*R,w0*.5,-0.02,1,vein);
+    grow(g.dx,g.dy, 1.45-off*.6,0.55*R,w0*.5, 0.02,1,vein);
+    grow(g.dx-g.dr*.8,g.dy,(vein?-3.05:3.05),0.35*R,w0*.3,0,1,vein); // ramos maculares
+  }
+  segs.sort((a,b)=>(b.vein-a.vein)||(b.wid-a.wid));
+  FUND.tree.set(key,segs); return segs;
+}
+function strokePts(x,pts){ x.beginPath(); x.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length-1;i++){ const mx=(pts[i][0]+pts[i+1][0])/2, my=(pts[i][1]+pts[i+1][1])/2; x.quadraticCurveTo(pts[i][0],pts[i][1],mx,my); }
+  const l=pts[pts.length-1]; x.lineTo(l[0],l[1]); x.stroke(); }
+function drawVessels(x,g,opt){
+  opt=opt||{};
+  x.lineCap='round'; x.lineJoin='round';
+  for(const s of vesselTree(g)){
+    x.strokeStyle=opt.color?(s.vein?opt.color[0]:opt.color[1]):(s.vein?'#6e130d':'#a9301b');
+    x.lineWidth=s.wid; strokePts(x,s.pts);
+    if(!s.vein && !opt.color && s.wid>g.R*0.006){ x.strokeStyle='rgba(255,196,160,.35)'; x.lineWidth=s.wid*0.28; strokePts(x,s.pts); }
+  }
+}
+
+function drawFundusBase(x,g,o){
+  o=o||{};
+  x.fillStyle='#000'; x.fillRect(0,0,g.w,g.h);
+  x.save(); fClip(x,g);
+  let gr=x.createRadialGradient(g.cx+0.1*g.R,g.cy-0.05*g.R,g.R*0.05,g.cx,g.cy,g.R);
+  gr.addColorStop(0,'#dc7038'); gr.addColorStop(.55,'#bf4d22'); gr.addColorStop(.85,'#8c2f14'); gr.addColorStop(1,'#4a1406');
+  x.fillStyle=gr; x.fillRect(0,0,g.w,g.h);
+  // textura da coroide
+  const r=rng(9);
+  for(let i=0;i<900;i++){ const a=r()*Math.PI*2, d=Math.sqrt(r())*g.R, px=g.cx+Math.cos(a)*d, py=g.cy+Math.sin(a)*d;
+    x.fillStyle=r()<.5?'rgba(110,25,8,.07)':'rgba(240,140,80,.05)';
+    x.beginPath(); x.ellipse(px,py,g.R*(0.01+r()*0.025),g.R*(0.006+r()*0.012),r()*3,0,7); x.fill(); }
+  // mácula + reflexo foveal
+  gr=x.createRadialGradient(g.mx,g.my,0,g.mx,g.my,g.R*0.24);
+  gr.addColorStop(0,'rgba(85,22,6,.62)'); gr.addColorStop(.5,'rgba(110,32,10,.28)'); gr.addColorStop(1,'rgba(110,32,10,0)');
+  x.fillStyle=gr; x.beginPath(); x.arc(g.mx,g.my,g.R*0.24,0,7); x.fill();
+  if(!o.noFovea){ x.strokeStyle='rgba(255,236,210,.45)'; x.lineWidth=g.R*0.004; x.beginPath(); x.arc(g.mx,g.my,g.R*0.016,0,7); x.stroke(); }
+  // disco óptico
+  const cdr=o.cdr||0.3, pal=o.pallor||0;
+  gr=x.createRadialGradient(g.dx,g.dy,g.dr*0.8,g.dx,g.dy,g.dr*1.55);
+  gr.addColorStop(0,'rgba(236,160,110,.55)'); gr.addColorStop(1,'rgba(236,160,110,0)');
+  x.fillStyle=gr; x.beginPath(); x.ellipse(g.dx,g.dy,g.dr*1.55,g.dr*1.7,0,0,7); x.fill();
+  // borda neurorretiniana (rosada) — empalidece no glaucoma avançado
+  const rim=[Math.round(232+(244-232)*pal),Math.round(138+(206-138)*pal),Math.round(98+(176-98)*pal)];
+  gr=x.createRadialGradient(g.dx,g.dy,0,g.dx,g.dy,g.dr*1.08);
+  gr.addColorStop(0,`rgb(${rim})`); gr.addColorStop(.88,`rgb(${rim.map(c=>Math.round(c*0.94))})`); gr.addColorStop(1,`rgba(${rim},0)`);
+  x.fillStyle=gr; x.beginPath(); x.ellipse(g.dx,g.dy,g.dr*1.0,g.dr*1.1,0,0,7); x.fill();
+  // escavação (pálida) com borda definida
+  const cr=g.dr*cdr;
+  gr=x.createRadialGradient(g.dx-g.dr*.04,g.dy,0,g.dx-g.dr*.04,g.dy,cr*1.1);
+  gr.addColorStop(0,'#fffbf2'); gr.addColorStop(.8,'#fbe9cc'); gr.addColorStop(.93,'#f3d2a6'); gr.addColorStop(1,'rgba(243,210,166,0)');
+  x.fillStyle=gr; x.beginPath(); x.ellipse(g.dx-g.dr*.04,g.dy,cr*1.1,cr*1.2,0,0,7); x.fill();
+  if(o.thinVessels){ x.globalAlpha=0.45; drawVessels(x,g); x.globalAlpha=1; } else drawVessels(x,g);
+  x.restore();
+}
+function vignette(x,g){
+  x.save(); fClip(x,g);
+  const gr=x.createRadialGradient(g.cx,g.cy,g.R*0.62,g.cx,g.cy,g.R);
+  gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,.62)');
+  x.fillStyle=gr; x.fillRect(0,0,g.w,g.h); x.restore();
+}
+function blob(x,px,py,rx,ry,rot,col){ x.fillStyle=col; x.beginPath(); x.ellipse(px,py,rx,ry,rot,0,7); x.fill(); }
+function inFund(g,px,py,m){ return Math.hypot(px-g.cx,py-g.cy)<g.R*(m||0.92); }
+
+/* rótulo com linha guia; ox/oy em frações de R a partir do ponto */
+function fLabel(x,g,px,py,txt,ox,oy){
+  const fs=Math.max(12,g.R*0.04);
+  x.font=`600 ${fs}px -apple-system,"Segoe UI",Inter,sans-serif`;
+  const tw=x.measureText(txt).width, pad=fs*0.6, bw=tw+pad*2, bh=fs*1.75;
+  let ax=px+ox*g.R, ay=py+oy*g.R;
+  let bx=ox<0?ax-bw:ax; bx=Math.max(6,Math.min(g.w-bw-6,bx));
+  let by=Math.max(6,Math.min(g.h-bh-6,ay-bh/2));
+  const lx=ox<0?bx+bw:bx, ly=by+bh/2;
+  x.strokeStyle='rgba(255,255,255,.85)'; x.lineWidth=Math.max(1.5,g.R*0.003);
+  x.beginPath(); x.moveTo(px,py); x.lineTo(lx,ly); x.stroke();
+  x.fillStyle='#fff'; x.beginPath(); x.arc(px,py,Math.max(3,g.R*0.008),0,7); x.fill();
+  x.fillStyle='rgba(5,8,11,.80)'; rr(x,bx,by,bw,bh,bh/2); x.fill();
+  x.strokeStyle='rgba(255,255,255,.22)'; x.lineWidth=1; rr(x,bx,by,bw,bh,bh/2); x.stroke();
+  x.fillStyle='#fff'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(txt,bx+pad,ly+fs*0.04);
+}
+function labelsSaudavel(x,g,semNervo){
+  if(!semNervo) fLabel(x,g,g.dx,g.dy-g.dr*1.1,'Nervo óptico',0.12,-0.30);
+  fLabel(x,g,g.mx,g.my,'Mácula (visão central)',-0.10,0.40);
+  const s=vesselTree(g).find(v=>!v.vein&&v.wid>g.R*0.009); if(s){ const p=s.pts[Math.floor(s.pts.length*0.45)]; fLabel(x,g,p[0],p[1],'Vasos sanguíneos',-0.20,-0.16); }
+}
+
+/* lupa: amplia o disco óptico (redesenha em escala, sem perder nitidez) */
+function discZoom(x,g,o,lab,txt){
+  const zr=g.R*0.30, zx=g.w-zr-Math.max(14,g.R*0.05), zy=Math.min(g.h-zr*1.6, zr+Math.max(56,g.R*0.16)), z=3.0;
+  x.save();
+  x.strokeStyle='rgba(255,255,255,.55)'; x.lineWidth=Math.max(1.5,g.R*0.003);
+  x.beginPath(); x.arc(g.dx,g.dy,zr/z,0,7); x.stroke();
+  x.beginPath(); x.moveTo(g.dx+zr/z*0.7,g.dy-zr/z*0.7); x.lineTo(zx-zr*0.7,zy+zr*0.7); x.stroke();
+  x.beginPath(); x.arc(zx,zy,zr,0,7); x.clip();
+  x.translate(zx,zy); x.scale(z,z); x.translate(-g.dx,-g.dy);
+  drawFundusBase(x,g,Object.assign({},o,{thinVessels:true}));
+  x.restore();
+  x.strokeStyle='rgba(255,255,255,.9)'; x.lineWidth=Math.max(2,g.R*0.006); x.beginPath(); x.arc(zx,zy,zr,0,7); x.stroke();
+  if(lab&&txt){ const fs=Math.max(12,g.R*0.036); x.font=`600 ${fs}px -apple-system,"Segoe UI",Inter,sans-serif`;
+    const tw=x.measureText(txt).width, bw=tw+fs*1.2, bh=fs*1.7, bx=Math.max(6,Math.min(g.w-bw-6,zx-bw/2)), by=zy+zr+fs*0.5;
+    x.fillStyle='rgba(5,8,11,.80)'; rr(x,bx,by,bw,bh,bh/2); x.fill(); x.fillStyle='#fff'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(txt,bx+fs*0.6,by+bh/2); }
+}
+
+/* --- retina com cada condição --- */
+function fundusPato(x,g,id,s,lab){
+  const R=g.R, r=rng(id.length*97+13);
+  const base=(o)=>drawFundusBase(x,g,o);
+  const veil=(blurPx,col,a)=>{                     // velamento de meio óptico
+    const c=mkCanvas(g.w,g.h), cx=c.getContext('2d'); cx.drawImage(x.canvas,0,0);
+    x.clearRect(0,0,g.w,g.h); x.filter=`blur(${blurPx}px)`; x.drawImage(c,0,0); x.filter='none';
+    if(a>0){ x.save(); fClip(x,g); x.fillStyle=`rgba(${col},${a})`; x.fillRect(0,0,g.w,g.h); x.restore(); }
+  };
+  switch(id){
+  case 'glaucoma':{
+    const og={cdr:0.3+0.6*s, pallor:0.30*s};
+    base(og); vignette(x,g);
+    discZoom(x,g,og,lab,'Nervo óptico com glaucoma (ampliado)');
+    if(lab&&s>0.12) fLabel(x,g,g.dx-g.dr*.05,g.dy,s>0.6?'Escavação muito aumentada':'Escavação aumentada',-0.30,0.36);
+    return; }
+  case 'dmri':{
+    base({noFovea:s>0.35});
+    x.save(); fClip(x,g);
+    const n=Math.round(8+110*s);
+    for(let i=0;i<n;i++){ const a=r()*Math.PI*2, d=Math.pow(r(),0.8)*R*(0.07+0.17*s), px=g.mx+Math.cos(a)*d, py=g.my+Math.sin(a)*d*0.85;
+      const rad=R*(0.005+r()*0.011)*(1+s*0.8);
+      blob(x,px,py,rad,rad*0.9,0,`rgba(244,214,128,${0.55+0.35*r()})`); }
+    if(s>0.55){ for(let i=0;i<Math.round((s-0.55)*60);i++){ const a=r()*7, d=r()*R*0.16; blob(x,g.mx+Math.cos(a)*d,g.my+Math.sin(a)*d,R*0.006,R*0.005,0,'rgba(40,14,6,.7)'); } }
+    if(s>0.75){ const ga=(s-0.75)*4;
+      x.beginPath(); const pts=18; for(let i=0;i<=pts;i++){ const a=i/pts*Math.PI*2, rad=R*(0.05+0.09*ga)*(0.8+0.35*Math.sin(a*3+1.3)); const px=g.mx+Math.cos(a)*rad, py=g.my+Math.sin(a)*rad*0.85; i?x.lineTo(px,py):x.moveTo(px,py); }
+      x.closePath(); x.fillStyle='rgba(236,184,140,.92)'; x.fill();
+      x.save(); x.clip(); x.strokeStyle='rgba(178,82,44,.75)'; x.lineWidth=R*0.008;
+      for(let i=0;i<7;i++){ x.beginPath(); x.moveTo(g.mx-R*0.2,g.my-R*0.12+i*R*0.04); x.bezierCurveTo(g.mx-R*0.05,g.my-R*0.18+i*R*0.05,g.mx+R*0.05,g.my-R*0.05+i*R*0.03,g.mx+R*0.2,g.my-R*0.1+i*R*0.04); x.stroke(); }
+      x.restore(); }
+    x.restore(); vignette(x,g);
+    if(lab&&s>0.1) fLabel(x,g,g.mx+R*0.08,g.my-R*0.06,'Drusas (depósitos amarelos)',-0.30,-0.40);
+    if(lab&&s>0.75) fLabel(x,g,g.mx,g.my+R*0.05,'Atrofia da mácula',-0.25,0.38);
+    return; }
+  case 'retinopatia':{
+    base({});
+    x.save(); fClip(x,g);
+    if(s>0.35){ const gr=x.createRadialGradient(g.mx,g.my,0,g.mx,g.my,R*0.2); gr.addColorStop(0,`rgba(255,225,190,${0.22*s})`); gr.addColorStop(1,'rgba(255,225,190,0)'); x.fillStyle=gr; x.beginPath(); x.arc(g.mx,g.my,R*0.2,0,7); x.fill(); }
+    const pick=()=>{ for(let k=0;k<20;k++){ const a=r()*7, d=Math.sqrt(r())*R*0.85; const px=g.cx+Math.cos(a)*d, py=g.cy+Math.sin(a)*d; if(Math.hypot(px-g.dx,py-g.dy)>g.dr*1.6) return [px,py]; } return [g.mx,g.my]; };
+    for(let i=0;i<Math.round(6+45*s);i++){ const [px,py]=pick(); blob(x,px,py,R*0.0045,R*0.0045,0,'rgba(120,8,6,.95)'); }
+    for(let i=0;i<Math.round(2+26*s);i++){ const [px,py]=pick(); const q=R*(0.008+r()*0.016); blob(x,px,py,q,q*(0.8+r()*0.3),r()*3,'rgba(95,8,5,.9)'); }
+    if(s>0.4) for(let i=0;i<Math.round((s-0.4)*22);i++){ const [px,py]=pick(); blob(x,px,py,R*(0.02+r()*0.02),R*0.007,Math.atan2(py-g.dy,px-g.dx),'rgba(120,10,6,.85)'); }
+    if(s>0.25){ const n=Math.round((s-0.25)*80); for(let i=0;i<n;i++){ const a=r()*7, d=R*(0.08+r()*0.18); blob(x,g.mx+Math.cos(a)*d*1.1,g.my+Math.sin(a)*d*0.8,R*(0.004+r()*0.007),R*(0.004+r()*0.006),r()*3,'rgba(250,222,120,.95)'); } }
+    if(s>0.5){ x.filter=`blur(${Math.max(1,R*0.01)}px)`; for(let i=0;i<Math.round(2+(s-0.5)*12);i++){ const [px,py]=pick(); blob(x,px,py,R*(0.03+r()*0.02),R*(0.02+r()*0.015),r()*3,'rgba(250,246,236,.85)'); } x.filter='none'; }
+    if(s>0.8){ x.strokeStyle='rgba(185,30,20,.9)'; x.lineWidth=R*0.0028; for(let i=0;i<14;i++){ let px=g.dx+(r()-.5)*g.dr*1.6, py=g.dy+(r()-.5)*g.dr*1.6; x.beginPath(); x.moveTo(px,py); for(let k=0;k<5;k++){ px+=(r()-.5)*R*0.05; py+=(r()-.5)*R*0.05; x.lineTo(px,py);} x.stroke(); } }
+    x.restore(); vignette(x,g);
+    if(lab&&s>0.08){ fLabel(x,g,g.cx+R*0.05,g.cy-R*0.42,'Hemorragias',0.20,-0.20); }
+    if(lab&&s>0.25){ fLabel(x,g,g.mx-R*0.12,g.my+R*0.08,'Exsudatos (gordura)',-0.22,0.36); }
+    if(lab&&s>0.5){ fLabel(x,g,g.cx-R*0.45,g.cy-R*0.25,'Manchas algodonosas',-0.20,-0.22); }
+    if(lab&&s>0.8){ fLabel(x,g,g.dx,g.dy+g.dr*0.9,'Vasos novos frágeis',0.10,0.36); }
+    return; }
+  case 'descolamento':{
+    base({});
+    const e=0.18+0.70*s, ux=-0.62, uy=-0.78;     // setor temporal superior
+    const lim=R*(1-1.75*e);
+    x.save(); fClip(x,g);
+    x.beginPath();
+    // borda ondulada do descolamento (corda perpendicular a u)
+    const px0=g.cx+ux*lim, py0=g.cy+uy*lim, vx=-uy, vy=ux, half=Math.sqrt(Math.max(0,R*R-lim*lim));
+    x.moveTo(px0+vx*half,py0+vy*half);
+    for(let i=0;i<=40;i++){ const t=i/40, w=Math.sin(t*Math.PI*3.2+0.6)*R*0.035+Math.sin(t*Math.PI*9)*R*0.01; x.lineTo(px0+vx*half*(1-2*t)+ux*w, py0+vy*half*(1-2*t)+uy*w); }
+    x.arc(g.cx,g.cy,R*1.01,Math.atan2(py0-vy*half-g.cy,px0-vx*half-g.cx),Math.atan2(py0+vy*half-g.cy,px0+vx*half-g.cx),false);
+    x.closePath();
+    x.save(); x.clip();
+    const dg=x.createLinearGradient(px0,py0,g.cx+ux*R,g.cy+uy*R);
+    dg.addColorStop(0,`rgba(190,168,152,${0.50+0.15*s})`); dg.addColorStop(1,`rgba(205,188,175,${0.80+0.12*s})`);
+    x.fillStyle=dg; x.fillRect(0,0,g.w,g.h);
+    drawVessels(x,g,{color:['rgba(70,10,8,.95)','rgba(110,20,14,.9)']});
+    x.filter=`blur(${Math.max(1,R*0.004)}px)`; x.lineCap='round';
+    for(let k=1;k<=5;k++){ const off=k*R*0.085;
+      x.beginPath();
+      for(let i=0;i<=30;i++){ const t=-1.15+i/30*2.3, wob=Math.sin(t*3.1+k*1.7)*R*0.03+Math.sin(t*7+k)*R*0.008;
+        const qx=px0+vx*half*t+ux*(off+wob), qy=py0+vy*half*t+uy*(off+wob); i?x.lineTo(qx,qy):x.moveTo(qx,qy); }
+      x.strokeStyle='rgba(250,242,232,.42)'; x.lineWidth=R*0.007; x.stroke();
+      x.strokeStyle='rgba(90,60,50,.20)'; x.lineWidth=R*0.004; x.save(); x.translate(ux*R*0.01,uy*R*0.01); x.stroke(); x.restore(); }
+    x.filter='none';
+    x.restore();
+    x.strokeStyle='rgba(255,240,225,.6)'; x.lineWidth=R*0.006; x.stroke();
+    // rasgo em ferradura na periferia do setor
+    const tx=g.cx+ux*R*0.80+vx*R*0.10, ty=g.cy+uy*R*0.80+vy*R*0.10, tr=R*0.055;
+    x.fillStyle='rgba(150,14,8,.95)'; x.beginPath(); x.ellipse(tx,ty,tr,tr*0.75,Math.atan2(uy,ux),0,7); x.fill();
+    x.fillStyle='rgba(220,200,185,.95)'; x.beginPath(); x.ellipse(tx-ux*tr*0.55,ty-uy*tr*0.55,tr*0.75,tr*0.45,Math.atan2(uy,ux),0,7); x.fill();
+    x.restore(); vignette(x,g);
+    if(lab){ fLabel(x,g,g.cx+ux*(lim+R*0.12)-vx*R*0.05,g.cy+uy*(lim+R*0.12)-vy*R*0.05,'Retina descolada',-0.35,0.10);
+             fLabel(x,g,tx,ty,'Rasgo na retina',0.30,-0.05); }
+    return; }
+  case 'catarata':{
+    base({}); veil(Math.max(0.5,R*0.022*s),'205,160,90',0.42*s); vignette(x,g);
+    if(lab){ fLabel(x,g,g.dx,g.dy-g.dr,'Retina saudável',0.12,-0.30); if(s>0.15) fLabel(x,g,g.mx,g.my,'A névoa vem do cristalino',-0.10,0.40); }
+    return; }
+  case 'ceratocone':{
+    base({});
+    const c=mkCanvas(g.w,g.h), cx=c.getContext('2d'); cx.drawImage(x.canvas,0,0);
+    x.globalAlpha=0.32*s; x.drawImage(c,R*0.025*s,-R*0.04*s); x.globalAlpha=0.22*s; x.drawImage(c,R*0.05*s,-R*0.075*s); x.globalAlpha=1;
+    veil(Math.max(0.5,R*0.006*s),'0,0,0',0); vignette(x,g);
+    if(lab){ fLabel(x,g,g.dx,g.dy-g.dr,'Retina saudável',0.12,-0.30); if(s>0.15) fLabel(x,g,g.mx,g.my,'A distorção vem da córnea',-0.10,0.40); }
+    return; }
+  case 'floaters':{
+    base({});
+    x.save(); fClip(x,g); x.filter=`blur(${Math.max(1,R*0.006)}px)`; x.strokeStyle=`rgba(30,18,14,${0.25+0.4*s})`; x.lineCap='round';
+    for(let i=0;i<Math.round(2+7*s);i++){ let px=g.cx+(r()-.5)*R*1.2, py=g.cy+(r()-.5)*R*1.2; x.lineWidth=R*(0.006+r()*0.012); x.beginPath(); x.moveTo(px,py);
+      for(let k=0;k<4;k++){ const nx=px+(r()-.5)*R*0.3, ny=py+(r()-.5)*R*0.3; x.quadraticCurveTo(px+(r()-.5)*R*0.2,py+(r()-.5)*R*0.2,nx,ny); px=nx; py=ny; } x.stroke(); }
+    if(s>0.6){ x.lineWidth=R*0.012; x.beginPath(); x.ellipse(g.cx-R*0.2,g.cy-R*0.1,R*0.09,R*0.07,0.4,0,7); x.stroke(); }
+    x.filter='none'; x.restore(); vignette(x,g);
+    if(lab){ fLabel(x,g,g.dx,g.dy-g.dr,'Retina no lugar',0.12,-0.30); fLabel(x,g,g.cx-R*0.2,g.cy-R*0.1,'Sombras do vítreo',-0.25,-0.30); }
+    return; }
+  case 'seco':{
+    base({}); veil(Math.max(0.5,R*0.01*s),'255,255,255',0.08*s);
+    x.save(); fClip(x,g); for(let i=0;i<Math.round(30*s);i++){ blob(x,g.cx+(r()-.5)*R*1.6,g.cy+(r()-.5)*R*1.6,R*(0.01+r()*0.03),R*(0.008+r()*0.02),r()*3,`rgba(255,250,240,${0.06+0.08*r()})`); } x.restore(); vignette(x,g);
+    if(lab){ fLabel(x,g,g.dx,g.dy-g.dr,'Retina saudável',0.12,-0.30); if(s>0.15) fLabel(x,g,g.mx,g.my,'O borrão vem da lágrima',-0.10,0.40); }
+    return; }
+  default: base({});
+  }
+  vignette(x,g);
+}
+
+/* devolve um canvas w×h com a retina (cache por estado) */
+function fundus(w,h,healthy){
+  const id=S.patho.id, s=Math.round(S.sev*100)/100, lab=S.cap;
+  const key=[w,h,healthy?('norm-'+(id==='glaucoma'?'g':'')):id,healthy?0:s,lab?1:0].join('|');
+  if(FUND.cache.has(key)) return FUND.cache.get(key);
+  const c=mkCanvas(w,h), x=c.getContext('2d'), g=fGeo(w,h);
+  if(healthy||s<0.02){ drawFundusBase(x,g,{}); vignette(x,g); if(lab) labelsSaudavel(x,g,id==='glaucoma');
+    if(id==='glaucoma') discZoom(x,g,{},lab,'Nervo óptico saudável (ampliado)'); }
+  else fundusPato(x,g,id,s,lab);
+  if(FUND.cache.size>24) FUND.cache.delete(FUND.cache.keys().next().value);
+  FUND.cache.set(key,c); return c;
+}
+
 /* ==========================================================================
    ESTADO · RENDER · UI
    ========================================================================== */
@@ -831,22 +1117,47 @@ let t0=performance.now(), raf=null;
 function layout(){
   DPR=Math.min(window.devicePixelRatio||1,2);
   const r=wrap.getBoundingClientRect();
-  W=Math.max(2,Math.round(r.width*DPR)); H=Math.max(2,Math.round(r.height*DPR));
+  DW=Math.max(2,Math.round(r.width*DPR)); DH=Math.max(2,Math.round(r.height*DPR));
+  W=S.mode==='ambos'?Math.max(2,Math.round(DW/2)):DW; H=DH;
   K=W/1400;
-  for(const c of ALL){ c.width=W; c.height=H; }
+  disp.width=DW; disp.height=DH;
+  for(const c of ALL){ if(c!==disp){ c.width=W; c.height=H; } }
+  FUND.cache.clear(); FUND.tree.clear();
   render();
 }
 
+const TAGS={
+  split:['COM A CONDIÇÃO','VISÃO PRESERVADA'], patho:['COM A CONDIÇÃO','VISÃO PRESERVADA'], normal:['COM A CONDIÇÃO','VISÃO PRESERVADA'],
+  retina:['RETINA COM A CONDIÇÃO','RETINA SAUDÁVEL'], ambos:['COMO SE ENXERGA','COMO A RETINA ESTÁ']
+};
 function render(){
   if(!W) return;
   const t=(performance.now()-t0)/1000;
+  tagL.textContent=TAGS[S.mode][0]; tagR.textContent=TAGS[S.mode][1];
+
+  if(S.mode==='retina'){
+    dctx.setTransform(1,0,0,1,0,0); dctx.globalAlpha=1; dctx.filter='none'; dctx.clearRect(0,0,DW,DH);
+    const hw=Math.round(DW/2);
+    dctx.drawImage(fundus(hw,DH,false),0,0);
+    dctx.drawImage(fundus(DW-hw,DH,true),hw,0);
+    dctx.fillStyle='rgba(255,255,255,.35)'; dctx.fillRect(hw-1*DPR,0,2*DPR,DH);
+    handle.classList.add('hide'); tagL.style.opacity=1; tagR.style.opacity=1;
+    return;
+  }
 
   desenharCena(sharpX);
 
   clearX(workX);
   S.patho.apply(workX, sharpC, S.sev, t, {fill:S.fill, anim:S.anim});
 
-  clearX(dctx);
+  dctx.setTransform(1,0,0,1,0,0); dctx.globalAlpha=1; dctx.filter='none'; dctx.clearRect(0,0,DW,DH);
+  if(S.mode==='ambos'){
+    dctx.drawImage(workC,0,0);
+    dctx.drawImage(fundus(DW-W,DH,false),W,0);
+    dctx.fillStyle='rgba(255,255,255,.75)'; dctx.fillRect(W-1*DPR,0,2*DPR,DH);
+    handle.classList.add('hide'); tagL.style.opacity=1; tagR.style.opacity=1;
+    return;
+  }
   const cut = S.mode==='split' ? W*S.split : (S.mode==='patho' ? W : 0);
   dctx.drawImage(sharpC,0,0);
   if(cut>0){ dctx.save(); dctx.beginPath(); dctx.rect(0,0,cut,H); dctx.clip();
@@ -861,7 +1172,7 @@ function render(){
 
 function loop(){ render(); raf=requestAnimationFrame(loop); }
 function syncLoop(){
-  const precisa = S.anim && S.patho.anim && S.sev>0.02;
+  const precisa = S.anim && S.patho.anim && S.sev>0.02 && S.mode!=='retina';
   if(precisa && !raf){ raf=requestAnimationFrame(loop); }
   if(!precisa && raf){ cancelAnimationFrame(raf); raf=null; render(); }
 }
@@ -872,9 +1183,10 @@ function refreshUI(){
   document.getElementById('stageMeta').textContent=`${S.scene.nome} · severidade ${Math.round(S.sev*100)}%`;
   const p=S.patho;
   document.getElementById('expl').innerHTML=
-    `<h3>${p.nome}</h3><p>${p.o}</p><p>${p.q}</p><p class="queixa">${p.f}</p>`;
-  capEl.querySelector('b').textContent=p.cap[0];
-  capEl.querySelector('span').textContent=p.cap[1];
+    `<h3>${p.nome}</h3><p>${p.o}</p><p>${p.q}</p><p><b>No fundo de olho:</b> ${p.ret[1]}</p><p class="queixa">${p.f}</p>`;
+  const vRet=(S.mode==='retina'||S.mode==='ambos');
+  capEl.querySelector('b').textContent=vRet?p.ret[0]:p.cap[0];
+  capEl.querySelector('span').textContent=vRet?p.ret[1]:p.cap[1];
   capEl.classList.toggle('off', !S.cap || S.sev<0.02);
 }
 
@@ -916,11 +1228,16 @@ document.getElementById('presets').addEventListener('click',e=>{
   b.classList.add('on'); refreshUI(); syncLoop(); render();
 });
 
+function setMode(m){
+  if(!TAGS[m]) return;
+  const antes=S.mode; S.mode=m;
+  document.querySelectorAll('#modeseg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===m));
+  refreshUI(); syncLoop();
+  if((antes==='ambos')!==(m==='ambos')) layout(); else render();
+}
 document.getElementById('modeseg').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;
-  S.mode=b.dataset.mode;
-  document.querySelectorAll('#modeseg button').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); render();
+  setMode(b.dataset.mode);
 });
 
 for(const [id,key] of [['fill','fill'],['cap','cap'],['anim','anim']]){
@@ -946,6 +1263,8 @@ addEventListener('keydown',e=>{
   if(k==='1') document.querySelector('[data-mode="patho"]').click();
   if(k==='2') document.querySelector('[data-mode="normal"]').click();
   if(k==='h') document.getElementById('toggleRail').click();
+  if(k==='r') setMode('retina');
+  if(k==='v') setMode('ambos');
   const pl=[...document.querySelectorAll('#pathos .item')], i=PATHOS.indexOf(S.patho);
   if(e.key==='ArrowDown'){e.preventDefault(); pl[(i+1)%pl.length].click();}
   if(e.key==='ArrowUp'){e.preventDefault(); pl[(i-1+pl.length)%pl.length].click();}
@@ -956,8 +1275,9 @@ addEventListener('keydown',e=>{
 
 /* ==========================================================================
    PONTE COM O SISTEMA OLHAR
-     URL       ?nome=Maria&patologia=glaucoma&sev=55&cena=avenida
-     mensagem  {tipo:'olhar:patologia', nome, patologia, sev, cena}
+     URL       ?nome=Maria&patologia=glaucoma&sev=55&cena=avenida&modo=retina
+     mensagem  {tipo:'olhar:patologia', nome, patologia, sev, cena, modo}
+     modo      split | patho | normal | retina | ambos
    ========================================================================== */
 function aplicarPatologia(d){
   if(d.patologia){ const p=PATHOS.find(x=>x.id===d.patologia); if(p) S.patho=p; }
@@ -965,6 +1285,7 @@ function aplicarPatologia(d){
   if(d.sev!=null){ const s=Math.min(100,Math.max(0,parseFloat(d.sev)||0));
                    S.sev=s/100; document.getElementById('sev').value=s;
                    document.querySelectorAll('#presets button').forEach(b=>b.classList.remove('on')); }
+  if(d.modo && TAGS[d.modo] && d.modo!==S.mode){ setMode(d.modo); }
   if(d.nome){
     const t=document.getElementById('stageTitle');
     let p=t.querySelector('.pill');
@@ -981,7 +1302,7 @@ refreshUI(); buildScenes(); carregarImagens(); layout(); syncLoop();
 
 const q=new URLSearchParams(location.search);
 if([...q.keys()].length) aplicarPatologia({nome:q.get('nome'), patologia:q.get('patologia'),
-                                           sev:q.get('sev'), cena:q.get('cena')});
+                                           sev:q.get('sev'), cena:q.get('cena'), modo:q.get('modo')});
 try{ if(parent!==window) parent.postMessage({tipo:'olhar:pronto', modulo:'patologias'},'*'); }catch(e){}
 </script>
 </body>

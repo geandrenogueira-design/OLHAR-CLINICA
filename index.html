@@ -4690,7 +4690,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v31 · IndexedDB';
+    var BUILD='Olhar v32 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -4727,7 +4727,7 @@ var PATOS=[
 ];
 
 var A={ sph:0, cyl:0, axis:90, add:0, olho:'od', cena:'' };
-var P={ patologia:'catarata', sev:40, cena:'' };
+var P={ patologia:'catarata', sev:40, cena:'', modo:'split' };
 
 /* As cenas vêm do próprio manifesto — assim, quando você acrescentar uma
    foto em cenas/manifest.js, ela aparece aqui sozinha. */
@@ -4812,7 +4812,7 @@ function envia(k){
     var nm=nomePaciente(); if(nm) msg.nome=nm;
     alvo.postMessage(msg, location.origin);
   } else {
-    var m2={ tipo:'olhar:patologia', patologia:P.patologia, sev:P.sev };
+    var m2={ tipo:'olhar:patologia', patologia:P.patologia, sev:P.sev, modo:P.modo };
     if(P.cena) m2.cena=P.cena;
     var n2=nomePaciente(); if(n2) m2.nome=n2;
     alvo.postMessage(m2, location.origin);
@@ -4831,7 +4831,7 @@ window.simSetA=function(campo,val){
   pinta('amet'); envia('amet');
 };
 window.simSetP=function(campo,val){
-  P[campo] = (campo==='patologia'||campo==='cena') ? val : parseFloat(val);
+  P[campo] = (campo==='patologia'||campo==='cena'||campo==='modo') ? val : parseFloat(val);
   pinta('pato'); envia('pato');
 };
 window.simZeraA=function(){ A.sph=0; A.cyl=0; A.axis=90; A.add=0; pinta('amet'); envia('amet'); };
@@ -4925,6 +4925,10 @@ function pinta(k){
       '<label class="sim-lb">Severidade <b>'+P.sev+'%</b></label>'+
       '<input type="range" min="0" max="100" step="1" value="'+P.sev+'" oninput="simSetP(\'sev\',this.value)">'+
     '</div>'+
+    '<div class="sim-card"><div class="sim-h">O que mostrar na TV</div><div class="sim-row">'+
+      [['split','Comparar visão'],['patho','Só a visão com a condição'],['retina','Retina'],['ambos','Visão + retina']].map(function(m){
+        return chip(m[1], P.modo===m[0], 'simSetP(\'modo\',\''+m[0]+'\')'); }).join('')+
+      '</div><p class="sim-mut sim-sm">Retina: fundo de olho ilustrado da condição ao lado de uma retina saudável. Visão + retina: o que o paciente enxerga ao lado do que o exame mostra.</p></div>'+
     '<div class="sim-card"><div class="sim-h">Cena</div><div class="sim-row">'+
       seletorCena('pato',P.cena,true)+'</div></div>'+
     '<div class="sim-card sim-warn">'+
