@@ -4690,7 +4690,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v30 · IndexedDB';
+    var BUILD='Olhar v31 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -6145,6 +6145,11 @@ function polishTables(root){
     Array.prototype.forEach.call(t.querySelectorAll('tbody tr'),function(tr){
       var cells=tr.children, first=(cells[0]&&cells[0].textContent.trim().toUpperCase())||'';
       function fix(i,f){var td=cells[i];if(!td||td.children.length)return;var out=f(td.textContent);if(out!==null)td.textContent=out}
+      /* DP vazia → "Medir" (a ótica mede) */
+      Array.prototype.forEach.call(cells,function(td){
+        var tx=td.textContent.replace(/\s+/g,' ').trim();
+        if(/^DP:\s*(—|-)?$/i.test(tx)){ var st=td.querySelector('strong'); if(st){ td.innerHTML=''; td.appendChild(st); td.appendChild(document.createTextNode(' Medir')); } else td.textContent='DP: Medir'; }
+      });
       var second=(cells[1]&&cells[1].textContent.trim().toUpperCase())||'';
       if(first==='AD'||second==='AD'){fix(ci.esf,fmtAdd);return}
       fix(ci.esf,fmtEsf); fix(ci.cil,fmtCil); if(ci.add>=0) fix(ci.add,fmtAdd);
@@ -6158,7 +6163,15 @@ if(typeof _miolo==='function'){
   window.printMiolo=function(){
     var r=_miolo.apply(this,arguments);
     var t=(typeof curDocType!=='undefined')?curDocType:null;
-    if(t==='rx'){ var pa=$('docPrintArea'); if(pa) polishTables(pa); }
+    if(t==='rx'){ var pa=$('docPrintArea'); if(pa){
+      polishTables(pa);
+      var box=pa.querySelector('.miolo-rx');
+      if(box){
+        var has=Array.prototype.some.call(box.querySelectorAll('.mrx-info strong'),function(st){return /^DNP/i.test(st.textContent.trim())});
+        if(!has){ var div=document.createElement('div'); div.className='mrx-info'; div.innerHTML='<strong>DNP:</strong> Medir';
+          var obs=box.querySelector('.mrx-obs'); if(obs) box.insertBefore(div,obs); else box.appendChild(div); }
+      }
+    } }
     return r;
   };
 }
