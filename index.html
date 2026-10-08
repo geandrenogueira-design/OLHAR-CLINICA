@@ -662,7 +662,7 @@ function rOptPat(){const q=(document.getElementById('opSearch')||{}).value?.toLo
 function rRxL(){const s=D.prescriptions.slice().sort((a,b)=>b.date.localeCompare(a.date));const tb=document.getElementById('rxTbl');if(!tb)return;if(!s.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="ei">📝</div><h4>Sem receitas</h4></div></td></tr>';return}tb.innerHTML=s.map(r=>'<tr><td>'+fd(r.date)+'</td><td><strong>'+pn(r.patientId)+'</strong></td><td>'+(r.esfOd||'—')+'/'+(r.cilOd||'—')+'</td><td>'+(r.esfOe||'—')+'/'+(r.cilOe||'—')+'</td><td>'+(r.add||'—')+'</td><td class="acts"><button class="btn bsm bs" onclick="viewRx(\''+r.id+'\')">&oplus;</button><button class="btn bsm bs" onclick="dR(\''+r.id+'\')">&times;</button></td></tr>').join('')}
 function viewRx(id){const r=D.prescriptions.find(x=>x.id===id);if(!r)return;const p=D.patients.find(x=>x.id===r.patientId);const h='<div class="modal mlg"><div style="border:2px solid var(--bdr);border-radius:10px;padding:36px 44px"><div style="display:flex;gap:16px;margin-bottom:6px"><div style="width:44px;height:44px;border:3px solid var(--o);border-radius:50%;position:relative"><div style="width:12px;height:12px;background:var(--o);border-radius:50%;position:absolute;top:5px;left:50%;transform:translateX(-50%)"></div></div><div><div style="font-family:var(--font-h);font-size:26px;color:var(--o);font-weight:700">Olhar</div><div style="font-family:var(--font-h);font-style:italic;color:var(--gold);font-size:16px">Clínica da visão</div></div></div><div style="text-align:center;margin:24px 0 20px;font-size:18px;font-weight:800">Avaliação Optométrica</div><p><strong>Paciente:</strong> '+(p?p.name:'—')+' &nbsp; <strong>Data:</strong> '+fd(r.date)+'</p><table class="rxtbl"><thead><tr><th>AV/SC</th><th></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV/CC</th><th>AV/%</th></tr></thead><tbody><tr><td>'+(r.avscOd||'—')+'</td><td><strong>OD</strong></td><td>'+(r.esfOd||'—')+'</td><td>'+(r.cilOd||'—')+'</td><td>'+(r.eixoOd||'—')+'</td><td>'+(r.avccOd||'—')+'</td><td>'+(r.avpOd||'—')+'</td></tr><tr><td>'+(r.avscOe||'—')+'</td><td><strong>OE</strong></td><td>'+(r.esfOe||'—')+'</td><td>'+(r.cilOe||'—')+'</td><td>'+(r.eixoOe||'—')+'</td><td>'+(r.avccOe||'—')+'</td><td>'+(r.avpOe||'—')+'</td></tr></tbody></table><p><strong>AD:</strong> '+(r.add||'—')+' &nbsp; <strong>DP:</strong> '+(r.dp||'—')+'</p><p><strong>Material:</strong> '+(r.material||'—')+'</p><p><strong>Tratamento:</strong> '+(r.tratamento||'—')+'</p>'+(r.tonoOd||r.tonoOe?'<p><strong>Tono:</strong> OD '+(r.tonoOd||'—')+' / OE '+(r.tonoOe||'—')+' mmHg</p>':'')+'<div style="margin-top:32px;padding-top:16px;border-top:2px solid var(--o);display:flex;justify-content:space-between"><div style="text-align:center"><strong>'+D.cfg.pn+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.pt+'<br>'+D.cfg.pr+'</div></div><div style="text-align:center"><strong>'+D.cfg.ad+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.ad2+'</div></div></div></div><div class="mft"><button class="btn bs" onclick="clM()">Fechar</button></div></div>';document.getElementById('mC').innerHTML='<div class="mbg" onclick="if(event.target===this)clM()">'+h+'</div>'}
 
-const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','an_alr','an_alr_ob','an_alr_cd','an_cu','an_cu_t','an_cu_r','an_cu_a','an_cu_q','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_oh_o','an_cir','an_med','an_alg','an_alg_o','an_gest','an_pf','an_mc_rel','an_mc_enc','an_mc_lit','an_mc_exp','an_hda','an_dv_ph','an_dv_th','an_dv_td','an_dv_tl','an_dv_dr','an_dv_cnh','an_dv_le','an_dv_al','an_dv_so','an_dv_es','an_afl','an_gen','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
+const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','an_alr','an_alr_ob','an_alr_cd','an_cu','an_cu_t','an_cu_r','an_cu_a','an_cu_q','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_oh_o','an_cir','an_med','an_alg','an_alg_o','an_gest','an_pf','an_mc_rel','an_mc_enc','an_mc_lit','an_mc_exp','an_hda','an_dv_ph','an_dv_th','an_dv_td','an_dv_tl','an_dv_dr','an_dv_cnh','an_dv_le','an_dv_al','an_dv_so','an_dv_es','an_afl','an_gen','an_iev','an_iev_r','an_in_ig','an_in_parto','an_in_mao','an_in_neo','an_in_eng','an_in_and','an_in_fal','an_in_ano','an_in_des','an_in_rep','an_in_apoio','an_in_dx','an_in_ac','an_in_sin','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
 
 var SEC_CHAVES=["pac", "ana", "lem", "avi", "ref_pup", "mot", "bio", "oft", "cer", "ref", "rxf", "mat"];
 var SEC_TITULOS={"pac": "Dados do Paciente", "ana": "Anamnese", "lem": "Lensometria", "avi": "Acuidade Visual", "ref_pup": "Reflexos Pupilares", "mot": "Exame Motor", "bio": "Biomicroscopia", "oft": "Oftalmoscopia", "cer": "Ceratometria", "ref": "Refração", "rxf": "RX Final", "mat": "Material e Disposição"};
@@ -942,9 +942,102 @@ function anBlocoFamiliares(){
 }
 function anGenLine(f){ return '<div class="an-gen" id="anGen_'+f+'"></div>'; }
 
+/* ===== Anamnese estruturada (Sprint C) — IEV e desenvolvimento infantil ===== */
+/* IEV — Inventário de Eficiência Visual: tradução e validação portuguesa do COVD-QOL
+   (Nunes AF, Nunes AJS, Monteiro PML, Pato MAMV. Rev Bras Oftalmol. 2015;74(2):92-8, Anexo 1).
+   [texto usado aqui (ajuste lexical para o português do Brasil), texto da publicação] */
+var AN_IEV=[
+  ['Visão embaçada ao trabalhar de perto','Visão turva a trabalhar ao perto'],
+  ['Visão dupla','Visão dupla'],
+  ['Dor de cabeça ao trabalhar de perto','Dores de cabeça a trabalhar ao perto'],
+  ['Na leitura, as palavras se misturam','Na leitura as palavras misturam-se'],
+  ['Ardor, coceira e lacrimejamento nos olhos','Ardor, comichão e lacrimejo dos olhos'],
+  ['Sonolência durante a leitura','Sonolência durante a leitura'],
+  ['Enxerga pior no fim do dia','Vê pior no final do dia'],
+  ['Pula ou repete linhas durante a leitura','Salta ou repete linhas durante a leitura'],
+  ['Tontura ou náusea ao trabalhar de perto','Tonturas ou náuseas quando trabalha ao perto'],
+  ['Inclina a cabeça ou fecha um dos olhos durante a leitura','Inclina a cabeça ou fecha um dos olhos durante a leitura'],
+  ['Dificuldade para copiar do quadro','Dificuldades em copiar do quadro'],
+  ['Evita trabalhar e ler de perto','Evita trabalhar e ler ao perto'],
+  ['Omite palavras pequenas durante a leitura','Omite palavras pequenas durante a leitura'],
+  ['Escreve subindo ou descendo da linha','Escreve a subir ou a descer'],
+  ['Desalinha algarismos ou colunas de números','Desalinha algarismos ou colunas de números'],
+  ['Dificuldade para compreender o que lê','Dificuldade em compreender o que lê'],
+  ['Desempenho fraco nos esportes','Prestação desportiva fraca'],
+  ['Segura o material de leitura muito perto','Segura muito perto o material de leitura'],
+  ['Dificuldade para se concentrar na leitura','Dificuldade em concentrar-se na leitura'],
+  ['Dificuldade para terminar as tarefas no tempo','Dificuldade em completar as tarefas a tempo'],
+  ['Pensa "não consigo" antes de tentar','Pensa “não consigo” antes de tentar'],
+  ['Evita esportes e jogos','Evita desportos e jogos'],
+  ['Coordenação olho-mão deficiente (letra ruim)','Deficiente coordenação olho-mão (má caligrafia)'],
+  ['Calcula distâncias com pouca precisão','Estima distâncias com pouca precisão'],
+  ['Desastrado(a), tropeça nas coisas','Desastrado, tropeça nas coisas'],
+  ['Administra mal o próprio tempo','Gere mal o seu tempo'],
+  ['Não confere o troco corretamente','Não realiza os trocos correctamente'],
+  ['Perde as coisas','Perde coisas'],
+  ['Enjoa em transportes (viagens)','Enjoa nos transportes (viagens)'],
+  ['Esquecido(a) / memória fraca','Esquecido / memória fraca']
+];
+var AN_IEV_ESC=['Nunca','Raramente','Às vezes','Frequentemente','Sempre'];
+function anBlocoIev(){
+  return '<div class="an-blk" id="anIevBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-chart-line-up"></i> Inventário de Eficiência Visual (IEV · COVD-QOL) <span class="an-hint">30 itens · 0 a 4 · total 0 a 120</span>'+
+      '<button type="button" class="an-sug" id="anIevOpen" onclick="anIevAbrir()">Aplicar inventário</button></div>'+
+    '<input type="hidden" id="an_iev">'+
+    '<div id="anIevBody">'+
+      '<div class="fr fr2">'+
+        '<div class="fg"><label>Respondido por</label><select id="an_iev_r">'+anOpts(['Próprio paciente','Responsável','Paciente com ajuda do responsável'])+'</select></div>'+
+        '<div class="fg an-iev-tot"><label>Resultado</label><div id="anIevTot">—</div></div>'+
+      '</div>'+
+      '<div class="an-iev-head"><span>Com que frequência ocorre?</span>'+AN_IEV_ESC.map(function(e,i){return '<b title="'+e+'">'+i+'<small>'+(e==='Frequentemente'?'Frequente':e)+'</small></b>'}).join('')+'</div>'+
+      '<div class="an-iev-leg">0 nunca · 1 raramente · 2 às vezes · 3 frequentemente · 4 sempre</div>'+'<div class="an-iev-list">'+AN_IEV.map(function(it,i){
+        var n=i+1;
+        return '<div class="an-iev-row" data-n="'+n+'"><span class="an-iev-q"><em>'+n+'</em>'+anEsc(it[0])+(it[0]!==it[1]?'<i class="ph-bold ph-info" title="Texto da publicação: '+anEsc(it[1])+'"></i>':'')+'</span>'+
+          '<span class="an-iev-o">'+[0,1,2,3,4].map(function(v){return '<button type="button" data-iev="'+n+'" data-v="'+v+'" title="'+AN_IEV_ESC[v]+'">'+v+'</button>'}).join('')+'</span></div>';
+      }).join('')+'</div>'+
+      '<div class="an-row" style="margin-top:10px"><button type="button" class="btn bs bsm" onclick="anIevZerar()"><i class="ph-bold ph-eraser"></i> Limpar respostas</button><span class="an-hint" id="anIevFalta"></span></div>'+
+      '<div id="anIevHist"></div>'+
+      '<div class="an-hint an-iev-ref">Itens: Inventário de Eficiência Visual — tradução e validação portuguesa do COVD-QOL (Nunes, Nunes, Monteiro, Pato. Rev Bras Oftalmol. 2015;74(2):92-8), com ajuste de vocabulário para o português do Brasil (ícone <i class="ph-bold ph-info"></i> mostra o texto publicado). Original: COVD-QOL, College of Optometrists in Vision Development. A validação foi feita em universitários de 18 a 30 anos; não há ponto de corte estabelecido para a versão em português.</div>'+
+    '</div>'+
+  '</div>';
+}
+function anBlocoInfantil(){
+  return '<div class="an-blk" id="anInBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-baby"></i> Desenvolvimento e escola <span class="an-hint">perfil infantil e comportamental</span></div>'+
+    '<div class="an-lbl">Gestação e nascimento</div>'+
+    '<div class="fr fr3">'+
+      '<div class="fg"><label>Semanas ao nascer</label><input id="an_in_ig" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="ex.: 39"></div>'+
+      '<div class="fg"><label>Tipo de parto</label><select id="an_in_parto">'+anOpts(['Normal','Cesárea','Não sabe'])+'</select></div>'+
+      '<div class="fg"><label>Lateralidade (mão dominante)</label><select id="an_in_mao">'+anOpts(['Destro(a)','Canhoto(a)','Ambidestro(a)','Ainda não definida'])+'</select></div>'+
+    '</div>'+
+    '<input type="hidden" id="an_in_neo">'+anTgs('an_in_neo',['Baixo peso ao nascer','UTI neonatal','Oxigenoterapia','Icterícia com fototerapia','Sofrimento fetal / hipóxia','Fórceps ou ventosa','Intercorrência na gestação','Exposição a álcool, cigarro ou drogas na gestação'],'Sem intercorrências')+
+    '<div class="an-lbl">Marcos do desenvolvimento</div>'+
+    '<div class="fr fr3">'+
+      '<div class="fg"><label>Engatinhou</label><select id="an_in_eng">'+anOpts(['Sim','Não','Pouco tempo','Não sabe'])+'</select></div>'+
+      '<div class="fg"><label>Começou a andar (meses)</label><input id="an_in_and" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="ex.: 12"></div>'+
+      '<div class="fg"><label>Fala</label><select id="an_in_fal">'+anOpts(['Na época esperada','Atraso de fala','Não sabe'])+'</select></div>'+
+    '</div>'+
+    '<div class="an-lbl">Escola</div>'+
+    '<div class="fr fr4">'+
+      '<div class="fg"><label>Ano escolar</label><input id="an_in_ano" autocomplete="off" placeholder="ex.: 3º ano"></div>'+
+      '<div class="fg"><label>Desempenho</label><select id="an_in_des">'+anOpts(['Ótimo','Bom','Regular','Ruim','Péssimo'])+'</select></div>'+
+      '<div class="fg"><label>Repetência</label><select id="an_in_rep">'+anOpts(['Nunca repetiu','Repetiu 1 ano','Repetiu mais de 1 ano'])+'</select></div>'+
+      '<div class="fg"><label>Apoio escolar</label><input id="an_in_apoio" autocomplete="off" placeholder="reforço, ledor, prova adaptada"></div>'+
+    '</div>'+
+    '<div class="an-lbl">Diagnósticos já recebidos</div>'+
+    '<input type="hidden" id="an_in_dx">'+anTgs('an_in_dx',['TDAH','Dislexia','TEA (autismo)','Transtorno do processamento auditivo','Atraso de linguagem','Deficiência intelectual','Epilepsia','TOD'],'Sem diagnósticos')+
+    '<div class="an-lbl">Acompanhamentos atuais</div>'+
+    '<input type="hidden" id="an_in_ac">'+anTgs('an_in_ac',['Fonoaudiologia','Terapia ocupacional','Psicopedagogia','Psicologia','Neurologia','Neuropsicologia','Fisioterapia','Psicomotricidade'],'Sem acompanhamentos')+
+    '<div class="an-lbl">Sinais observados pelos responsáveis</div>'+
+    '<input type="hidden" id="an_in_sin">'+anTgs('an_in_sin',['Desvia um dos olhos','Cobre ou fecha um olho','Inclina ou gira a cabeça','Aproxima muito o material','Acompanha a leitura com o dedo','Pula linhas ao ler','Evita ler','Dor de cabeça depois da escola','Esfrega os olhos','Esbarra nas coisas'],'Nenhum sinal observado')+
+    '<div id="anInAlerts"></div>'+
+    '<div class="an-hint" style="margin-bottom:12px">Para a história completa, envie aos pais o questionário do app de optometria comportamental (Anamnese Olhar, 60 sinais e sintomas).</div>'+
+  '</div>';
+}
+
 function buildPr(){
 return sec('<i class="ph-bold ph-identification-card"></i>','Dados do Paciente','<div class="fg"><label>Nome</label><input id="pr_nm"></div><div class="fr fr4"><div class="fg"><label>Data Nasc.</label><input type="date" id="pr_dn" onchange="calcAge()"></div><div class="fg"><label>Idade</label><div id="pr_idade" style="padding:8px 12px;background:var(--bg3);border-radius:4px;font-weight:700;font-size:14px;min-height:36px">—</div></div><div class="fg"><label>Sexo</label><select id="pr_sx"><option value="">—</option><option value="M">M</option><option value="F">F</option></select></div><div class="fg"><label>Ocupação</label><input id="pr_oc"></div></div><div class="fr fr3"><div class="fg"><label>Origem</label><input id="pr_og"></div><div class="fg"><label>Endereço</label><input id="pr_en"></div><div class="fg"><label>Fone</label><input id="pr_fn"></div></div><div class="fr fr2"><div class="fg"><label>RG/CPF</label><input id="pr_rg"></div></div>','pac')+
-sec('<i class="ph-bold ph-note-pencil"></i>','Anamnese',anBlocoPerfil()+'<input type="hidden" id="an_gen"><div class="fg"><label>Motivo da Consulta <button type="button" class="vbtn" id="vb_pr_mc" onclick="toggleVoice(\'pr_mc\')"><span class="vdot"></span><span id="vt_pr_mc"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_mc"></textarea>'+anGenLine('pr_mc')+'</div>'+anBlocoContexto()+'<div class="fg"><label>Anamnese <button type="button" class="vbtn" id="vb_pr_an" onclick="toggleVoice(\'pr_an\')"><span class="vdot"></span><span id="vt_pr_an"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_an" style="min-height:90px"></textarea>'+anGenLine('pr_an')+'</div>'+anBlocoHda()+anBlocoAlarmeOptica()+anBlocoDemanda()+'<div class="fg"><label>Antecedentes Pessoais <button type="button" class="vbtn" id="vb_pr_ap" onclick="toggleVoice(\'pr_ap\')"><span class="vdot"></span><span id="vt_pr_ap"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_ap"></textarea>'+anGenLine('pr_ap')+'</div>'+anBlocoAntecedentes()+'<div class="fg"><label>Antecedentes Familiares <button type="button" class="vbtn" id="vb_pr_af" onclick="toggleVoice(\'pr_af\')"><span class="vdot"></span><span id="vt_pr_af"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_af"></textarea>'+anGenLine('pr_af')+'</div>'+anBlocoFamiliares(),'ana')+
+sec('<i class="ph-bold ph-note-pencil"></i>','Anamnese',anBlocoPerfil()+'<input type="hidden" id="an_gen"><div class="fg"><label>Motivo da Consulta <button type="button" class="vbtn" id="vb_pr_mc" onclick="toggleVoice(\'pr_mc\')"><span class="vdot"></span><span id="vt_pr_mc"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_mc"></textarea>'+anGenLine('pr_mc')+'</div>'+anBlocoContexto()+'<div class="fg"><label>Anamnese <button type="button" class="vbtn" id="vb_pr_an" onclick="toggleVoice(\'pr_an\')"><span class="vdot"></span><span id="vt_pr_an"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_an" style="min-height:90px"></textarea>'+anGenLine('pr_an')+'</div>'+anBlocoHda()+anBlocoAlarmeOptica()+anBlocoDemanda()+anBlocoInfantil()+anBlocoIev()+'<div class="fg"><label>Antecedentes Pessoais <button type="button" class="vbtn" id="vb_pr_ap" onclick="toggleVoice(\'pr_ap\')"><span class="vdot"></span><span id="vt_pr_ap"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_ap"></textarea>'+anGenLine('pr_ap')+'</div>'+anBlocoAntecedentes()+'<div class="fg"><label>Antecedentes Familiares <button type="button" class="vbtn" id="vb_pr_af" onclick="toggleVoice(\'pr_af\')"><span class="vdot"></span><span id="vt_pr_af"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_af"></textarea>'+anGenLine('pr_af')+'</div>'+anBlocoFamiliares(),'ana')+
 sec('<i class="ph-bold ph-magnifying-glass"></i>','Lensometria','<table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>PRISMA</th><th>DP</th><th>DM</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="pl_od_e"></td><td><input id="pl_od_c"></td><td><input id="pl_od_x"></td><td><input id="pl_od_a"></td><td><input id="pl_od_p"></td><td><input id="pl_od_d"></td><td><input id="pl_od_m"></td></tr><tr><td class="ec">OE</td><td><input id="pl_oe_e"></td><td><input id="pl_oe_c"></td><td><input id="pl_oe_x"></td><td><input id="pl_oe_a"></td><td><input id="pl_oe_p"></td><td><input id="pl_oe_d"></td><td><input id="pl_oe_m"></td></tr></tbody></table><div class="fg"><label>Obs</label><input id="pl_ob"></div>','lem')+
 sec('<i class="ph-bold ph-eye"></i>','Acuidade Visual','<div class="st">AV CC (Com Correção)</div><table class="et"><thead><tr><th class="el">CC</th><th>VL</th><th>VP</th><th>PH</th><th>OPTO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="ac_od_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_od_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_od_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="ac_od_op"></td></tr><tr><td class="ec">OE</td><td><select id="ac_oe_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_oe_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_oe_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="ac_oe_op"></td></tr></tbody></table><div class="st">AV SC (Sem Correção)</div><table class="et"><thead><tr><th class="el">SC</th><th>VL</th><th>VP</th><th>PH</th><th>OPTO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="as_od_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_od_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_od_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="as_od_op"></td></tr><tr><td class="ec">OE</td><td><select id="as_oe_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_oe_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_oe_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="as_oe_op"></td></tr></tbody></table><div class="fg"><label>Obs</label><input id="av_ob"></div>','avi')+
 sec('<i class="ph-bold ph-circles-three"></i>','Reflexos Pupilares','<table class="et"><thead><tr><th class="el"></th><th>FOTOMOTOR</th><th>CONSENSUAL</th><th>ACOMODATIVO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="rf_od_f"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_od_c"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_od_a"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td></tr><tr><td class="ec">OE</td><td><select id="rf_oe_f"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_oe_c"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_oe_a"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td></tr></tbody></table><div class="fg" style="margin-top:10px"><label>DPAR (Defeito Pupilar Aferente Relativo)</label><select id="rf_dpar"><option value="">—</option><option value="Negativo">Negativo</option><option value="Positivo OD">Positivo OD</option><option value="Positivo OE">Positivo OE</option></select></div>','ref_pup')+
@@ -1105,7 +1198,11 @@ var ROTULOS_HIST = {
   an_pf:'Perfil da consulta', an_mc_rel:'Informante', an_mc_enc:'Encaminhado por', an_mc_lit:'Fala literal', an_mc_exp:'Expectativa da consulta',
   an_hda:'História da queixa atual', an_dv_ph:'Atividades de perto/dia', an_dv_th:'Telas/dia', an_dv_td:'Distância de trabalho', an_dv_tl:'Dispositivos',
   an_dv_dr:'Direção', an_dv_cnh:'CNH', an_dv_le:'Leitura em papel', an_dv_al:'Tempo ao ar livre/dia', an_dv_so:'Sono/noite', an_dv_es:'Atividades com exigência visual',
-  an_afl:'Antecedentes familiares — parentesco'
+  an_afl:'Antecedentes familiares — parentesco',
+  an_iev:'IEV (COVD-QOL)', an_iev_r:'IEV — respondido por', an_in_ig:'Semanas ao nascer', an_in_parto:'Tipo de parto', an_in_mao:'Lateralidade',
+  an_in_neo:'Intercorrências neonatais', an_in_eng:'Engatinhou', an_in_and:'Andou (meses)', an_in_fal:'Fala', an_in_ano:'Ano escolar',
+  an_in_des:'Desempenho escolar', an_in_rep:'Repetência', an_in_apoio:'Apoio escolar', an_in_dx:'Diagnósticos prévios', an_in_ac:'Acompanhamentos atuais',
+  an_in_sin:'Sinais observados pelos responsáveis'
 };
 function rotuloCampoHist(fid){ return ROTULOS_HIST[fid] || fid; }
 function abrirRegistroLeitura(r){
@@ -4907,7 +5004,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v34 · IndexedDB';
+    var BUILD='Olhar v35 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -6884,7 +6981,7 @@ window.openBackupsPanel=function(){
 
   /* --- assinatura dos campos: re-renderiza quando algo muda por qualquer caminho
          (carregar prontuário, limpar, usar como base, restaurar backup) --- */
-  var WATCH=['an_pf','an_hda','an_afl','an_gen','pr_dn','pr_oc','an_dv_dr','an_dv_cnh','an_dv_al','an_mc_rel','an_alr','an_alr_ob','an_alr_cd','an_cu','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_med','an_alg','an_alg_o','an_gest','pr_sx','pr_mc','pr_an','pr_ap','pr_af','mt_d_'];
+  var WATCH=['an_iev','an_iev_r','an_in_ig','an_in_neo','an_in_dx','an_in_ac','an_in_sin','an_in_and','prPat','an_pf','an_hda','an_afl','an_gen','pr_dn','pr_oc','an_dv_dr','an_dv_cnh','an_dv_al','an_mc_rel','an_alr','an_alr_ob','an_alr_cd','an_cu','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_med','an_alg','an_alg_o','an_gest','pr_sx','pr_mc','pr_an','pr_ap','pr_af','mt_d_'];
   var lastSig=null;
   // inclui quantos botões ainda não foram pintados: a ficha pode ser reconstruída
   // (seções, upgrade) sem que nenhum valor mude
@@ -7205,7 +7302,8 @@ window.openBackupsPanel=function(){
   function txtAn(){
     var p=getH().map(frase).filter(Boolean);
     var o=txtOptica(), d=txtDemanda(), a=txtAlarme();
-    if(o) p.push(o); if(d) p.push(d); if(a) p.push(a);
+    var x=window.anTxtExtra?window.anTxtExtra('pr_an'):'';
+    if(o) p.push(o); if(d) p.push(d); if(x) p.push(x); if(a) p.push(a);
     return p.join('\n');
   }
   function lista(lbl,arr,neg){ arr=arr.filter(Boolean); if(!arr.length) return ''; if(arr.length===1&&/^nega /i.test(arr[0])) return ponto(arr[0]); return lbl+': '+arr.filter(function(x){return !/^nega /i.test(x)}).map(lf).join('; ')+'.'; }
@@ -7218,6 +7316,7 @@ window.openBackupsPanel=function(){
     var al=T.segs(V('an_alg')), ao=V('an_alg_o'); if(ao) al=al.filter(function(x){return !/^nega /i.test(x)}).concat([ao]);
     if(al.length) p.push(lista('Alergias',al));
     var g=V('an_gest'); if(g==='Gestante'||g==='Lactante') p.push(g+'.');
+    var x=window.anTxtExtra?window.anTxtExtra('pr_ap'):''; if(x) p.push(x);
     return p.join(' ');
   }
   function txtAf(){ var l=linhas(V('an_afl')); return l.length?lista('Histórico familiar',l):''; }
@@ -7283,6 +7382,190 @@ window.openBackupsPanel=function(){
 
   /* integração com o render do Sprint A */
   window.anRenderB=function(){ renderPerfil(); renderHda(); afAlertas(); genStatus(); };
+})();
+</script>
+
+<style id="anStyleC">
+.an-iev-head{display:grid;grid-template-columns:1fr repeat(5,58px);gap:4px;align-items:end;font-size:11px;color:var(--tx3);font-weight:600;margin:4px 0 6px;padding:0 6px}
+.an-iev-head b{text-align:center;font-size:12px;color:var(--tx2)}
+.an-iev-head small{display:block;font-size:9.5px;font-weight:600;color:var(--tx3);line-height:1.1;margin-top:2px}
+.an-iev-leg{display:none;font-size:11px;font-weight:600;color:var(--tx2);margin:2px 0 8px}
+.an-iev-list{border:1px solid var(--bdr);border-radius:10px;overflow:hidden;background:var(--bg2)}
+.an-iev-row{display:grid;grid-template-columns:1fr repeat(5,58px);gap:4px;align-items:center;padding:6px;border-top:1px solid var(--bdr)}
+.an-iev-row:first-child{border-top:none}
+.an-iev-row:nth-child(even){background:var(--op)}
+.an-iev-row.an-ok .an-iev-q{color:var(--tx3)}
+.an-iev-q{font-size:12.5px;color:var(--tx);line-height:1.35}
+.an-iev-q em{font-style:normal;font-weight:700;color:var(--tx3);display:inline-block;min-width:22px}
+.an-iev-q i{margin-left:5px;color:var(--tx3);font-size:12px;cursor:help}
+.an-iev-o{display:contents}
+.an-iev-o button{height:32px;border-radius:8px;border:1px solid var(--bdr2);background:var(--bg3);color:var(--tx2);font:600 13px var(--font);cursor:pointer;padding:0}
+.an-iev-o button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+[data-theme="dark"] .an-iev-o button.on{color:#0a0a0a}
+#anIevTot{padding:9px 12px;border:1px solid var(--bdr);border-radius:9px;background:var(--bg2);font-size:13px;min-height:40px}
+#anIevTot b{font-size:18px;font-family:var(--font-m)}
+.an-iev-ref{margin:10px 0 12px;line-height:1.5}
+.an-spark{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--tx2)}
+.an-spark svg{flex:0 0 auto}
+.an-spark table{border-collapse:collapse;font-size:11.5px}
+.an-spark td{padding:1px 8px 1px 0;font-family:var(--font-m)}
+@media (max-width:640px){
+  .an-iev-head{display:none}
+  .an-iev-leg{display:block;position:sticky;top:0;z-index:2;background:var(--bg);padding:4px 0}
+  .an-iev-row{grid-template-columns:repeat(5,1fr);row-gap:6px}
+  .an-iev-q{grid-column:1/-1}
+}
+</style>
+<script>
+/* ===== Anamnese estruturada — Sprint C (v35): IEV (COVD-QOL PT) e desenvolvimento infantil ===== */
+(function(){
+  'use strict';
+  function $(id){return document.getElementById(id)}
+  function H(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function V(id){var e=$(id);return e?(e.value||'').trim():''}
+  function setVal(el,v){ if(!el) return; el.value=v; try{el.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){} }
+  var T=window.anTok;
+  function lf(s){ s=String(s||'').trim(); if(!s) return s; if(/^[A-ZÀ-Ý]{2}/.test(s)) return s; return s.charAt(0).toLowerCase()+s.slice(1); }
+  function joinE(a){ a=a.filter(Boolean); if(a.length<2) return a.join(''); return a.slice(0,-1).join(', ')+' e '+a[a.length-1]; }
+  function idade(){ var d=V('pr_dn'); if(!d) return null; var b=new Date(d+'T12:00:00'),n=new Date(); if(isNaN(b)) return null;
+    var a=n.getFullYear()-b.getFullYear(),m=n.getMonth()-b.getMonth(); if(m<0||(m===0&&n.getDate()<b.getDate())) a--; return a>=0&&a<130?a:null; }
+  function fdt(d){ var p=String(d||'').split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d; }
+
+  /* ---------- IEV ---------- */
+  function parseIev(js){ try{ var o=JSON.parse(js||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+  function score(o){ var t=0,n=0; for(var i=1;i<=30;i++){ var v=o[i]; if(v!==undefined&&v!==''&&v!==null){ t+=+v; n++; } } return {t:t,n:n}; }
+  window.anIevScore=function(js){ return score(parseIev(js)); };
+  var aberto=false;
+  window.anIevAbrir=function(){ aberto=true; render(); var b=$('anIevBody'); if(b) b.scrollIntoView({behavior:'smooth',block:'start'}); };
+  window.anIevZerar=function(){ if(!V('an_iev')) return; if(!confirm('Apagar todas as respostas do IEV desta consulta?')) return; setVal($('an_iev'),''); render(); };
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('[data-iev]'); if(!b) return;
+    var n=b.getAttribute('data-iev'), v=+b.getAttribute('data-v'), o=parseIev(V('an_iev'));
+    if(o[n]===v) delete o[n]; else o[n]=v;
+    setVal($('an_iev'), Object.keys(o).length?JSON.stringify(o):'');
+    paintIev(o);
+    // avança para o próximo item sem resposta (preenchimento rápido no tablet)
+    var row=b.closest('.an-iev-row'), nx=row&&row.nextElementSibling;
+    while(nx && nx.classList.contains('an-ok')) nx=nx.nextElementSibling;
+    if(nx && o[n]!==undefined){ var r=nx.getBoundingClientRect(); if(r.bottom>window.innerHeight-90) window.scrollBy({top:r.height+12,behavior:'smooth'}); }
+  },true);
+  function historico(){
+    var pid=V('prPat'); if(!pid||!window.D||!D.records) return [];
+    var cur=(typeof crId!=='undefined')?crId:null;
+    return D.records.filter(function(r){ return r.patientId===pid && r.id!==cur && r.data && r.data.an_iev; })
+      .map(function(r){ var s=score(parseIev(r.data.an_iev)); return {d:r.date||'',t:s.t,n:s.n}; })
+      .filter(function(x){return x.n>0})
+      .sort(function(a,b){return a.d.localeCompare(b.d)});
+  }
+  window.anIevHistorico=historico;
+  function paintIev(o){
+    o=o||parseIev(V('an_iev'));
+    Array.prototype.forEach.call(document.querySelectorAll('.an-iev-row'),function(row){
+      var n=row.getAttribute('data-n'), has=o[n]!==undefined;
+      row.classList.toggle('an-ok',has);
+      Array.prototype.forEach.call(row.querySelectorAll('button[data-v]'),function(b){ b.classList.toggle('on', has && +b.getAttribute('data-v')===o[n]); });
+    });
+    var s=score(o), tot=$('anIevTot'), fal=$('anIevFalta');
+    if(tot) tot.innerHTML=s.n?('<b>'+s.t+'</b> / 120 &nbsp;·&nbsp; '+s.n+' de 30 itens'+(s.n<30?' <span style="color:var(--wn);font-weight:600">(parcial)</span>':'')):'—';
+    if(fal){ var f=[]; for(var i=1;i<=30;i++) if(o[i]===undefined) f.push(i); fal.textContent=(s.n&&f.length)?('Sem resposta: '+(f.length>12?f.length+' itens':'itens '+f.join(', '))):''; }
+    var hb=$('anIevHist'); if(hb){
+      var h=historico(); var pts=h.slice(); if(s.n) pts.push({d:V('prDt')||'',t:s.t,n:s.n,atual:true});
+      pts.sort(function(a,b){ return (a.d||'9999').localeCompare(b.d||'9999') || (a.atual?1:-1); });
+      if(pts.length<2){ hb.innerHTML=h.length?'<div class="an-spark">Aplicação registrada: <b>'+h[h.length-1].t+'</b> em '+H(fdt(h[h.length-1].d))+'</div>':''; }
+      else{
+        var W=220,Hh=56,P=6, max=Math.max.apply(null,pts.map(function(p){return p.t})), mn=0, rg=Math.max(max-mn,10);
+        var xs=function(i){return P+(W-2*P)*(i/(pts.length-1))}, ys=function(v){return Hh-P-(Hh-2*P)*((v-mn)/rg)};
+        var path=pts.map(function(p,i){return (i?'L':'M')+xs(i).toFixed(1)+','+ys(p.t).toFixed(1)}).join('');
+        var dots=pts.map(function(p,i){return '<circle cx="'+xs(i).toFixed(1)+'" cy="'+ys(p.t).toFixed(1)+'" r="'+(p.atual?3.5:2.5)+'" fill="'+(p.atual?'var(--o)':'var(--tx2)')+'"/>'}).join('');
+        var first=pts[0], last=pts[pts.length-1], dif=last.t-first.t;
+        hb.innerHTML='<div class="an-spark"><svg width="'+W+'" height="'+Hh+'" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Evolução do IEV"><path d="'+path+'" fill="none" stroke="var(--tx2)" stroke-width="1.4"/>'+dots+'</svg>'+
+          '<div><div style="margin-bottom:4px"><b>Evolução do IEV</b> — '+(dif<0?'redução de '+(-dif)+' pontos':dif>0?'aumento de '+dif+' pontos':'sem variação')+' desde '+H(fdt(first.d))+'</div>'+
+          '<table>'+pts.map(function(p){return '<tr><td>'+H(fdt(p.d))+(p.atual?' (atual)':'')+'</td><td><b>'+p.t+'</b></td><td>'+(p.n<30?p.n+'/30 itens':'')+'</td></tr>'}).join('')+'</table>'+
+          '<div class="an-hint">Pontuação menor = menos sintomas. Compare aplicações completas e com o mesmo respondente.</div></div></div>';
+      }
+    }
+  }
+  function txtIev(){
+    var s=score(parseIev(V('an_iev'))); if(!s.n) return '';
+    var r=V('an_iev_r'), t='IEV (COVD-QOL, versão portuguesa): '+s.t+'/120'+(s.n<30?' ('+s.n+' de 30 itens respondidos)':'');
+    if(r) t+=', respondido '+({'Próprio paciente':'pelo próprio paciente','Responsável':'pelo responsável','Paciente com ajuda do responsável':'pelo paciente com ajuda do responsável'}[r]||'');
+    var h=historico(), dt=V('prDt'); h=h.filter(function(x){return !dt||x.d<=dt});
+    if(h.length){ var a=h[h.length-1]; t+='; anterior: '+a.t+' em '+fdt(a.d)+(a.n<30?' (parcial)':''); }
+    return t+'.';
+  }
+
+  /* ---------- desenvolvimento infantil ---------- */
+  function crianca(){ var a=idade(), pf=V('an_pf'); return (a!==null&&a<18)||/Infantil|Comportamental/.test(pf); }
+  function temIn(){ return ['an_in_ig','an_in_parto','an_in_mao','an_in_neo','an_in_eng','an_in_and','an_in_fal','an_in_ano','an_in_des','an_in_rep','an_in_apoio','an_in_dx','an_in_ac','an_in_sin'].some(function(id){return V(id)!==''}); }
+  function inAlertas(){
+    var out=[], ig=parseInt(V('an_in_ig'),10), neo=T.segs(V('an_in_neo')), sin=T.segs(V('an_in_sin')), and=parseInt(V('an_in_and'),10);
+    if(ig && ig<37) out.push('<b>Prematuridade ('+ig+' semanas)</b> — maior risco de estrabismo, ambliopia, ametropias e alterações do processamento visual'+(ig<32?'; perguntar sobre retinopatia da prematuridade (ROP) e acompanhamento oftalmológico neonatal':'')+'.');
+    if(ig && (ig<22||ig>44)) out.push('<b>Semanas ao nascer fora da faixa esperada</b> — confira o valor digitado.');
+    if(neo.indexOf('Oxigenoterapia')>-1||neo.indexOf('UTI neonatal')>-1) out.push('<b>UTI neonatal / oxigênio</b> — investigar ROP e seguimento oftalmológico.');
+    if(and && and>18) out.push('<b>Marcha após os 18 meses</b> — atraso motor relatado; considerar avaliação do desenvolvimento.');
+    if(sin.indexOf('Desvia um dos olhos')>-1) out.push('<b>Desvio ocular relatado</b> — cover test, motilidade e investigação de ambliopia.');
+    var box=$('anInAlerts'); if(box) box.innerHTML=out.length?'<div class="an-alert an-warn"><b>Atenção — desenvolvimento</b>'+out.map(function(x){return '<div class="an-med">'+x+'</div>'}).join('')+'</div>':'';
+  }
+  function lista(arr){ return arr.filter(function(x){return !/^(sem |nenhum )/i.test(x)}); }
+  function txtInAp(){
+    var p=[], v, ig=V('an_in_ig'), pa=V('an_in_parto'), neo=T.segs(V('an_in_neo'));
+    var nasc=[];
+    if(pa==='Normal'||pa==='Cesárea') nasc.push('parto '+(pa==='Normal'?'normal':'cesáreo'));
+    if(ig) nasc.push(ig+' semanas de gestação');
+    var nn=lista(neo);
+    if(nasc.length||neo.length){ var s='Nascimento: '+(nasc.length?nasc.join(', '):'dados não informados'); if(nn.length) s+='; '+joinE(nn.map(lf)); else if(neo.length) s+='; sem intercorrências neonatais'; p.push(s+'.'); }
+    var m=[];
+    if((v=V('an_in_eng'))) m.push(v==='Sim'?'engatinhou':v==='Não'?'não engatinhou':v==='Pouco tempo'?'engatinhou por pouco tempo':'não sabe se engatinhou');
+    if((v=V('an_in_and'))) m.push('andou aos '+v+' meses');
+    if((v=V('an_in_fal'))) m.push(v==='Na época esperada'?'fala na época esperada':v==='Atraso de fala'?'atraso de fala':'marco da fala não informado');
+    if(m.length) p.push('Desenvolvimento: '+m.join(', ')+'.');
+    var e=[];
+    if((v=V('an_in_ano'))) e.push(v);
+    if((v=V('an_in_des'))) e.push('desempenho '+lf(v));
+    if((v=V('an_in_rep'))) e.push(lf(v));
+    if((v=V('an_in_apoio'))) e.push('apoio: '+lf(v.replace(/\.$/,'')));
+    if(e.length) p.push('Escola: '+e.join(', ')+'.');
+    var dx=T.segs(V('an_in_dx')); if(dx.length) p.push(lista(dx).length?'Diagnósticos prévios: '+joinE(lista(dx))+'.':'Sem diagnósticos prévios.');
+    var ac=T.segs(V('an_in_ac')); if(ac.length) p.push(lista(ac).length?'Acompanhamentos atuais: '+joinE(lista(ac).map(lf))+'.':'Sem acompanhamentos terapêuticos atuais.');
+    if((v=V('an_in_mao'))) p.push('Lateralidade: '+lf(v)+'.');
+    return p.join(' ');
+  }
+  function txtInAn(){
+    var s=T.segs(V('an_in_sin')); if(!s.length) return '';
+    return lista(s).length?'Sinais observados pelos responsáveis: '+joinE(lista(s).map(lf))+'.':'Responsáveis não observam sinais visuais no dia a dia.';
+  }
+  /* trechos extras para o gerador do Sprint B */
+  window.anTxtExtra=function(f){
+    if(f==='pr_an') return [txtInAn(),txtIev()].filter(Boolean).join('\n');
+    if(f==='pr_ap') return txtInAp();
+    return '';
+  };
+
+  /* números só nos campos numéricos */
+  document.addEventListener('input',function(e){ var t=e.target; if(t&&(t.id==='an_in_ig'||t.id==='an_in_and')){ var v=t.value.replace(/\D/g,'').slice(0,2); if(v!==t.value) t.value=v; } },true);
+
+  function render(){
+    var ib=$('anIevBody'), ob=$('anIevOpen'), tem=!!V('an_iev')||!!V('an_iev_r');
+    var mostra=aberto||tem||crianca();
+    if(ib) ib.style.display=mostra?'':'none';
+    if(ob) ob.style.display=mostra?'none':'';
+    if(mostra) paintIev();
+    var inb=$('anInBlk'); if(inb) inb.style.display=(crianca()||temIn())?'':'none';
+    inAlertas();
+  }
+  window.anRenderC=render;
+  var _b=window.anRenderB;
+  window.anRenderB=function(){ if(_b) _b.apply(this,arguments); try{ render(); }catch(e){ console.error('anRenderC',e); } };
+
+  /* "Novo"/troca de paciente: fecha o inventário aberto à mão */
+  ['newPr','onPrPat'].forEach(function(fn){ var o=window[fn]; if(typeof o==='function'){ window[fn]=function(){ aberto=false; return o.apply(this,arguments); }; } });
+
+  /* histórico somente leitura */
+  var _hf=window.anHistFmt;
+  window.anHistFmt=function(fid,val){
+    if(fid==='an_iev'){ var s=score(parseIev(val)); return s.n?('Total '+s.t+'/120 ('+s.n+' de 30 itens)'):''; }
+    return _hf?_hf(fid,val):val;
+  };
 })();
 </script>
 
