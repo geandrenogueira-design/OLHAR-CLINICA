@@ -662,7 +662,7 @@ function rOptPat(){const q=(document.getElementById('opSearch')||{}).value?.toLo
 function rRxL(){const s=D.prescriptions.slice().sort((a,b)=>b.date.localeCompare(a.date));const tb=document.getElementById('rxTbl');if(!tb)return;if(!s.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="ei">📝</div><h4>Sem receitas</h4></div></td></tr>';return}tb.innerHTML=s.map(r=>'<tr><td>'+fd(r.date)+'</td><td><strong>'+pn(r.patientId)+'</strong></td><td>'+(r.esfOd||'—')+'/'+(r.cilOd||'—')+'</td><td>'+(r.esfOe||'—')+'/'+(r.cilOe||'—')+'</td><td>'+(r.add||'—')+'</td><td class="acts"><button class="btn bsm bs" onclick="viewRx(\''+r.id+'\')">&oplus;</button><button class="btn bsm bs" onclick="dR(\''+r.id+'\')">&times;</button></td></tr>').join('')}
 function viewRx(id){const r=D.prescriptions.find(x=>x.id===id);if(!r)return;const p=D.patients.find(x=>x.id===r.patientId);const h='<div class="modal mlg"><div style="border:2px solid var(--bdr);border-radius:10px;padding:36px 44px"><div style="display:flex;gap:16px;margin-bottom:6px"><div style="width:44px;height:44px;border:3px solid var(--o);border-radius:50%;position:relative"><div style="width:12px;height:12px;background:var(--o);border-radius:50%;position:absolute;top:5px;left:50%;transform:translateX(-50%)"></div></div><div><div style="font-family:var(--font-h);font-size:26px;color:var(--o);font-weight:700">Olhar</div><div style="font-family:var(--font-h);font-style:italic;color:var(--gold);font-size:16px">Clínica da visão</div></div></div><div style="text-align:center;margin:24px 0 20px;font-size:18px;font-weight:800">Avaliação Optométrica</div><p><strong>Paciente:</strong> '+(p?p.name:'—')+' &nbsp; <strong>Data:</strong> '+fd(r.date)+'</p><table class="rxtbl"><thead><tr><th>AV/SC</th><th></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>AV/CC</th><th>AV/%</th></tr></thead><tbody><tr><td>'+(r.avscOd||'—')+'</td><td><strong>OD</strong></td><td>'+(r.esfOd||'—')+'</td><td>'+(r.cilOd||'—')+'</td><td>'+(r.eixoOd||'—')+'</td><td>'+(r.avccOd||'—')+'</td><td>'+(r.avpOd||'—')+'</td></tr><tr><td>'+(r.avscOe||'—')+'</td><td><strong>OE</strong></td><td>'+(r.esfOe||'—')+'</td><td>'+(r.cilOe||'—')+'</td><td>'+(r.eixoOe||'—')+'</td><td>'+(r.avccOe||'—')+'</td><td>'+(r.avpOe||'—')+'</td></tr></tbody></table><p><strong>AD:</strong> '+(r.add||'—')+' &nbsp; <strong>DP:</strong> '+(r.dp||'—')+'</p><p><strong>Material:</strong> '+(r.material||'—')+'</p><p><strong>Tratamento:</strong> '+(r.tratamento||'—')+'</p>'+(r.tonoOd||r.tonoOe?'<p><strong>Tono:</strong> OD '+(r.tonoOd||'—')+' / OE '+(r.tonoOe||'—')+' mmHg</p>':'')+'<div style="margin-top:32px;padding-top:16px;border-top:2px solid var(--o);display:flex;justify-content:space-between"><div style="text-align:center"><strong>'+D.cfg.pn+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.pt+'<br>'+D.cfg.pr+'</div></div><div style="text-align:center"><strong>'+D.cfg.ad+'</strong><div style="font-size:11px;color:var(--tx2)">'+D.cfg.ad2+'</div></div></div></div><div class="mft"><button class="btn bs" onclick="clM()">Fechar</button></div></div>';document.getElementById('mC').innerHTML='<div class="mbg" onclick="if(event.target===this)clM()">'+h+'</div>'}
 
-const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','an_alr','an_alr_ob','an_alr_cd','an_cu','an_cu_t','an_cu_r','an_cu_a','an_cu_q','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_oh_o','an_cir','an_med','an_alg','an_alg_o','an_gest','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
+const PF=['pr_nm','pr_dn','pr_sx','pr_oc','pr_og','pr_en','pr_fn','pr_rg','pr_uc','pr_mc','pr_an','pr_ap','pr_af','an_alr','an_alr_ob','an_alr_cd','an_cu','an_cu_t','an_cu_r','an_cu_a','an_cu_q','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_oh_o','an_cir','an_med','an_alg','an_alg_o','an_gest','an_pf','an_mc_rel','an_mc_enc','an_mc_lit','an_mc_exp','an_hda','an_dv_ph','an_dv_th','an_dv_td','an_dv_tl','an_dv_dr','an_dv_cnh','an_dv_le','an_dv_al','an_dv_so','an_dv_es','an_afl','an_gen','pl_od_e','pl_od_c','pl_od_x','pl_od_a','pl_od_p','pl_od_d','pl_od_m','pl_oe_e','pl_oe_c','pl_oe_x','pl_oe_a','pl_oe_p','pl_oe_d','pl_oe_m','pl_ob','ac_od_vl','ac_od_vp','ac_od_ph','ac_od_op','ac_oe_vl','ac_oe_vp','ac_oe_ph','ac_oe_op','as_od_vl','as_od_vp','as_od_ph','as_od_op','as_oe_vl','as_oe_vp','as_oe_ph','as_oe_op','av_ob','rf_od_f','rf_od_c','rf_od_a','rf_oe_f','rf_oe_c','rf_oe_a','hi','ko','ke','do_','de_','mo_','ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd','ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','rf_dpar','pp_or','pp_sf','pp_cf','bi_sb','bi_pl','bi_cl','bi_co','bi_ir','bi_cj','bi_es','bi_cr','bi_pu','bi_ob','of_tc','of_ds','of_br','of_co_od','of_co_oe','of_pa_od','of_pa_oe','of_ex_od','of_ex_oe','of_rv_od','of_rv_oe','of_ma_od','of_ma_oe','of_fx_od','of_fx_oe','of_le_od','of_le_oe','of_ob','ce_tp','ce_od','ce_oe','ce_mi','lc_dir','lc_estrat','lc_dir_met','r1_od_e','r1_od_c','r1_od_x','r1_od_v','r1_oe_e','r1_oe_c','r1_oe_x','r1_oe_v','r2_od_e','r2_od_c','r2_od_x','r2_od_v','r2_oe_e','r2_oe_c','r2_oe_x','r2_oe_v','sb_od_e','sb_od_c','sb_od_x','sb_od_v','sb_oe_e','sb_oe_c','sb_oe_x','sb_oe_v','af_tc','af_od_e','af_od_c','af_od_x','af_od_v','af_oe_e','af_oe_c','af_oe_x','af_oe_v','ad_od','ad_oe','pi_od','pi_oe','pi_hr','rx_od_e','rx_od_c','rx_od_x','rx_od_a','rx_od_d','rx_oe_e','rx_oe_c','rx_oe_x','rx_oe_a','rx_oe_d','rx_od_avcc','rx_oe_avcc','rx_od_avp','rx_oe_avp','rx_ob','mt_m_','mt_f_','mt_p_','mt_l_','mt_u_','mt_r_','mt_d_'];
 
 var SEC_CHAVES=["pac", "ana", "lem", "avi", "ref_pup", "mot", "bio", "oft", "cer", "ref", "rxf", "mat"];
 var SEC_TITULOS={"pac": "Dados do Paciente", "ana": "Anamnese", "lem": "Lensometria", "avi": "Acuidade Visual", "ref_pup": "Reflexos Pupilares", "mot": "Exame Motor", "bio": "Biomicroscopia", "oft": "Oftalmoscopia", "cer": "Ceratometria", "ref": "Refração", "rxf": "RX Final", "mat": "Material e Disposição"};
@@ -867,9 +867,84 @@ function anBlocoAntecedentes(){
   '</div>';
 }
 
+/* ===== Anamnese estruturada (Sprint B) — marcação ===== */
+var AN_PERFIS=['Rotina adulto','Presbiopia','Infantil / escolar','Comportamental / aprendizagem','Lentes de contato','Retorno / terapia'];
+var AN_REL=['Próprio paciente','Mãe','Pai','Mãe e pai','Avó / avô','Outro responsável','Acompanhante'];
+var AN_ENC=['Procura espontânea','Escola / professor','Pediatra','Oftalmologista','Neurologista','Fonoaudiólogo','Psicopedagogo','Psicólogo','Terapeuta ocupacional','Detran / exame de habilitação','Empresa (exame ocupacional)','Indicação de outro paciente','Ótica'];
+var AN_PAR=[['Mãe',1],['Pai',1],['Irmão / irmã',1],['Filho / filha',1],['Avó / avô materno(a)',2],['Avó / avô paterno(a)',2],['Tio / tia materno(a)',2],['Tio / tia paterno(a)',2],['Meio-irmão / meia-irmã',2],['Neto / neta',2],['Sobrinho / sobrinha',2],['Primo / prima',3]];
+var AN_AF_COND=['Glaucoma','Catarata precoce','Ceratocone','Estrabismo','Ambliopia','Miopia alta','Miopia','Hipermetropia alta','DMRI (degeneração macular)','Descolamento de retina','Distrofia de retina / retinose pigmentar','Cegueira','Diabetes','Hipertensão','Enxaqueca','Dislexia / dificuldade de aprendizagem','Outra condição'];
+var AN_H6=['Até 2 h','2 a 4 h','4 a 6 h','6 a 8 h','Mais de 8 h'];
+var AN_DISP=['Celular','Computador de mesa','Notebook','Tablet','TV','Videogame'];
+function anBlocoPerfil(){
+  return '<div class="an-blk an-blk-pf" id="anPfBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-path"></i> Perfil da consulta <span class="an-hint" id="anPfSug"></span></div>'+
+    '<input type="hidden" id="an_pf">'+
+    '<div class="an-tgs">'+AN_PERFIS.map(function(p){return '<button type="button" class="anam-chip an-pf" data-q="'+anEsc(p)+'" onclick="anPfPick(this)">'+anEsc(p)+'</button>'}).join('')+'</div>'+
+  '</div>';
+}
+function anBlocoContexto(){
+  return '<div class="an-blk" id="anCtxBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-chat-circle-text"></i> Contexto da queixa</div>'+
+    '<div class="fr fr3">'+
+      '<div class="fg"><label>Quem relata</label><select id="an_mc_rel">'+anOpts(AN_REL)+'</select></div>'+
+      '<div class="fg"><label>Encaminhado por</label><select id="an_mc_enc">'+anOpts(AN_ENC)+'</select></div>'+
+      '<div class="fg"><label>Expectativa da consulta</label><input id="an_mc_exp" autocomplete="off" placeholder="ex.: voltar a ler sem dor de cabeça"></div>'+
+    '</div>'+
+    '<div class="fg"><label>Fala literal do paciente / informante</label><input id="an_mc_lit" autocomplete="off" placeholder="Registre as palavras exatas, sem interpretar"></div>'+
+  '</div>';
+}
+function anBlocoHda(){
+  return '<div class="an-blk" id="anHdaBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-list-checks"></i> História da queixa atual <span class="an-hint">uma ficha por queixa</span></div>'+
+    '<input type="hidden" id="an_hda">'+
+    '<div id="anHdaList"></div>'+
+    '<div class="an-row">'+
+      '<button type="button" class="btn bs bsm" onclick="anHdaAdd()"><i class="ph-bold ph-plus"></i> Adicionar queixa</button>'+
+      '<button type="button" class="btn bs bsm" id="anHdaFromMc" onclick="anHdaFromMc()"><i class="ph-bold ph-arrow-down"></i> Criar fichas das queixas marcadas</button>'+
+    '</div>'+
+  '</div>';
+}
+function anBlocoDemanda(){
+  return '<div class="an-blk" id="anDvBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-desktop-tower"></i> Hábitos e demanda visual <span class="an-hint" id="anDvOc"></span></div>'+
+    '<div class="fr fr3">'+
+      '<div class="fg"><label>Atividades de perto por dia</label><select id="an_dv_ph">'+anOpts(AN_H6)+'</select></div>'+
+      '<div class="fg"><label>Tempo total de telas por dia</label><select id="an_dv_th">'+anOpts(AN_H6)+'</select></div>'+
+      '<div class="fg"><label>Distância habitual de leitura / tela</label><select id="an_dv_td">'+anOpts(['Muito próxima (menos de 25 cm)','Habitual (30 a 40 cm)','Braço estendido (50 a 70 cm)'])+'</select></div>'+
+    '</div>'+
+    '<div class="an-lbl">Dispositivos usados</div>'+
+    '<input type="hidden" id="an_dv_tl">'+anTgs('an_dv_tl',AN_DISP,'')+
+    '<div class="fr fr3">'+
+      '<div class="fg an-adulto"><label>Direção</label><select id="an_dv_dr">'+anOpts(['Não dirige','Dirige só de dia','Dirige de dia e à noite','Motorista profissional'])+'</select></div>'+
+      '<div class="fg an-adulto"><label>CNH</label><select id="an_dv_cnh">'+anOpts(['Sem CNH','ACC','A','B','AB','C','D','E'])+'</select></div>'+
+      '<div class="fg"><label>Leitura em papel</label><select id="an_dv_le">'+anOpts(['Não tem o hábito','Ocasional','Diária'])+'</select></div>'+
+    '</div>'+
+    '<div class="fr fr3">'+
+      '<div class="fg an-crianca"><label>Tempo ao ar livre por dia</label><select id="an_dv_al">'+anOpts(['Menos de 1 h','1 a 2 h','Mais de 2 h'])+'</select></div>'+
+      '<div class="fg"><label>Sono por noite</label><select id="an_dv_so">'+anOpts(['Menos de 6 h','6 a 8 h','Mais de 8 h'])+'</select></div>'+
+      '<div class="fg"><label>Esportes e atividades com exigência visual</label><input id="an_dv_es" autocomplete="off" placeholder="ex.: futebol, tiro, costura, música"></div>'+
+    '</div>'+
+  '</div>';
+}
+function anBlocoFamiliares(){
+  return '<div class="an-blk" id="anAfBlk">'+
+    '<div class="an-h"><i class="ph-bold ph-tree-structure"></i> Antecedentes familiares — com parentesco</div>'+
+    '<div class="an-add fg">'+
+      '<select id="an_af_c">'+anOpts(AN_AF_COND,'— Condição —')+'</select>'+
+      '<input id="an_af_o" autocomplete="off" placeholder="Qual condição?" style="display:none">'+
+      '<select id="an_af_p">'+'<option value="">— Parente —</option>'+AN_PAR.map(function(p){return '<option value="'+anEsc(p[0])+'" data-g="'+p[1]+'">'+anEsc(p[0])+' ('+p[1]+'º grau)</option>'}).join('')+'</select>'+
+      '<button type="button" class="btn bs bsm" onclick="anAfAdd()"><i class="ph-bold ph-plus"></i> Adicionar</button>'+
+      '<button type="button" class="btn bs bsm" onclick="anNegaLista(\'an_afl\',\'Nega histórico familiar ocular e sistêmico relevante\')">Nega histórico</button>'+
+    '</div>'+
+    '<div class="fg"><textarea id="an_afl" placeholder="Uma condição por linha — ex.: Glaucoma — Mãe (1º grau)"></textarea></div>'+
+    '<div id="anAfAlerts"></div>'+
+  '</div>';
+}
+function anGenLine(f){ return '<div class="an-gen" id="anGen_'+f+'"></div>'; }
+
 function buildPr(){
 return sec('<i class="ph-bold ph-identification-card"></i>','Dados do Paciente','<div class="fg"><label>Nome</label><input id="pr_nm"></div><div class="fr fr4"><div class="fg"><label>Data Nasc.</label><input type="date" id="pr_dn" onchange="calcAge()"></div><div class="fg"><label>Idade</label><div id="pr_idade" style="padding:8px 12px;background:var(--bg3);border-radius:4px;font-weight:700;font-size:14px;min-height:36px">—</div></div><div class="fg"><label>Sexo</label><select id="pr_sx"><option value="">—</option><option value="M">M</option><option value="F">F</option></select></div><div class="fg"><label>Ocupação</label><input id="pr_oc"></div></div><div class="fr fr3"><div class="fg"><label>Origem</label><input id="pr_og"></div><div class="fg"><label>Endereço</label><input id="pr_en"></div><div class="fg"><label>Fone</label><input id="pr_fn"></div></div><div class="fr fr2"><div class="fg"><label>RG/CPF</label><input id="pr_rg"></div></div>','pac')+
-sec('<i class="ph-bold ph-note-pencil"></i>','Anamnese','<div class="fg"><label>Motivo da Consulta <button type="button" class="vbtn" id="vb_pr_mc" onclick="toggleVoice(\'pr_mc\')"><span class="vdot"></span><span id="vt_pr_mc"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_mc"></textarea></div><div class="fg"><label>Anamnese <button type="button" class="vbtn" id="vb_pr_an" onclick="toggleVoice(\'pr_an\')"><span class="vdot"></span><span id="vt_pr_an"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_an" style="min-height:70px"></textarea></div>'+anBlocoAlarmeOptica()+'<div class="fg"><label>Antecedentes Pessoais <button type="button" class="vbtn" id="vb_pr_ap" onclick="toggleVoice(\'pr_ap\')"><span class="vdot"></span><span id="vt_pr_ap"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_ap"></textarea></div>'+anBlocoAntecedentes()+'<div class="fg"><label>Antecedentes Familiares <button type="button" class="vbtn" id="vb_pr_af" onclick="toggleVoice(\'pr_af\')"><span class="vdot"></span><span id="vt_pr_af"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_af"></textarea></div>','ana')+
+sec('<i class="ph-bold ph-note-pencil"></i>','Anamnese',anBlocoPerfil()+'<input type="hidden" id="an_gen"><div class="fg"><label>Motivo da Consulta <button type="button" class="vbtn" id="vb_pr_mc" onclick="toggleVoice(\'pr_mc\')"><span class="vdot"></span><span id="vt_pr_mc"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_mc"></textarea>'+anGenLine('pr_mc')+'</div>'+anBlocoContexto()+'<div class="fg"><label>Anamnese <button type="button" class="vbtn" id="vb_pr_an" onclick="toggleVoice(\'pr_an\')"><span class="vdot"></span><span id="vt_pr_an"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_an" style="min-height:90px"></textarea>'+anGenLine('pr_an')+'</div>'+anBlocoHda()+anBlocoAlarmeOptica()+anBlocoDemanda()+'<div class="fg"><label>Antecedentes Pessoais <button type="button" class="vbtn" id="vb_pr_ap" onclick="toggleVoice(\'pr_ap\')"><span class="vdot"></span><span id="vt_pr_ap"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_ap"></textarea>'+anGenLine('pr_ap')+'</div>'+anBlocoAntecedentes()+'<div class="fg"><label>Antecedentes Familiares <button type="button" class="vbtn" id="vb_pr_af" onclick="toggleVoice(\'pr_af\')"><span class="vdot"></span><span id="vt_pr_af"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_af"></textarea>'+anGenLine('pr_af')+'</div>'+anBlocoFamiliares(),'ana')+
 sec('<i class="ph-bold ph-magnifying-glass"></i>','Lensometria','<table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>PRISMA</th><th>DP</th><th>DM</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="pl_od_e"></td><td><input id="pl_od_c"></td><td><input id="pl_od_x"></td><td><input id="pl_od_a"></td><td><input id="pl_od_p"></td><td><input id="pl_od_d"></td><td><input id="pl_od_m"></td></tr><tr><td class="ec">OE</td><td><input id="pl_oe_e"></td><td><input id="pl_oe_c"></td><td><input id="pl_oe_x"></td><td><input id="pl_oe_a"></td><td><input id="pl_oe_p"></td><td><input id="pl_oe_d"></td><td><input id="pl_oe_m"></td></tr></tbody></table><div class="fg"><label>Obs</label><input id="pl_ob"></div>','lem')+
 sec('<i class="ph-bold ph-eye"></i>','Acuidade Visual','<div class="st">AV CC (Com Correção)</div><table class="et"><thead><tr><th class="el">CC</th><th>VL</th><th>VP</th><th>PH</th><th>OPTO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="ac_od_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_od_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_od_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="ac_od_op"></td></tr><tr><td class="ec">OE</td><td><select id="ac_oe_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_oe_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_oe_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="ac_oe_op"></td></tr></tbody></table><div class="st">AV SC (Sem Correção)</div><table class="et"><thead><tr><th class="el">SC</th><th>VL</th><th>VP</th><th>PH</th><th>OPTO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="as_od_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_od_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_od_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="as_od_op"></td></tr><tr><td class="ec">OE</td><td><select id="as_oe_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_oe_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_oe_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="as_oe_op"></td></tr></tbody></table><div class="fg"><label>Obs</label><input id="av_ob"></div>','avi')+
 sec('<i class="ph-bold ph-circles-three"></i>','Reflexos Pupilares','<table class="et"><thead><tr><th class="el"></th><th>FOTOMOTOR</th><th>CONSENSUAL</th><th>ACOMODATIVO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="rf_od_f"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_od_c"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_od_a"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td></tr><tr><td class="ec">OE</td><td><select id="rf_oe_f"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_oe_c"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_oe_a"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td></tr></tbody></table><div class="fg" style="margin-top:10px"><label>DPAR (Defeito Pupilar Aferente Relativo)</label><select id="rf_dpar"><option value="">—</option><option value="Negativo">Negativo</option><option value="Positivo OD">Positivo OD</option><option value="Positivo OE">Positivo OE</option></select></div>','ref_pup')+
@@ -1026,7 +1101,11 @@ var ROTULOS_HIST = {
   an_cu:'Correção em uso', an_cu_t:'Correção atual — tempo', an_cu_r:'Correção — regime de uso', an_cu_a:'Correção — adaptação', an_cu_q:'Correção — queixas',
   an_lc_t:'Lentes de contato — tipo', an_lc_h:'Lentes de contato — horas/dia', an_lc_d:'Lentes de contato — dorme com as lentes', an_lc_g:'Lentes de contato — higiene', an_lc_x:'Lentes de contato — troca', an_lc_q:'Lentes de contato — queixas',
   an_oh:'Antecedentes oculares', an_oh_o:'Antecedentes oculares — outros', an_cir:'Cirurgias e procedimentos oculares',
-  an_med:'Medicamentos em uso', an_alg:'Alergias', an_alg_o:'Alergias — outras', an_gest:'Gestação / lactação'
+  an_med:'Medicamentos em uso', an_alg:'Alergias', an_alg_o:'Alergias — outras', an_gest:'Gestação / lactação',
+  an_pf:'Perfil da consulta', an_mc_rel:'Informante', an_mc_enc:'Encaminhado por', an_mc_lit:'Fala literal', an_mc_exp:'Expectativa da consulta',
+  an_hda:'História da queixa atual', an_dv_ph:'Atividades de perto/dia', an_dv_th:'Telas/dia', an_dv_td:'Distância de trabalho', an_dv_tl:'Dispositivos',
+  an_dv_dr:'Direção', an_dv_cnh:'CNH', an_dv_le:'Leitura em papel', an_dv_al:'Tempo ao ar livre/dia', an_dv_so:'Sono/noite', an_dv_es:'Atividades com exigência visual',
+  an_afl:'Antecedentes familiares — parentesco'
 };
 function rotuloCampoHist(fid){ return ROTULOS_HIST[fid] || fid; }
 function abrirRegistroLeitura(r){
@@ -1034,6 +1113,7 @@ function abrirRegistroLeitura(r){
   var linhas = PF.map(function(fid){
     var val = r.data && r.data[fid];
     if(!val) return '';
+    if(window.anHistFmt){ val=window.anHistFmt(fid,val); if(!val) return ''; }
     var rotulo = rotuloCampoHist(fid);
     return '<tr><td style="font-size:11px;color:var(--tx2);font-weight:700;white-space:nowrap;padding-right:14px">'+escHist(rotulo)+'</td><td style="font-size:13px">'+escHist(val)+'</td></tr>';
   }).filter(Boolean).join('');
@@ -4827,7 +4907,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v33 · IndexedDB';
+    var BUILD='Olhar v34 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -6798,12 +6878,13 @@ window.openBackupsPanel=function(){
       ma.innerHTML=m.length?'<div class="an-alert an-warn"><b>Atenção ocular — medicamentos em uso</b>'+m.map(function(x){return '<div class="an-med"><b>'+H(x.r.t)+'</b> ('+H(x.d.join(', '))+'): '+H(x.r.m)+'</div>'}).join('')+'<div class="an-hint">Lembrete clínico, não é lista exaustiva de interações.</div></div>':''; }
     var g=$('anGestFg'); if(g){ var sx=(($('pr_sx')||{}).value)||''; var gv=(($('an_gest')||{}).value)||''; g.style.visibility=(sx==='M'&&!gv)?'hidden':''; }
     renderSafe();
+    if(window.anRenderB) try{ window.anRenderB(); }catch(e){ console.error('anRenderB',e); }
   }
   window.anRender=render;
 
   /* --- assinatura dos campos: re-renderiza quando algo muda por qualquer caminho
          (carregar prontuário, limpar, usar como base, restaurar backup) --- */
-  var WATCH=['an_alr','an_alr_ob','an_alr_cd','an_cu','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_med','an_alg','an_alg_o','an_gest','pr_sx','pr_mc','pr_an','pr_ap','pr_af','mt_d_'];
+  var WATCH=['an_pf','an_hda','an_afl','an_gen','pr_dn','pr_oc','an_dv_dr','an_dv_cnh','an_dv_al','an_mc_rel','an_alr','an_alr_ob','an_alr_cd','an_cu','an_lc_t','an_lc_h','an_lc_d','an_lc_g','an_lc_x','an_lc_q','an_oh','an_med','an_alg','an_alg_o','an_gest','pr_sx','pr_mc','pr_an','pr_ap','pr_af','mt_d_'];
   var lastSig=null;
   // inclui quantos botões ainda não foram pintados: a ficha pode ser reconstruída
   // (seções, upgrade) sem que nenhum valor mude
@@ -6837,6 +6918,371 @@ window.openBackupsPanel=function(){
       return r;
     };
   }
+})();
+</script>
+
+<style id="anStyleB">
+.an-gen{font-size:11px;color:var(--tx3);margin-top:5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-height:0}
+.an-gen:empty{display:none}
+.an-gen .an-gen-ok{color:var(--grn);font-weight:600}
+.an-gen .an-gen-st{color:var(--wn);font-weight:600}
+.an-gen button{border:1px solid var(--bdr2);background:var(--bg3);color:var(--tx);border-radius:16px;padding:3px 10px;font:600 11px var(--font);cursor:pointer}
+.an-blk-pf{background:transparent;padding-bottom:0}
+.anam-chip.an-pf.chip-on{background:var(--o);border-color:var(--o);color:#fff}
+.an-sug{border:1px dashed var(--o);background:transparent;color:var(--o);border-radius:16px;padding:3px 10px;font:700 11px var(--font);cursor:pointer;text-transform:none;letter-spacing:0}
+.an-hda{border:1px solid var(--bdr2);border-radius:12px;background:var(--bg2);padding:12px 12px 2px;margin-bottom:12px}
+.an-hda-h{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;font-weight:700;color:var(--tx2)}
+.an-hda-h .an-x{margin-left:auto;border:none;background:transparent;color:var(--red);font:600 12px var(--font);cursor:pointer}
+.an-hda .an-tgs{margin-bottom:10px}
+.an-dur{display:flex;gap:6px}
+.an-dur input{flex:0 0 70px;width:70px!important}
+.an-dur select{flex:1 1 auto;width:auto!important}
+.an-imp{display:flex;gap:4px;flex-wrap:wrap}
+.an-imp button{width:30px;height:30px;border-radius:8px;border:1px solid var(--bdr2);background:var(--bg3);color:var(--tx2);font:600 12px var(--font);cursor:pointer;padding:0}
+.an-imp button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+[data-theme="dark"] .an-imp button.on{color:#0a0a0a}
+.an-hda-sum{font-size:12px;color:var(--tx2);background:var(--op);border-radius:8px;padding:8px 10px;margin:0 0 10px;line-height:1.5}
+.an-crianca,.an-adulto{}
+@media (max-width:640px){.an-imp button{width:26px;height:26px}}
+</style>
+<script>
+/* ===== Anamnese estruturada — Sprint B (v34) =====
+   Perfil da consulta, contexto, ficha por queixa, demanda visual, familiares
+   com parentesco e geração do texto narrativo nos quatro campos clássicos.
+   Regra do texto automático: o sistema só reescreve o trecho que ELE gerou.
+   Se o trecho foi editado à mão, o campo deixa de ser tocado e o sistema avisa. */
+(function(){
+  'use strict';
+  function $(id){return document.getElementById(id)}
+  function H(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function V(id){var e=$(id);return e?(e.value||'').trim():''}
+  function say(m){try{if(typeof toast==='function')toast(m)}catch(e){}}
+  function setVal(el,v){ if(!el) return; el.value=v; try{el.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){} }
+  var T=window.anTok;
+  function lf(s){ s=String(s||'').trim(); if(!s) return s; if(/^[A-ZÀ-Ý]{2}/.test(s)) return s; return s.charAt(0).toLowerCase()+s.slice(1); }
+  function joinE(a){ a=a.filter(Boolean); if(a.length<2) return a.join(''); return a.slice(0,-1).join(', ')+' e '+a[a.length-1]; }
+  function ponto(s){ s=String(s||'').trim(); return !s?'':(/[.!?…"]$/.test(s)?s:s+'.'); }
+  function linhas(t){ return String(t||'').split('\n').map(function(x){return x.trim()}).filter(Boolean); }
+  function idade(){
+    var d=V('pr_dn'); if(!d) return null; var b=new Date(d+'T12:00:00'), n=new Date(); if(isNaN(b)) return null;
+    var a=n.getFullYear()-b.getFullYear(), m=n.getMonth()-b.getMonth(); if(m<0||(m===0&&n.getDate()<b.getDate())) a--; return a>=0&&a<130?a:null;
+  }
+
+  /* ---------- perfil da consulta ---------- */
+  function sugerirPerfil(){
+    var a=idade(), mc=(V('pr_mc')+' '+V('pr_an')).toLowerCase();
+    if(/lentes de contato/i.test(V('an_cu')) && (a===null||(a>=12&&a<40))) return {p:'Lentes de contato',r:'usa lentes de contato'};
+    if(a===null) return null;
+    if(a<18){
+      if(/leitura|aprendiz|escolar|linha|letras|concentra|desaten/.test(mc)) return {p:'Comportamental / aprendizagem',r:a+' anos, queixa de leitura/aprendizagem'};
+      return {p:'Infantil / escolar',r:a+' anos'};
+    }
+    if(a>=40) return {p:'Presbiopia',r:a+' anos'};
+    return {p:'Rotina adulto',r:a+' anos'};
+  }
+  window.anPfPick=function(btn){
+    var q=btn.getAttribute('data-q'), el=$('an_pf'); if(!el) return;
+    setVal(el, el.value===q?'':q); window.anRender&&window.anRender();
+  };
+  window.anPfApply=function(p){ setVal($('an_pf'),p); window.anRender&&window.anRender(); };
+  function renderPerfil(){
+    var pf=V('an_pf');
+    Array.prototype.forEach.call(document.querySelectorAll('.an-pf'),function(b){ b.classList.toggle('chip-on', b.getAttribute('data-q')===pf); });
+    var sg=$('anPfSug'); if(sg){
+      var s=sugerirPerfil();
+      sg.innerHTML=(!pf&&s)?'<button type="button" class="an-sug" onclick="anPfApply(\''+H(s.p)+'\')">Sugestão: '+H(s.p)+' ('+H(s.r)+') — aplicar</button>':(s&&pf&&s.p!==pf?'sugestão pela idade: '+H(s.p):'');
+    }
+    var a=idade(), crianca=(a!==null&&a<18)||/Infantil|Comportamental/.test(pf), adulto=!(a!==null&&a<18);
+    Array.prototype.forEach.call(document.querySelectorAll('.an-crianca'),function(e){ e.style.display=(crianca||(e.querySelector('select')||{}).value)?'':'none'; });
+    Array.prototype.forEach.call(document.querySelectorAll('.an-adulto'),function(e){ e.style.display=(adulto||(e.querySelector('select')||{}).value)?'':'none'; });
+    var lc=$('anLcBlk'); if(lc && pf==='Lentes de contato') lc.style.display='';
+    var oc=$('anDvOc'); if(oc){ var o=V('pr_oc'); oc.textContent=o?'ocupação: '+o:'preencha a ocupação em Dados do Paciente'; }
+  }
+
+  /* ---------- ficha por queixa ---------- */
+  var HQ=['Visão embaçada de longe','Visão embaçada de perto','Dificuldade para leitura','Cansaço visual (astenopia)','Dor de cabeça / cefaleia','Visão dupla (diplopia)','Fotofobia (sensibilidade à luz)','Lacrimejamento','Olho vermelho','Coceira / ardência ocular','Sensação de areia / corpo estranho','Olho seco','Moscas volantes (miodesopsias)','Dificuldade para dirigir à noite','Dificuldade de leitura e aprendizagem','Pula / perde a linha ao ler','Inverte ou troca letras','Aproxima muito o material','Esfrega os olhos com frequência','Baixo rendimento escolar','Desatenção / dificuldade de concentração','Visão embaçada intermitente','Halos ao redor das luzes','Ofuscamento'];
+  var DIST=['Longe','Intermediária','Perto'];
+  var PER=['Manhã','Tarde','Noite','Fim do dia','Ao acordar'];
+  var PIORA=['Leitura prolongada','Uso de telas','Direção','Esforço visual de perto','Ambiente com pouca luz','Luz intensa / sol','Vento / ar-condicionado','Estresse / cansaço'];
+  var MELHORA=['Repouso visual','Fechar os olhos','Afastar o material','Correção atual','Piscar / lubrificante','Mais iluminação'];
+  function getH(){ try{ var a=JSON.parse(V('an_hda')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  var hdaShown=null;
+  function putH(a,rebuild){
+    var js=a.length?JSON.stringify(a):'';
+    if(!rebuild) hdaShown=js;           // a tela já mostra isso: não reconstruir (preserva o foco)
+    setVal($('an_hda'),js);
+  }
+  function selO(arr,v,ph){ return '<option value="">'+(ph||'—')+'</option>'+arr.map(function(x){return '<option'+(x===v?' selected':'')+'>'+H(x)+'</option>'}).join(''); }
+  function chips(i,k,arr,cur){ cur=cur||[]; return '<div class="an-tgs">'+arr.map(function(x){return '<button type="button" class="anam-chip an-hc'+(cur.indexOf(x)>-1?' chip-on':'')+'" data-i="'+i+'" data-k="'+k+'" data-q="'+H(x)+'">'+H(x)+'</button>'}).join('')+'</div>'; }
+  function cardHTML(c,i){
+    c=c||{};
+    return '<div class="an-hda" data-i="'+i+'">'+
+      '<div class="an-hda-h">Queixa '+(i+1)+'<button type="button" class="an-x" data-del="'+i+'"><i class="ph-bold ph-trash"></i> Remover</button></div>'+
+      '<div class="fr fr2">'+
+        '<div class="fg"><label>Queixa</label><input data-i="'+i+'" data-k="q" list="anHqList" value="'+H(c.q||'')+'" autocomplete="off" placeholder="Escolha ou descreva"></div>'+
+        '<div class="fg"><label>Olho</label><select data-i="'+i+'" data-k="olho">'+selO(['OD','OE','AO','Alternante'],c.olho)+'</select></div>'+
+      '</div>'+
+      '<div class="an-lbl">Distância</div>'+chips(i,'dist',DIST,c.dist)+
+      '<div class="fr fr3">'+
+        '<div class="fg"><label>Início</label><select data-i="'+i+'" data-k="modo">'+selO(['Súbito','Gradual'],c.modo)+'</select></div>'+
+        '<div class="fg"><label>Há quanto tempo</label><div class="an-dur"><input data-i="'+i+'" data-k="tq" inputmode="numeric" maxlength="3" value="'+H(c.tq||'')+'" placeholder="nº"'+(c.tu==='Desde a infância'?' disabled':'')+'><select data-i="'+i+'" data-k="tu">'+selO(['dias','semanas','meses','anos','Desde a infância'],c.tu,'unidade')+'</select></div></div>'+
+        '<div class="fg"><label>Evolução</label><select data-i="'+i+'" data-k="evo">'+selO(['Estável','Piorando','Melhorando','Flutuante'],c.evo)+'</select></div>'+
+      '</div>'+
+      '<div class="fr fr2">'+
+        '<div class="fg"><label>Frequência</label><select data-i="'+i+'" data-k="freq">'+selO(['Constante','Diária','Algumas vezes por semana','Esporádica'],c.freq)+'</select></div>'+
+        '<div class="fg"><label>Sintomas associados</label><input data-i="'+i+'" data-k="assoc" value="'+H(c.assoc||'')+'" autocomplete="off" placeholder="ex.: lacrimejamento, náusea"></div>'+
+      '</div>'+
+      '<div class="an-lbl">Período em que ocorre</div>'+chips(i,'per',PER,c.per)+
+      '<div class="an-lbl">Fatores de piora</div>'+chips(i,'piora',PIORA,c.piora)+
+      '<div class="an-lbl">Fatores de melhora</div>'+chips(i,'melhora',MELHORA,c.melhora)+
+      '<div class="an-lbl">Impacto funcional referido (0 = nenhum, 10 = máximo)</div>'+
+      '<div class="an-imp fg">'+[0,1,2,3,4,5,6,7,8,9,10].map(function(n){return '<button type="button" data-i="'+i+'" data-imp="'+n+'"'+(String(c.imp)===String(n)?' class="on"':'')+'>'+n+'</button>'}).join('')+'</div>'+
+      '<div class="an-hda-sum" data-sum="'+i+'">'+H(frase(c)||'Preencha a queixa para gerar a frase clínica.')+'</div>'+
+    '</div>';
+  }
+  function renderHda(){
+    var box=$('anHdaList'); if(!box) return;
+    if(!$('anHqList')){ var dl=document.createElement('datalist'); dl.id='anHqList'; dl.innerHTML=HQ.map(function(x){return '<option value="'+H(x)+'">'}).join(''); document.body.appendChild(dl); }
+    var js=V('an_hda');
+    if(js===hdaShown && box.getAttribute('data-ok')==='1') return;
+    var a=getH(); hdaShown=js; box.setAttribute('data-ok','1');
+    box.innerHTML=a.length?a.map(cardHTML).join(''):'<div class="an-hint" style="margin-bottom:10px">Nenhuma queixa detalhada. Use os botões abaixo.</div>';
+  }
+  function refreshSum(i,c){ var s=document.querySelector('[data-sum="'+i+'"]'); if(s) s.textContent=frase(c)||'Preencha a queixa para gerar a frase clínica.'; }
+  window.anHdaAdd=function(q){
+    var a=getH(); a.push({q:q||''}); putH(a,true); renderHda(); anGenSoon();
+    var last=document.querySelector('#anHdaList .an-hda:last-child input[data-k="q"]'); if(last&&!q) last.focus();
+  };
+  window.anHdaFromMc=function(){
+    var mc=T.segs($('pr_mc')&&$('pr_mc').value).filter(function(x){return HQ.indexOf(x)>-1});
+    if(!mc.length){ alert('Marque antes as queixas no Motivo da Consulta (botões de queixas frequentes).'); return; }
+    var a=getH(), ja=a.map(function(c){return c.q}), n=0;
+    mc.forEach(function(q){ if(ja.indexOf(q)<0){ a.push({q:q}); n++; } });
+    if(!n){ say('Todas as queixas marcadas já têm ficha'); return; }
+    putH(a,true); renderHda(); anGenSoon(); say(n+' ficha(s) criada(s)');
+  };
+  function onCard(e){
+    var t=e.target, box=$('anHdaList'); if(!box||!box.contains(t)) return;
+    var a=getH(), i, c;
+    var del=t.closest('[data-del]');
+    if(del && e.type==='click'){ i=+del.getAttribute('data-del'); var nome=(a[i]&&a[i].q)||('queixa '+(i+1));
+      if(!confirm('Remover a ficha "'+nome+'"?')) return; a.splice(i,1); putH(a,true); renderHda(); anGenSoon(); return; }
+    var ch=t.closest('.an-hc');
+    if(ch && e.type==='click'){ i=+ch.getAttribute('data-i'); var k=ch.getAttribute('data-k'), q=ch.getAttribute('data-q'); c=a[i]; if(!c) return;
+      var l=c[k]||[]; var p=l.indexOf(q); if(p>-1) l.splice(p,1); else l.push(q); c[k]=l; ch.classList.toggle('chip-on',p<0);
+      putH(a); refreshSum(i,c); anGenSoon(); return; }
+    var im=t.closest('[data-imp]');
+    if(im && e.type==='click'){ i=+im.getAttribute('data-i'); c=a[i]; if(!c) return; var n=im.getAttribute('data-imp');
+      c.imp=(String(c.imp)===n)?'':+n;
+      Array.prototype.forEach.call(im.parentNode.children,function(b){ b.classList.toggle('on', String(c.imp)===b.getAttribute('data-imp')); });
+      putH(a); refreshSum(i,c); anGenSoon(); return; }
+    if((e.type==='input'||e.type==='change') && t.hasAttribute('data-k') && t.hasAttribute('data-i')){
+      i=+t.getAttribute('data-i'); c=a[i]; if(!c) return; var key=t.getAttribute('data-k'), v=t.value;
+      if(key==='tq'){ v=v.replace(/\D/g,'').slice(0,3); if(v!==t.value) t.value=v; }
+      c[key]=v;
+      if(key==='tu'){ var tq=t.parentNode.querySelector('[data-k="tq"]'); if(tq){ tq.disabled=(v==='Desde a infância'); if(tq.disabled){ tq.value=''; c.tq=''; } } }
+      putH(a); refreshSum(i,c); anGenSoon();
+    }
+  }
+  document.addEventListener('click',onCard,true);
+  document.addEventListener('input',onCard,true);
+  document.addEventListener('change',onCard,true);
+
+  function frase(c){
+    if(!c||!String(c.q||'').trim()) return '';
+    var s='Refere '+lf(c.q);
+    if(c.olho==='Alternante') s+=', alternando entre os olhos'; else if(c.olho) s+=' em '+c.olho;
+    var d=(c.dist||[]).slice().sort(function(x,y){return DIST.indexOf(x)-DIST.indexOf(y)}).map(function(x){return x==='Longe'?'de longe':x==='Perto'?'de perto':'intermediária'});
+    if(d.length) s+=', na visão '+joinE(d);
+    var dur='';
+    if(c.tu==='Desde a infância') dur='desde a infância';
+    else if(c.tq&&c.tu){ var n=+c.tq, u=c.tu; if(n===1) u={dias:'dia',semanas:'semana',meses:'mês',anos:'ano'}[u]||u; dur='há '+n+' '+u; }
+    if(c.modo&&dur) s+=', de início '+lf(c.modo)+' '+dur; else if(c.modo) s+=', de início '+lf(c.modo); else if(dur) s+=', '+dur;
+    var evo={'Estável':'estável','Piorando':'com piora progressiva','Melhorando':'em melhora','Flutuante':'com flutuação'}[c.evo]; if(evo) s+=', '+evo;
+    var fq={'Constante':'de ocorrência constante','Diária':'de ocorrência diária','Algumas vezes por semana':'algumas vezes por semana','Esporádica':'de ocorrência esporádica'}[c.freq]; if(fq) s+=', '+fq;
+    var pm={'Manhã':'pela manhã','Tarde':'à tarde','Noite':'à noite','Fim do dia':'ao fim do dia','Ao acordar':'ao acordar'};
+    var pe=(c.per||[]).map(function(x){return pm[x]}).filter(Boolean); if(pe.length) s+=', predominando '+joinE(pe);
+    s+='.';
+    if((c.piora||[]).length) s+=' Fatores de piora: '+joinE(c.piora.map(lf))+'.';
+    if((c.melhora||[]).length) s+=' Fatores de melhora: '+joinE(c.melhora.map(function(x){return x==='Correção atual'?'uso da correção atual':lf(x)}))+'.';
+    if(String(c.assoc||'').trim()) s+=' Sintomas associados: '+lf(ponto(c.assoc));
+    if(c.imp!==''&&c.imp!=null) s+=' Impacto funcional referido: '+c.imp+'/10.';
+    return s;
+  }
+  window.anHdaFrase=frase;
+
+  /* ---------- familiares com parentesco ---------- */
+  window.anAfAdd=function(){
+    var c=V('an_af_c'), o=V('an_af_o'), ps=$('an_af_p'), p=V('an_af_p');
+    if(c==='Outra condição') c=o;
+    if(!c){ alert('Escolha a condição.'); return; }
+    if(!p){ alert('Escolha o parente.'); return; }
+    var g=ps.options[ps.selectedIndex].getAttribute('data-g');
+    var el=$('an_afl'), l=linhas(el.value).filter(function(x){return !/^nega /i.test(x)});
+    var txt=c+' — '+p+' ('+g+'º grau)';
+    if(l.some(function(x){return x.toLowerCase()===txt.toLowerCase()})){ say('Já está na lista'); return; }
+    l.push(txt); setVal(el,l.join('\n'));
+    $('an_af_c').value=''; ps.value=''; $('an_af_o').value=''; $('an_af_o').style.display='none';
+    anGenSoon(); window.anRender&&window.anRender();
+  };
+  document.addEventListener('change',function(e){ if(e.target&&e.target.id==='an_af_c'){ var o=$('an_af_o'); if(o){ o.style.display=e.target.value==='Outra condição'?'':'none'; if(o.style.display==='') o.focus(); } } },true);
+  function afAlertas(){
+    var l=linhas(V('an_afl')).map(function(x){return x.toLowerCase()}), a=idade(), cri=a!==null&&a<18, out=[];
+    function tem(re,grau){ return l.some(function(x){ return re.test(x) && (!grau || x.indexOf('('+grau+'º grau)')>-1); }); }
+    var pais=l.some(function(x){return /miopia/.test(x)&&/— (mãe|pai) /.test(x)});
+    if(tem(/glaucoma/,1)) out.push('<b>Glaucoma em parente de 1º grau</b> — fator de risco estabelecido: documentar PIO, escavação e rima do disco; considerar campo visual e OCT.');
+    if(tem(/ceratocone/)) out.push('<b>Ceratocone familiar</b> — atenção a astigmatismo irregular ou progressivo; considerar topografia/tomografia de córnea.');
+    if(cri && pais) out.push('<b>Miopia em pai/mãe</b> — aumenta o risco de miopia na criança; registrar tempo ao ar livre e acompanhar a refração.');
+    if(cri && tem(/estrabismo|ambliopia/,1)) out.push('<b>Estrabismo/ambliopia em 1º grau</b> — investigar alinhamento ocular e anisometropia.');
+    if(tem(/dmri/,1)) out.push('<b>DMRI em 1º grau</b> — fator de risco: avaliar mácula.');
+    if(tem(/descolamento de retina/,1)) out.push('<b>Descolamento de retina em 1º grau</b> — orientar sinais de alarme (fotopsias, moscas novas, sombra no campo).');
+    if(tem(/distrofia|retinose/)) out.push('<b>Distrofia retiniana familiar</b> — investigar visão noturna, campo visual e fundo de olho.');
+    var box=$('anAfAlerts'); if(box) box.innerHTML=out.length?'<div class="an-alert an-warn"><b>Atenção — histórico familiar</b>'+out.map(function(x){return '<div class="an-med">'+x+'</div>'}).join('')+'</div>':'';
+  }
+
+  /* ---------- geração do texto narrativo ---------- */
+  var NEG_ALR='Nega sinais de alarme';
+  function txtMc(){
+    var p=[], rel=V('an_mc_rel'), lit=V('an_mc_lit'), enc=V('an_mc_enc'), exp=V('an_mc_exp');
+    if(rel) p.push(rel==='Próprio paciente'?'Informante: o próprio paciente.':'Informante: '+lf(rel)+'.');
+    if(lit) p.push('Nas palavras '+(rel&&rel!=='Próprio paciente'?'do informante':'do paciente')+': "'+lit.replace(/^["“]|["”]$/g,'')+'".');
+    if(enc) p.push(enc==='Procura espontânea'?'Procura espontânea.':'Encaminhado por: '+lf(enc)+'.');
+    if(exp) p.push('Expectativa da consulta: '+lf(ponto(exp)));
+    return p.join(' ');
+  }
+  function txtOptica(){
+    var p=[], uc=V('pr_uc');
+    if(uc==='Nunca fez') p.push('Nunca realizou controle visual.');
+    else if(uc==='Não sabe informar') p.push('Não sabe informar a data do último controle visual.');
+    else if(uc) p.push('Último controle visual '+lf(uc)+'.');
+    var cu=V('an_cu');
+    if(cu==='Não usa correção') p.push('Não faz uso de correção óptica.');
+    else if(cu){
+      var m={'Óculos — visão simples para longe':'óculos de visão simples para longe','Óculos — visão simples para perto':'óculos de visão simples para perto','Óculos — bifocal':'óculos bifocais','Óculos — multifocal (progressivo)':'óculos multifocais (progressivos)','Óculos — ocupacional':'óculos ocupacionais','Lentes de contato':'lentes de contato','Óculos + lentes de contato':'óculos e lentes de contato'}[cu]||lf(cu);
+      var s='Em uso de '+m, t=V('an_cu_t');
+      if(t==='Não sabe informar') s+=' (tempo de uso não informado)'; else if(t) s+=' há '+lf(t);
+      var r=V('an_cu_r'); if(r) s+=', '+lf(r);
+      var a=V('an_cu_a'); if(a) s+=', '+({'Boa':'com boa adaptação','Regular':'com adaptação regular','Ruim / não se adaptou':'com má adaptação'}[a]||lf(a));
+      p.push(s+'.');
+      var q=V('an_cu_q'); if(q) p.push('Queixas com a correção atual: '+lf(ponto(q)));
+    }
+    var lc=[], v;
+    if((v=V('an_lc_t'))) lc.push(lf(v));
+    if((v=V('an_lc_h'))) lc.push(lf(v)+'/dia');
+    if((v=V('an_lc_d'))) lc.push({'Não':'não dorme com as lentes','Às vezes / cochilos':'dorme com as lentes eventualmente','Sim, rotineiramente':'dorme com as lentes rotineiramente'}[v]||lf(v));
+    if((v=V('an_lc_g'))) lc.push(v==='Usa água da torneira ou soro caseiro'?'usa água da torneira ou soro caseiro nas lentes':'higiene com '+lf(v));
+    if((v=V('an_lc_x'))) lc.push({'Dentro do prazo do fabricante':'troca dentro do prazo','Ultrapassa o prazo de troca':'ultrapassa o prazo de troca','Não sabe informar':'prazo de troca não informado'}[v]||lf(v));
+    if(lc.length) p.push('Lentes de contato: '+lc.join('; ')+'.');
+    if((v=V('an_lc_q'))) p.push('Queixas com as lentes: '+lf(ponto(v)));
+    return p.join(' ');
+  }
+  function txtDemanda(){
+    var p=[], v, oc=V('pr_oc');
+    if(oc) p.push('ocupação: '+lf(oc));
+    if((v=V('an_dv_ph'))) p.push('atividades de perto: '+lf(v)+'/dia');
+    var tl=T.segs(V('an_dv_tl')).map(lf), th=V('an_dv_th');
+    if(tl.length||th) p.push('telas'+(tl.length?' ('+joinE(tl)+')':'')+(th?': '+lf(th)+'/dia':''));
+    if((v=V('an_dv_td'))) p.push('distância de trabalho '+lf(v));
+    var dr=V('an_dv_dr'), cnh=V('an_dv_cnh');
+    if(dr) p.push(lf(dr)+(cnh&&cnh!=='Sem CNH'?' (CNH '+cnh+')':''));
+    else if(cnh) p.push(cnh==='Sem CNH'?'sem CNH':'CNH '+cnh);
+    if((v=V('an_dv_le'))) p.push('leitura em papel: '+lf(v));
+    if((v=V('an_dv_al'))) p.push('tempo ao ar livre: '+lf(v)+'/dia');
+    if((v=V('an_dv_so'))) p.push('sono: '+lf(v)+'/noite');
+    if((v=V('an_dv_es'))) p.push('atividades com exigência visual: '+lf(v.replace(/\.$/,'')));
+    return p.length?'Demanda visual — '+p.join('; ')+'.':'';
+  }
+  function txtAlarme(){
+    var al=T.segs(V('an_alr'));
+    if(!al.length) return '';
+    if(al.length===1&&al[0]===NEG_ALR) return 'Nega sinais de alarme.';
+    al=al.filter(function(x){return x!==NEG_ALR});
+    var s='Refere sinal de alarme: '+joinE(al.map(lf));
+    var ob=V('an_alr_ob'); if(ob) s+=' ('+ob.replace(/\.$/,'')+')';
+    s+='.'; var cd=V('an_alr_cd'); if(cd) s+=' Conduta: '+lf(ponto(cd));
+    return s;
+  }
+  function txtAn(){
+    var p=getH().map(frase).filter(Boolean);
+    var o=txtOptica(), d=txtDemanda(), a=txtAlarme();
+    if(o) p.push(o); if(d) p.push(d); if(a) p.push(a);
+    return p.join('\n');
+  }
+  function lista(lbl,arr,neg){ arr=arr.filter(Boolean); if(!arr.length) return ''; if(arr.length===1&&/^nega /i.test(arr[0])) return ponto(arr[0]); return lbl+': '+arr.filter(function(x){return !/^nega /i.test(x)}).map(lf).join('; ')+'.'; }
+  function txtAp(){
+    var p=[], oh=T.segs(V('an_oh')), oo=V('an_oh_o');
+    if(oo) oh=oh.filter(function(x){return !/^nega /i.test(x)}).concat([oo]);
+    if(oh.length) p.push(lista('Antecedentes oculares',oh));
+    var c=linhas(V('an_cir')); if(c.length) p.push(lista('Cirurgias e procedimentos oculares',c));
+    var m=linhas(V('an_med')); if(m.length) p.push(lista('Medicamentos em uso',m));
+    var al=T.segs(V('an_alg')), ao=V('an_alg_o'); if(ao) al=al.filter(function(x){return !/^nega /i.test(x)}).concat([ao]);
+    if(al.length) p.push(lista('Alergias',al));
+    var g=V('an_gest'); if(g==='Gestante'||g==='Lactante') p.push(g+'.');
+    return p.join(' ');
+  }
+  function txtAf(){ var l=linhas(V('an_afl')); return l.length?lista('Histórico familiar',l):''; }
+  var GEN={pr_mc:txtMc,pr_an:txtAn,pr_ap:txtAp,pr_af:txtAf};
+  window.anGenTextos=function(){ var o={}; Object.keys(GEN).forEach(function(f){ o[f]=GEN[f](); }); return o; };
+
+  function getG(){ try{ return JSON.parse(V('an_gen')||'{}')||{}; }catch(e){ return {}; } }
+  function putG(g){ var el=$('an_gen'); if(el) el.value=JSON.stringify(g); }
+  function limpa(t){ return String(t||'').replace(/\n{3,}/g,'\n\n').replace(/^\s+|\s+$/g,''); }
+  function anGen(){
+    var g=getG(), mudou=false;
+    Object.keys(GEN).forEach(function(f){
+      var el=$(f); if(!el) return;
+      var novo=GEN[f](), velho=g[f]||'', cur=el.value||'';
+      if(novo===velho && (!novo || cur.indexOf(novo)>-1)) return;
+      if(velho && cur.indexOf(velho)>-1){
+        cur=novo?cur.replace(velho,novo):limpa(cur.replace(velho,''));
+      } else if(velho){
+        return; // trecho automático foi editado à mão: não tocar
+      } else if(novo){
+        cur=cur.trim()?(cur.replace(/\s+$/,'')+'\n'+novo):novo;
+      }
+      el.value=cur; g[f]=novo; mudou=true;
+      try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
+    });
+    if(mudou) putG(g);
+    genStatus();
+  }
+  var genT=null;
+  function anGenSoon(){ clearTimeout(genT); genT=setTimeout(anGen,250); }
+  window.anGenSoon=anGenSoon;
+  window.anGenInsert=function(f){
+    var el=$(f); if(!el) return; var novo=GEN[f](); if(!novo) return;
+    el.value=(el.value||'').trim()?(el.value.replace(/\s+$/,'')+'\n'+novo):novo;
+    var g=getG(); g[f]=novo; putG(g);
+    try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
+    genStatus(); say('Texto atualizado inserido no fim do campo');
+  };
+  function genStatus(){
+    var g=getG();
+    Object.keys(GEN).forEach(function(f){
+      var box=$('anGen_'+f), el=$(f); if(!box||!el) return;
+      var velho=g[f]||'', cur=el.value||'', h='';
+      if(velho && cur.indexOf(velho)>-1) h='<span class="an-gen-ok"><i class="ph-bold ph-check"></i> Trecho gerado pelos blocos estruturados</span><span>— edite à vontade; mexer nos blocos atualiza o trecho</span>';
+      else if(velho){ var novo=GEN[f]();
+        h='<span class="an-gen-st"><i class="ph-bold ph-pencil-simple"></i> Trecho automático editado à mão — os blocos não alteram mais este campo</span>'+(novo&&cur.indexOf(novo)<0?'<button type="button" onclick="anGenInsert(\''+f+'\')">Inserir texto atualizado no fim</button>':''); }
+      box.innerHTML=h;
+    });
+  }
+
+  /* fontes do texto: qualquer edição do usuário nelas regenera (carregar prontuário não gera nada) */
+  var SRC=/^(an_(?!gen$|af_c$|af_o$|af_p$|cir_p$|cir_o$|cir_a$|med_in$)[a-z_]+|pr_uc|pr_oc)$/;
+  function onSrc(e){ var t=e.target; if(t&&t.id&&SRC.test(t.id)) anGenSoon(); }
+  document.addEventListener('input',onSrc,true);
+  document.addEventListener('change',onSrc,true);
+
+  /* histórico somente leitura: legível */
+  window.anHistFmt=function(fid,val){
+    if(fid==='an_gen') return '';
+    if(fid==='an_hda'){ try{ return JSON.parse(val).map(frase).filter(Boolean).join(' | '); }catch(e){ return ''; } }
+    return val;
+  };
+
+  /* integração com o render do Sprint A */
+  window.anRenderB=function(){ renderPerfil(); renderHda(); afAlertas(); genStatus(); };
 })();
 </script>
 
