@@ -898,12 +898,11 @@ function anBlocoContexto(){
 }
 function anBlocoHda(){
   return '<div class="an-blk" id="anHdaBlk">'+
-    '<div class="an-h"><i class="ph-bold ph-list-checks"></i> História da queixa atual <span class="an-hint">uma ficha por queixa</span></div>'+
+    '<div class="an-h"><i class="ph-bold ph-list-checks"></i> História da queixa atual <span class="an-hint">marcar a queixa no Motivo da Consulta já abre a ficha</span></div>'+
     '<input type="hidden" id="an_hda">'+
     '<div id="anHdaList"></div>'+
     '<div class="an-row">'+
-      '<button type="button" class="btn bs bsm" onclick="anHdaAdd()"><i class="ph-bold ph-plus"></i> Adicionar queixa</button>'+
-      '<button type="button" class="btn bs bsm" id="anHdaFromMc" onclick="anHdaFromMc()"><i class="ph-bold ph-arrow-down"></i> Criar fichas das queixas marcadas</button>'+
+      '<button type="button" class="btn bs bsm" onclick="anHdaAdd()"><i class="ph-bold ph-plus"></i> Outra queixa</button>'+
     '</div>'+
   '</div>';
 }
@@ -1040,7 +1039,7 @@ function anBlocoInfantil(){
 
 function buildPr(){
 return sec('<i class="ph-bold ph-identification-card"></i>','Dados do Paciente','<div class="fg"><label>Nome</label><input id="pr_nm"></div><div class="fr fr4"><div class="fg"><label>Data Nasc.</label><input type="date" id="pr_dn" onchange="calcAge()"></div><div class="fg"><label>Idade</label><div id="pr_idade" style="padding:8px 12px;background:var(--bg3);border-radius:4px;font-weight:700;font-size:14px;min-height:36px">—</div></div><div class="fg"><label>Sexo</label><select id="pr_sx"><option value="">—</option><option value="M">M</option><option value="F">F</option></select></div><div class="fg"><label>Ocupação</label><input id="pr_oc"></div></div><div class="fr fr3"><div class="fg"><label>Origem</label><input id="pr_og"></div><div class="fg"><label>Endereço</label><input id="pr_en"></div><div class="fg"><label>Fone</label><input id="pr_fn"></div></div><div class="fr fr2"><div class="fg"><label>RG/CPF</label><input id="pr_rg"></div></div>','pac')+
-sec('<i class="ph-bold ph-note-pencil"></i>','Anamnese',anBlocoOptica()+anBlocoPerfil()+'<input type="hidden" id="an_gen"><div class="fg"><label>Motivo da Consulta <button type="button" class="vbtn" id="vb_pr_mc" onclick="toggleVoice(\'pr_mc\')"><span class="vdot"></span><span id="vt_pr_mc"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_mc"></textarea>'+anGenLine('pr_mc')+'</div>'+anBlocoContexto()+'<div class="fg"><label>Anamnese <button type="button" class="vbtn" id="vb_pr_an" onclick="toggleVoice(\'pr_an\')"><span class="vdot"></span><span id="vt_pr_an"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_an" style="min-height:90px"></textarea>'+anGenLine('pr_an')+'</div>'+anBlocoHda()+anBlocoAlarme()+anBlocoDemanda()+anBlocoInfantil()+anBlocoIev()+'<div class="fg"><label>Antecedentes Pessoais <button type="button" class="vbtn" id="vb_pr_ap" onclick="toggleVoice(\'pr_ap\')"><span class="vdot"></span><span id="vt_pr_ap"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_ap"></textarea>'+anGenLine('pr_ap')+'</div>'+anBlocoAntecedentes()+'<div class="fg"><label>Antecedentes Familiares <button type="button" class="vbtn" id="vb_pr_af" onclick="toggleVoice(\'pr_af\')"><span class="vdot"></span><span id="vt_pr_af"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_af"></textarea>'+anGenLine('pr_af')+'</div>'+anBlocoFamiliares(),'ana')+
+sec('<i class="ph-bold ph-note-pencil"></i>','Anamnese',anBlocoOptica()+anBlocoPerfil()+anBlocoContexto()+'<input type="hidden" id="an_gen"><div class="fg"><label>Motivo da Consulta <button type="button" class="vbtn" id="vb_pr_mc" onclick="toggleVoice(\'pr_mc\')"><span class="vdot"></span><span id="vt_pr_mc"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_mc"></textarea>'+anGenLine('pr_mc')+'</div>'+anBlocoHda()+'<div class="fg"><label>Anamnese <button type="button" class="vbtn" id="vb_pr_an" onclick="toggleVoice(\'pr_an\')"><span class="vdot"></span><span id="vt_pr_an"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_an" style="min-height:90px"></textarea>'+anGenLine('pr_an')+'</div>'+anBlocoAlarme()+anBlocoDemanda()+anBlocoInfantil()+anBlocoIev()+'<div class="fg"><label>Antecedentes Pessoais <button type="button" class="vbtn" id="vb_pr_ap" onclick="toggleVoice(\'pr_ap\')"><span class="vdot"></span><span id="vt_pr_ap"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_ap"></textarea>'+anGenLine('pr_ap')+'</div>'+anBlocoAntecedentes()+'<div class="fg"><label>Antecedentes Familiares <button type="button" class="vbtn" id="vb_pr_af" onclick="toggleVoice(\'pr_af\')"><span class="vdot"></span><span id="vt_pr_af"><i class="ph-bold ph-microphone"></i> Ditar</span></button></label><textarea id="pr_af"></textarea>'+anGenLine('pr_af')+'</div>'+anBlocoFamiliares(),'ana')+
 sec('<i class="ph-bold ph-magnifying-glass"></i>','Lensometria','<table class="et"><thead><tr><th class="el"></th><th>ESF</th><th>CIL</th><th>EIXO</th><th>ADO</th><th>PRISMA</th><th>DP</th><th>DM</th></tr></thead><tbody><tr><td class="ec">OD</td><td><input id="pl_od_e"></td><td><input id="pl_od_c"></td><td><input id="pl_od_x"></td><td><input id="pl_od_a"></td><td><input id="pl_od_p"></td><td><input id="pl_od_d"></td><td><input id="pl_od_m"></td></tr><tr><td class="ec">OE</td><td><input id="pl_oe_e"></td><td><input id="pl_oe_c"></td><td><input id="pl_oe_x"></td><td><input id="pl_oe_a"></td><td><input id="pl_oe_p"></td><td><input id="pl_oe_d"></td><td><input id="pl_oe_m"></td></tr></tbody></table><div class="fg"><label>Obs</label><input id="pl_ob"></div>','lem')+
 sec('<i class="ph-bold ph-eye"></i>','Acuidade Visual','<div class="st">AV CC (Com Correção)</div><table class="et"><thead><tr><th class="el">CC</th><th>VL</th><th>VP</th><th>PH</th><th>OPTO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="ac_od_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_od_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_od_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="ac_od_op"></td></tr><tr><td class="ec">OE</td><td><select id="ac_oe_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_oe_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="ac_oe_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="ac_oe_op"></td></tr></tbody></table><div class="st">AV SC (Sem Correção)</div><table class="et"><thead><tr><th class="el">SC</th><th>VL</th><th>VP</th><th>PH</th><th>OPTO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="as_od_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_od_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_od_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="as_od_op"></td></tr><tr><td class="ec">OE</td><td><select id="as_oe_vl"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_oe_vp"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><select id="as_oe_ph"><option value="">—</option><option value="20/15">20/15</option><option value="20/20">20/20</option><option value="20/25">20/25</option><option value="20/30">20/30</option><option value="20/40">20/40</option><option value="20/50">20/50</option><option value="20/60">20/60</option><option value="20/70">20/70</option><option value="20/80">20/80</option><option value="20/100">20/100</option><option value="20/125">20/125</option><option value="20/150">20/150</option><option value="20/200">20/200</option><option value="20/250">20/250</option><option value="20/300">20/300</option><option value="20/400">20/400</option><option value="CD 3m">CD 3m</option><option value="CD 2m">CD 2m</option><option value="CD 1m">CD 1m</option><option value="CD 50cm">CD 50cm</option><option value="MM">MM</option><option value="PL">PL</option><option value="SPL">SPL</option></select></td><td><input id="as_oe_op"></td></tr></tbody></table><div class="fg"><label>Obs</label><input id="av_ob"></div>','avi')+
 sec('<i class="ph-bold ph-circles-three"></i>','Reflexos Pupilares','<table class="et"><thead><tr><th class="el"></th><th>FOTOMOTOR</th><th>CONSENSUAL</th><th>ACOMODATIVO</th></tr></thead><tbody><tr><td class="ec">OD</td><td><select id="rf_od_f"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_od_c"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_od_a"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td></tr><tr><td class="ec">OE</td><td><select id="rf_oe_f"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_oe_c"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td><td><select id="rf_oe_a"><option value="">—</option><option value="4+ Vivo/Amplo">4+ Vivo/Amplo</option><option value="3+ Moderado">3+ Moderado</option><option value="2+ Lento/Pequeno">2+ Lento/Pequeno</option><option value="1+ Mínimo">1+ Mínimo</option><option value="0 Ausente">0 Ausente</option><option value="DPAR+">DPAR+</option></select></td></tr></tbody></table><div class="fg" style="margin-top:10px"><label>DPAR (Defeito Pupilar Aferente Relativo)</label><select id="rf_dpar"><option value="">—</option><option value="Negativo">Negativo</option><option value="Positivo OD">Positivo OD</option><option value="Positivo OE">Positivo OE</option></select></div>','ref_pup')+
@@ -4430,20 +4429,15 @@ table{
       'Sensação de areia / corpo estranho','Olho seco','Moscas volantes (miodesopsias)','Dificuldade para dirigir à noite',
       'Dificuldade de leitura e aprendizagem','Pula / perde a linha ao ler','Inverte ou troca letras',
       'Aproxima muito o material','Esfrega os olhos com frequência','Baixo rendimento escolar','Desatenção / dificuldade de concentração'],
-    pr_an:['Início recente','Início há meses','Piora progressiva','Piora para perto','Piora ao fim do dia',
-      'Uso prolongado de telas','Nega dor ocular','Dor ocular','Nega trauma','Já faz uso de correção','Primeira avaliação',
-      'Sem queixas no momento','Melhora com correção','Olho direito','Olho esquerdo','Ambos os olhos'],
     pr_ap:['Hipertensão','Diabetes','Tireoidopatia','Hipercolesterolemia','Doença autoimune / reumatológica','Enxaqueca',
       'Epilepsia','Asma / rinite alérgica','Dermatite atópica','Tabagismo','Nega comorbidades'],
     pr_af:['Glaucoma','Catarata','Diabetes','Hipertensão','Ceratocone','Estrabismo','Ambliopia','Miopia alta',
       'DMRI (degeneração macular)','Descolamento de retina','Cegueira','Familiares usam óculos','Nega histórico familiar']
   };
-  var CHIP_LABELS={pr_mc:'Queixas frequentes',pr_an:'Itens comuns',pr_ap:'Doenças sistêmicas',pr_af:'Antecedentes familiares comuns'};
+  var CHIP_LABELS={pr_mc:'Queixas — tocar abre a ficha da queixa',pr_ap:'Doenças sistêmicas',pr_af:'Antecedentes familiares comuns'};
   // Itens que não podem coexistir no mesmo campo.
   //  grupos: só um item do grupo por vez. nega: o item "Nega…" exclui os listados ('*' = todos os outros, menos os de "exceto").
   var CHIP_RULES={
-    pr_an:{grupos:[['Nega dor ocular','Dor ocular'],['Início recente','Início há meses'],['Olho direito','Olho esquerdo','Ambos os olhos']],
-           nega:[{q:'Sem queixas no momento',x:['Início recente','Início há meses','Piora progressiva','Piora para perto','Piora ao fim do dia','Dor ocular','Olho direito','Olho esquerdo','Ambos os olhos']}]},
     pr_ap:{nega:[{q:'Nega comorbidades',x:'*'}]},
     pr_af:{nega:[{q:'Nega histórico familiar',x:'*',exceto:['Familiares usam óculos']}]}
   };
@@ -4471,7 +4465,8 @@ table{
   window.chipPick=function(btn){
     var fid=btn.getAttribute('data-f'), q=btn.getAttribute('data-q'), el=$(fid); if(!el) return;
     var cur=el.value||'';
-    if(chipHas(cur,q)){
+    var marcou=!chipHas(cur,q);
+    if(!marcou){
       cur=chipRm(cur,q);   // remove só o item exato inserido pelo botão; texto digitado fica intacto
     } else {
       var rem=[];
@@ -4481,6 +4476,7 @@ table{
     }
     el.value=cur; try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
     syncAnamneseChips();
+    if(fid==='pr_mc' && typeof window.anHdaSync==='function') try{ window.anHdaSync(q,marcou); }catch(e){}
   };
   function syncAnamneseChips(){
     Object.keys(CHIP_LISTS).forEach(function(fid){
@@ -5007,7 +5003,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v36 · IndexedDB';
+    var BUILD='Olhar v37 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -7137,7 +7133,6 @@ window.openBackupsPanel=function(){
       '<div class="an-lbl">Fatores de melhora</div>'+chips(i,'melhora',MELHORA,c.melhora)+
       '<div class="an-lbl">Impacto funcional referido (0 = nenhum, 10 = máximo)</div>'+
       '<div class="an-imp fg">'+[0,1,2,3,4,5,6,7,8,9,10].map(function(n){return '<button type="button" data-i="'+i+'" data-imp="'+n+'"'+(String(c.imp)===String(n)?' class="on"':'')+'>'+n+'</button>'}).join('')+'</div>'+
-      '<div class="an-hda-sum" data-sum="'+i+'">'+H(frase(c)||'Preencha a queixa para gerar a frase clínica.')+'</div>'+
     '</div>';
   }
   function renderHda(){
@@ -7146,12 +7141,23 @@ window.openBackupsPanel=function(){
     var js=V('an_hda');
     if(js===hdaShown && box.getAttribute('data-ok')==='1') return;
     var a=getH(); hdaShown=js; box.setAttribute('data-ok','1');
-    box.innerHTML=a.length?a.map(cardHTML).join(''):'<div class="an-hint" style="margin-bottom:10px">Nenhuma queixa detalhada. Use os botões abaixo.</div>';
+    box.innerHTML=a.length?a.map(cardHTML).join(''):'<div class="an-hint" style="margin-bottom:10px">Nenhuma queixa detalhada. Marque as queixas no Motivo da Consulta.</div>';
   }
-  function refreshSum(i,c){ var s=document.querySelector('[data-sum="'+i+'"]'); if(s) s.textContent=frase(c)||'Preencha a queixa para gerar a frase clínica.'; }
+  function refreshSum(){}
   window.anHdaAdd=function(q){
     var a=getH(); a.push({q:q||''}); putH(a,true); renderHda(); anGenSoon();
     var last=document.querySelector('#anHdaList .an-hda:last-child input[data-k="q"]'); if(last&&!q) last.focus();
+  };
+  function temDet(c){
+    return ['olho','modo','tq','tu','evo','freq','assoc'].some(function(k){return String(c[k]||'').trim()})||
+      ['dist','per','piora','melhora'].some(function(k){return (c[k]||[]).length})||(c.imp!==''&&c.imp!=null);
+  }
+  window.anHdaSync=function(q,marcou){
+    if(HQ.indexOf(q)<0) return;
+    var a=getH(), i=-1; a.forEach(function(c,j){ if(i<0&&c.q===q) i=j; });
+    if(marcou){ if(i>-1) return; a.push({q:q}); }
+    else { if(i<0) return; if(temDet(a[i])){ say('A ficha "'+q+'" tem detalhes preenchidos e foi mantida'); return; } a.splice(i,1); }
+    putH(a,true); renderHda(); anGenSoon();
   };
   window.anHdaFromMc=function(){
     var mc=T.segs($('pr_mc')&&$('pr_mc').value).filter(function(x){return HQ.indexOf(x)>-1});
@@ -7192,7 +7198,7 @@ window.openBackupsPanel=function(){
     if(!c||!String(c.q||'').trim()) return '';
     var s='Refere '+lf(c.q);
     if(c.olho==='Alternante') s+=', alternando entre os olhos'; else if(c.olho) s+=' em '+c.olho;
-    var d=(c.dist||[]).slice().sort(function(x,y){return DIST.indexOf(x)-DIST.indexOf(y)}).map(function(x){return x==='Longe'?'de longe':x==='Perto'?'de perto':'intermediária'});
+    var d=(c.dist||[]).slice().sort(function(x,y){return DIST.indexOf(x)-DIST.indexOf(y)}).map(function(x){return x==='Longe'?'de longe':x==='Perto'?'de perto':'intermediária'}).filter(function(x){return String(c.q).toLowerCase().indexOf(x)<0});
     if(d.length) s+=', na visão '+joinE(d);
     var dur='';
     if(c.tu==='Desde a infância') dur='desde a infância';
@@ -7244,7 +7250,7 @@ window.openBackupsPanel=function(){
   var NEG_ALR='Nega sinais de alarme';
   function txtMc(){
     var p=[], rel=V('an_mc_rel'), lit=V('an_mc_lit'), enc=V('an_mc_enc'), exp=V('an_mc_exp');
-    if(rel) p.push(rel==='Próprio paciente'?'Informante: o próprio paciente.':'Informante: '+lf(rel)+'.');
+    if(rel&&rel!=='Próprio paciente') p.push('Informante: '+lf(rel)+'.');
     if(lit) p.push('Nas palavras '+(rel&&rel!=='Próprio paciente'?'do informante':'do paciente')+': "'+lit.replace(/^["“]|["”]$/g,'')+'".');
     if(enc) p.push(enc==='Procura espontânea'?'Procura espontânea.':'Encaminhado por: '+lf(enc)+'.');
     if(exp) p.push('Expectativa da consulta: '+lf(ponto(exp)));
@@ -7290,6 +7296,7 @@ window.openBackupsPanel=function(){
     if((v=V('an_dv_al'))) p.push('tempo ao ar livre: '+lf(v)+'/dia');
     if((v=V('an_dv_so'))) p.push('sono: '+lf(v)+'/noite');
     if((v=V('an_dv_es'))) p.push('atividades com exigência visual: '+lf(v.replace(/\.$/,'')));
+    if(p.length===1&&oc) return '';
     return p.length?'Demanda visual — '+p.join('; ')+'.':'';
   }
   function txtAlarme(){
@@ -7303,7 +7310,8 @@ window.openBackupsPanel=function(){
     return s;
   }
   function txtAn(){
-    var p=getH().map(frase).filter(Boolean);
+    var mc=T.segs(V('pr_mc'));
+    var p=getH().filter(function(c){ return temDet(c)||mc.indexOf(c.q)<0; }).map(frase).filter(Boolean);
     var o=txtOptica(), d=txtDemanda(), a=txtAlarme();
     var x=window.anTxtExtra?window.anTxtExtra('pr_an'):'';
     if(o) p.push(o); if(d) p.push(d); if(x) p.push(x); if(a) p.push(a);
@@ -7363,7 +7371,7 @@ window.openBackupsPanel=function(){
     Object.keys(GEN).forEach(function(f){
       var box=$('anGen_'+f), el=$(f); if(!box||!el) return;
       var velho=g[f]||'', cur=el.value||'', h='';
-      if(velho && cur.indexOf(velho)>-1) h='<span class="an-gen-ok"><i class="ph-bold ph-check"></i> Trecho gerado pelos blocos estruturados</span><span>— edite à vontade; mexer nos blocos atualiza o trecho</span>';
+      if(velho && cur.indexOf(velho)>-1) h='<span class="an-gen-ok"><i class="ph-bold ph-check"></i> Gerado pelos campos estruturados — editável</span>';
       else if(velho){ var novo=GEN[f]();
         h='<span class="an-gen-st"><i class="ph-bold ph-pencil-simple"></i> Trecho automático editado à mão — os blocos não alteram mais este campo</span>'+(novo&&cur.indexOf(novo)<0?'<button type="button" onclick="anGenInsert(\''+f+'\')">Inserir texto atualizado no fim</button>':''); }
       box.innerHTML=h;
