@@ -53,8 +53,15 @@ CREATE TABLE IF NOT EXISTS documentos (
   viewedAt     INTEGER,                   -- primeira vez que a ótica abriu
   viewCount    INTEGER NOT NULL DEFAULT 0,
   revokedAt    INTEGER,                   -- se preenchido: acesso revogado
+  docType      TEXT,                      -- rx, lc, laudo, enc, atst, orient, outro (NULL = rx)
+  title        TEXT,                      -- título livre exibido à ótica
   FOREIGN KEY (opticaId) REFERENCES opticas(id)
 );
+
+-- Bancos antigos: as colunas docType e title são criadas automaticamente pelo
+-- /api/portal na primeira chamada. Se preferir fazer à mão no Console do D1:
+--   ALTER TABLE documentos ADD COLUMN docType TEXT;
+--   ALTER TABLE documentos ADD COLUMN title TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_documentos_optica ON documentos(opticaId);
 CREATE INDEX IF NOT EXISTS idx_documentos_created ON documentos(createdAt DESC);

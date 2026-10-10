@@ -70,6 +70,11 @@ a:hover{text-decoration:underline}
 .doc button.open:hover{background:var(--navy-d)}
 .doc button.open svg{width:14px;height:14px}
 
+.doc .kind{display:inline-block;font-size:10.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.doc .title{font-size:13px;color:var(--tx2);margin-bottom:4px}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.filters button{background:var(--card);border:1px solid var(--line);color:var(--tx2);padding:7px 12px;border-radius:999px;font-size:12px;font-weight:600}
+.filters button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .empty{text-align:center;padding:60px 20px;background:var(--card);border:1px dashed var(--line2);border-radius:14px;color:var(--tx3)}
 .empty h3{color:var(--tx2);font-weight:600;margin-bottom:6px}
 
@@ -122,14 +127,15 @@ a:hover{text-decoration:underline}
   <section id="docsArea" style="display:none">
     <div class="head-doc">
       <div>
-        <h2>Suas receitas</h2>
+        <h2>Seus documentos</h2>
         <div class="count" id="docsCount"></div>
       </div>
       <button onclick="loadDocs()" style="background:transparent;color:var(--navy);font-weight:600;font-size:13px">Atualizar</button>
     </div>
+    <div class="filters" id="docsFilters" style="display:none"></div>
     <div class="list" id="docsList"></div>
     <p class="foot">
-      As receitas ficam disponíveis até serem revogadas pela clínica.<br>
+      Os documentos ficam disponíveis até serem revogados pela clínica.<br>
       Não compartilhe estes dados — cada visualização é registrada.
     </p>
   </section>
@@ -186,23 +192,34 @@ async function doLogout(){
   location.reload();
 }
 
-async function loadDocs(){
+let allDocs = [], docFilter = '';
+
+function docKind(d){ return d.docLabel || 'Receita de óculos'; }
+
+function renderFilters(){
+  const box = document.getElementById('docsFilters');
+  const kinds = [];
+  allDocs.forEach(d => { const k = d.docType || 'rx'; if (!kinds.some(x => x.id === k)) kinds.push({id:k, label:docKind(d)}); });
+  if (kinds.length < 2) { box.style.display = 'none'; docFilter = ''; return; }
+  if (docFilter && !kinds.some(k => k.id === docFilter)) docFilter = '';
+  box.style.display = 'flex';
+  box.innerHTML = [{id:'', label:'Todos'}].concat(kinds).map(k =>
+    `<button class="${docFilter===k.id?'on':''}" onclick="setFilter('${h(k.id)}')">${h(k.label)}</button>`).join('');
+}
+
+function setFilter(id){ docFilter = id; renderFilters(); renderDocs(); }
+
+function renderDocs(){
   const list = document.getElementById('docsList');
   const count = document.getElementById('docsCount');
-  list.innerHTML = '<div class="empty">Carregando…</div>';
-  try {
-    const r = await api('list');
-    document.getElementById('whoName').textContent = r.opticaName || '';
-    if (!r.documents.length) {
-      list.innerHTML = '<div class="empty"><h3>Nenhuma receita disponível</h3>Assim que a clínica enviar, aparece aqui.</div>';
-      count.textContent = '';
-      return;
-    }
-    count.textContent = r.documents.length + (r.documents.length===1?' receita':' receitas');
-    list.innerHTML = r.documents.map(d => `
+  const docs = docFilter ? allDocs.filter(d => (d.docType||'rx') === docFilter) : allDocs;
+  count.textContent = docs.length + (docs.length===1?' documento':' documentos');
+  list.innerHTML = docs.map(d => `
       <article class="doc">
         <div>
+          <div class="kind">${h(docKind(d))}</div>
           <div class="name">${h(d.patientName)} <span class="badge ${d.status==='novo'?'novo':'visto'}">${d.status}</span></div>
+          ${d.title?`<div class="title">${h(d.title)}</div>`:''}
           <div class="meta">
             <span>Data: ${h(fmtDate(d.rxDate))}</span>
             <span>Enviado ${h(fmtWhen(d.createdAt))}</span>
@@ -211,13 +228,31 @@ async function loadDocs(){
           </div>
         </div>
         <div class="actions">
-          <button class="open" onclick="openDoc('${h(d.id)}','${h(d.fileName||'receita.pdf')}')">
+          <button class="open" onclick="openDoc('${h(d.id)}','${h(d.fileName||'documento.pdf')}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v14m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
             Abrir PDF
           </button>
         </div>
       </article>
     `).join('');
+}
+
+async function loadDocs(){
+  const list = document.getElementById('docsList');
+  const count = document.getElementById('docsCount');
+  list.innerHTML = '<div class="empty">Carregando…</div>';
+  try {
+    const r = await api('list');
+    document.getElementById('whoName').textContent = r.opticaName || '';
+    allDocs = r.documents || [];
+    if (!allDocs.length) {
+      document.getElementById('docsFilters').style.display = 'none';
+      list.innerHTML = '<div class="empty"><h3>Nenhum documento disponível</h3>Assim que a clínica enviar, aparece aqui.</div>';
+      count.textContent = '';
+      return;
+    }
+    renderFilters();
+    renderDocs();
   } catch (e) {
     if (e.status === 401) { location.reload(); return; }
     list.innerHTML = '<div class="msg err">'+h(e.message)+'</div>';
@@ -246,7 +281,7 @@ async function openDoc(id, fileName){
     // fallback: se o popup foi bloqueado, força download
     if (!w) {
       const a = document.createElement('a');
-      a.href = url; a.download = fileName || 'receita.pdf';
+      a.href = url; a.download = fileName || 'documento.pdf';
       document.body.appendChild(a); a.click(); a.remove();
     }
     setTimeout(()=>URL.revokeObjectURL(url), 60000);

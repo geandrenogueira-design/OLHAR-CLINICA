@@ -236,3 +236,25 @@ Arquivo: `functions/api/backup.js` → rota `POST /api/backup`.
 
 Em cada aparelho que deve fazer backup automático, a chave da clínica precisa estar
 configurada (menu **Backups → Configurar chave da clínica**, a mesma do Portal).
+
+---
+
+## Atualização — outros documentos no portal (build v38)
+
+O portal passou a aceitar, além da receita de óculos, laudos/relatórios,
+receitas de lentes de contato, encaminhamentos, atestados, orientações e
+qualquer outro PDF (até 700 KB).
+
+**Não precisa mexer no banco.** Na primeira chamada depois da publicação, o
+`/api/portal` cria sozinho as colunas `docType` e `title` na tabela
+`documentos`. As receitas já enviadas continuam aparecendo como "Receita de
+óculos". Se preferir criar à mão, no Console do D1:
+
+```
+ALTER TABLE documentos ADD COLUMN docType TEXT;
+ALTER TABLE documentos ADD COLUMN title TEXT;
+```
+
+O botão **Enviar para ótica** da página Documentos gera o PDF no próprio
+navegador com duas bibliotecas carregadas sob demanda do cdnjs (html2canvas
+1.4.1 e jsPDF 2.5.1). Precisa de internet, como o próprio envio.

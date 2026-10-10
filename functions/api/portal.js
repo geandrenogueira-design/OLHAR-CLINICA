@@ -8,7 +8,7 @@
 //   CLÍNICA (Dr. Geandré usando o sistema):
 //     - autenticada por header X-Clinic-Key (segredo compartilhado)
 //     - provision:      cria/atualiza acesso de uma ótica (username + PIN)
-//     - upload:         envia PDF de uma receita
+//     - upload:         envia PDF de um documento (receita, laudo, encaminhamento…)
 //     - revoke:         revoga um documento (apaga o pdfData, marca no D1)
 //     - clinic-list:    lista documentos, opcionalmente por ótica
 //
@@ -43,6 +43,36 @@ const BLOCK_MS_STEPS = [                       // bloqueio progressivo
   60 * 60 * 1000,    // 10º erro: 1h
   6 * 60 * 60 * 1000 // 15º erro em diante: 6h
 ];
+
+// Tipos de documento aceitos no portal. Linhas antigas (sem docType) são receitas.
+const DOC_TYPES = {
+  rx:     'Receita de óculos',
+  lc:     'Receita de lentes de contato',
+  laudo:  'Laudo / relatório',
+  enc:    'Encaminhamento',
+  atst:   'Atestado',
+  orient: 'Orientações',
+  outro:  'Outro documento'
+};
+function normDocType(t) { return Object.prototype.hasOwnProperty.call(DOC_TYPES, t) ? t : 'rx'; }
+
+// Migração automática: bancos criados antes dos "outros documentos" não têm
+// as colunas docType e title. Conferimos uma vez por isolate e criamos o que falta.
+let schemaChecked = false;
+async function ensureSchema(env) {
+  if (schemaChecked) return;
+  const info = await env.DB.prepare(`PRAGMA table_info(documentos)`).all();
+  const cols = new Set((info.results || []).map(c => c.name));
+  if (!cols.has('docType')) {
+    try { await env.DB.prepare(`ALTER TABLE documentos ADD COLUMN docType TEXT`).run(); }
+    catch (e) { if (!/duplicate column/i.test(String(e && e.message))) throw e; }
+  }
+  if (!cols.has('title')) {
+    try { await env.DB.prepare(`ALTER TABLE documentos ADD COLUMN title TEXT`).run(); }
+    catch (e) { if (!/duplicate column/i.test(String(e && e.message))) throw e; }
+  }
+  schemaChecked = true;
+}
 
 // -------------------------------------------------------------- utilidades
 
@@ -220,6 +250,8 @@ async function actionProvision(env, body, ip) {
 
 async function actionUpload(env, body, ip) {
   const { externalId, patientName, rxDate, fileName, rxSummary, pdfBase64 } = body;
+  const docType = normDocType(body.docType);
+  const title = String(body.title || '').trim().slice(0, 120) || null;
   if (!externalId || !patientName || !fileName || !pdfBase64) {
     return err('externalId, patientName, fileName e pdfBase64 obrigatórios');
   }
@@ -232,7 +264,7 @@ async function actionUpload(env, body, ip) {
   try { bytes = b64decode(pdfBase64); }
   catch (e) { return err('pdfBase64 inválido'); }
   if (!bytes.length) return err('PDF vazio');
-  if (bytes.length > MAX_PDF_BYTES) return err(`PDF acima do limite (${Math.round(bytes.length/1024)} KB > ${MAX_PDF_BYTES/1024/1024} MB)`);
+  if (bytes.length > MAX_PDF_BYTES) return err(`PDF acima do limite (${Math.round(bytes.length/1024)} KB; máximo ${MAX_PDF_BYTES/1024} KB)`, 400, 'TOO_LARGE');
   // sanidade: PDF começa com %PDF
   if (!(bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46)) {
     return err('Conteúdo enviado não parece PDF');
@@ -243,11 +275,11 @@ async function actionUpload(env, body, ip) {
   // pdfBase64 já chegou em base64 no body — gravamos direto, sem recodificar.
   const now = nowMs();
   await env.DB.prepare(
-    `INSERT INTO documentos (id, opticaId, patientName, rxDate, rxSummary, fileName, fileSize, pdfData, createdAt, viewCount)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`
-  ).bind(docId, optica.id, patientName, rxDate || null, rxSummary || null, fileName, bytes.length, pdfBase64, now).run();
+    `INSERT INTO documentos (id, opticaId, patientName, rxDate, rxSummary, fileName, fileSize, pdfData, createdAt, viewCount, docType, title)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`
+  ).bind(docId, optica.id, patientName, rxDate || null, rxSummary || null, fileName, bytes.length, pdfBase64, now, docType, title).run();
 
-  await audit(env, 'clinic', 'upload', docId, ip, { opticaId: optica.id, patientName, bytes: bytes.length });
+  await audit(env, 'clinic', 'upload', docId, ip, { opticaId: optica.id, patientName, docType, bytes: bytes.length });
   return json({ ok: true, document: { id: docId, opticaName: optica.name, status: 'novo' } });
 }
 
@@ -275,12 +307,12 @@ async function actionClinicList(env, body) {
     const opt = await env.DB.prepare(`SELECT id, name FROM opticas WHERE externalId=?`).bind(externalId).first();
     if (!opt) return json({ documents: [] });
     rows = await env.DB.prepare(
-      `SELECT d.id, d.patientName, d.rxDate, d.fileName, d.createdAt, d.viewedAt, d.viewCount, d.revokedAt, ? AS opticaName
+      `SELECT d.id, d.patientName, d.rxDate, d.fileName, d.createdAt, d.viewedAt, d.viewCount, d.revokedAt, d.docType, d.title, ? AS opticaName
        FROM documentos d WHERE d.opticaId=? ORDER BY d.createdAt DESC LIMIT ?`
     ).bind(opt.name, opt.id, cap).all();
   } else {
     rows = await env.DB.prepare(
-      `SELECT d.id, d.patientName, d.rxDate, d.fileName, d.createdAt, d.viewedAt, d.viewCount, d.revokedAt, o.name AS opticaName
+      `SELECT d.id, d.patientName, d.rxDate, d.fileName, d.createdAt, d.viewedAt, d.viewCount, d.revokedAt, d.docType, d.title, o.name AS opticaName
        FROM documentos d JOIN opticas o ON o.id = d.opticaId
        ORDER BY d.createdAt DESC LIMIT ?`
     ).bind(cap).all();
@@ -290,6 +322,9 @@ async function actionClinicList(env, body) {
     patientName: r.patientName,
     rxDate: r.rxDate,
     fileName: r.fileName,
+    docType: normDocType(r.docType),
+    docLabel: DOC_TYPES[normDocType(r.docType)],
+    title: r.title || null,
     opticaName: r.opticaName,
     createdAt: r.createdAt,
     viewedAt: r.viewedAt,
@@ -372,13 +407,14 @@ async function actionLogin(env, body, request) {
 
 async function actionOpticaList(env, session) {
   const rows = await env.DB.prepare(
-    `SELECT id, patientName, rxDate, fileName, fileSize, createdAt, viewedAt, viewCount
+    `SELECT id, patientName, rxDate, fileName, fileSize, createdAt, viewedAt, viewCount, docType, title
      FROM documentos WHERE opticaId=? AND revokedAt IS NULL
      ORDER BY createdAt DESC LIMIT 200`
   ).bind(session.opticaId).all();
   const documents = (rows.results || []).map(r => ({
     id: r.id, patientName: r.patientName, rxDate: r.rxDate,
     fileName: r.fileName, fileSize: r.fileSize,
+    docType: normDocType(r.docType), docLabel: DOC_TYPES[normDocType(r.docType)], title: r.title || null,
     createdAt: r.createdAt, viewedAt: r.viewedAt, viewCount: r.viewCount,
     status: r.viewedAt ? 'visualizado' : 'novo'
   }));
@@ -437,6 +473,9 @@ export async function onRequestPost({ request, env }) {
 
   const action = String(body.action || '').trim();
   if (!action) return err('Campo "action" obrigatório');
+
+  try { await ensureSchema(env); }
+  catch (e) { console.error('ensureSchema failed:', e); return err('Banco do portal indisponível', 500); }
 
   // rota especial: view devolve PDF binário
   if (action === 'view') {
