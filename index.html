@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8">
-<script>(function(){try{var t=localStorage.getItem('olhar_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<script>(function(){try{var c=localStorage.getItem('olhar_conforto');if(c!=='0')document.documentElement.classList.add('conforto')}catch(e){document.documentElement.classList.add('conforto')}})();</script><script>(function(){try{var t=localStorage.getItem('olhar_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="description" content="Instituto do Olhar — sistema clínico para prontuário, refração, prescrição óptica e gestão de pacientes.">
 <meta name="theme-color" content="#24356f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -461,6 +461,38 @@ body{background:var(--bg);color:var(--tx)}
 .btn.bt{background:var(--io-navy);color:#fff}.btn.bt:hover{background:var(--io-navy-dark)}.btn.bo{background:var(--io-gold);color:#fff}.btn.bo:hover{background:#b9845c}
 .card,.stat,.doc-card,.doc-editor{box-shadow:0 8px 28px rgba(36,53,111,.045)}
 [data-theme="light"] .stat .val{color:var(--io-navy)}[data-theme="dark"] .stat .val{color:var(--tx)}
+/* ===== Modo conforto (v40) — leitura mais leve para uso prolongado =====
+   Só na tela (nada muda na impressão). Liga/desliga pelo botão "Aa" ao lado do tema. */
+.conf-tog{position:fixed;bottom:14px;right:64px;z-index:9999;width:42px;height:42px;border-radius:50%;border:1px solid var(--bdr);background:var(--bg2);color:var(--tx);cursor:pointer;box-shadow:var(--sh);font:700 15px var(--font);display:flex;align-items:center;justify-content:center}
+html.conforto .conf-tog{background:var(--pri);color:var(--bg);border-color:var(--pri)}
+@media print{.conf-tog{display:none}}
+/* contraste do modo escuro (faixas e botão dourado com texto claro: 2,6:1 → ≥7:1) */
+[data-theme="dark"] .card>div[onclick]:first-child,[data-theme="dark"] .btn.bo,[data-theme="dark"] .fx-btn-go{color:#0a1030!important}
+@media screen{
+html.conforto[data-theme="light"]{--bg:#eef0ec;--bg2:#fbfaf7;--bg3:#fbfaf7;--bg4:#e6e8e3;--tx:#1d2330;--tx2:#2c3442;--tx3:#525c6b;--bdr:#dcdfd8;--bdr2:#c9cdc5}
+html.conforto body{line-height:1.5}
+html.conforto .fg label,html.conforto label{font-size:13.5px!important;text-transform:none!important;letter-spacing:0!important;font-weight:600}
+html.conforto .fg input,html.conforto .fg select,html.conforto .fg textarea,html.conforto input,html.conforto select,html.conforto textarea{font-size:15px!important}
+html.conforto .fg input,html.conforto .fg select,html.conforto .fg textarea{padding:11px 14px}
+html.conforto .anam-chip,html.conforto .pp-chip,html.conforto [class*="chip"]{font-size:14px!important}
+html.conforto .anam-chip{padding:7px 14px!important;border-color:transparent!important;background:var(--bg4)!important}
+html.conforto .anam-chip.chip-on{background:var(--pri)!important;color:#fff!important}
+html.conforto[data-theme="dark"] .anam-chip.chip-on{color:#0a1030!important}
+html.conforto .anam-chips-row,html.conforto .an-tgs{gap:8px!important}
+html.conforto .anam-chips-lbl,html.conforto .an-hint{font-size:13.5px!important}
+html.conforto .an-h{font-size:15px!important;text-transform:none!important;letter-spacing:0!important}
+html.conforto th{font-size:12.5px!important;letter-spacing:.2px!important}
+html.conforto td{font-size:14px!important}
+html.conforto td select,html.conforto td input{font-size:15px!important}
+html.conforto .btn{font-size:14px}
+html.conforto .sub,html.conforto .st,html.conforto .an-lbl,html.conforto .qf-note,html.conforto .dc-desc,html.conforto .kd,html.conforto .crm-filt,html.conforto .crm-filt *,html.conforto .stat .lbl,html.conforto .kh,html.conforto .cnt,html.conforto .vbtn span{font-size:13px!important}
+html.conforto .stat .lbl,html.conforto .an-lbl,html.conforto .st{text-transform:none!important;letter-spacing:0!important}
+html.conforto .fx-btn,html.conforto .qf-btn,html.conforto .vbtn{font-size:13px!important}
+html.conforto .sim-card p,html.conforto .kpi-sub,html.conforto .kpi-label,html.conforto .kpi-section h4,html.conforto .kpi-month-sel button,html.conforto .chg div,html.conforto .call-bar,html.conforto .call-bar *,html.conforto .empty p,html.conforto .an-sug,html.conforto .cerato-tag,html.conforto .cerato-row span{font-size:13px!important}
+html.conforto .kpi-label,html.conforto .kpi-section h4{text-transform:none!important;letter-spacing:0!important}
+html.conforto .card>div[onclick]:first-child{background:transparent!important;color:var(--pri)!important;font-size:16px!important;text-transform:none!important;letter-spacing:0!important;padding:14px 18px!important;border-bottom:1px solid var(--bdr);box-shadow:inset 4px 0 0 var(--o)}
+html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!important}
+}
 </style></head><body>
 
 <div id="loginScreen"><div class="lc"><div class="lb"><div class="eye"></div><div class="greeting" id="loginGreeting"></div><div class="quote" id="loginQuote"></div></div>
@@ -5004,7 +5036,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v39 · IndexedDB';
+    var BUILD='Olhar v40 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -5923,6 +5955,11 @@ else iniciar();
     var b=document.getElementById('themeTog'); if(b) b.title = (t==='dark'?'Modo claro':'Modo escuro');
   }
   window.olharToggleTheme=function(){ set(get()==='dark'?'light':'dark'); };
+  window.olharToggleConforto=function(){
+    var on=document.documentElement.classList.toggle('conforto');
+    try{localStorage.setItem('olhar_conforto',on?'1':'0')}catch(e){}
+    var c=document.getElementById('confTog'); if(c){c.title=on?'Modo conforto ligado (toque para desligar)':'Modo conforto desligado (toque para ligar)';c.setAttribute('aria-pressed',on?'true':'false')}
+  };
   function montar(){
     if(document.getElementById('themeTog')) return;
     var b=document.createElement('button');
@@ -5931,6 +5968,12 @@ else iniciar();
     b.title = get()==='dark'?'Modo claro':'Modo escuro';
     b.onclick = window.olharToggleTheme;
     document.body.appendChild(b);
+    var c=document.createElement('button'), on=document.documentElement.classList.contains('conforto');
+    c.id='confTog'; c.className='conf-tog'; c.type='button'; c.textContent='Aa';
+    c.setAttribute('aria-label','Modo conforto de leitura'); c.setAttribute('aria-pressed',on?'true':'false');
+    c.title=on?'Modo conforto ligado (toque para desligar)':'Modo conforto desligado (toque para ligar)';
+    c.onclick=window.olharToggleConforto;
+    document.body.appendChild(c);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',montar);
   else montar();
