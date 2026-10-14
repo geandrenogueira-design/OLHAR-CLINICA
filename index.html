@@ -582,7 +582,7 @@ html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!
 </div>
 </div>
 <div class="page" id="p-o-dash"><div class="ph"><div><h2>Painel Clínico</h2><div class="sub" id="odDate"></div></div></div><div class="stats" id="odStats"></div><div class="g2"><div class="card"><h4 style="font-size:15px;font-weight:700;margin-bottom:12px">Pacientes do Dia</h4><ul class="tl" id="odToday"></ul></div><div class="card"><h4 style="font-size:15px;font-weight:700;margin-bottom:12px">Últimas Receitas</h4><ul class="tl" id="odRx"></ul></div></div></div>
-<div class="page" id="p-o-pront"><div class="ph"><div><h2>Prontuário Clínico</h2><div class="sub">História Clínica de Optometria Integral</div></div><div class="acts"><button class="btn bs bsm" onclick="showSaved()"><i class="ph-bold ph-folder-open"></i> Salvos</button><button class="btn bs bsm" onclick="newPr()"><i class="ph-bold ph-file-plus"></i> Novo</button><button class="btn bo" onclick="savePr()"><i class="ph-bold ph-floppy-disk"></i> Salvar</button></div></div><div class="card" id="svPanel" style="display:none;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><h4 style="font-size:15px;font-weight:700">Prontuários Salvos</h4><button class="btn bsm bs" onclick="document.getElementById('svPanel').style.display='none'">Fechar</button></div><input id="svSearch" oninput="rSvL()" placeholder="Buscar por nome ou data (ex.: João ou 2026)" style="width:100%;box-sizing:border-box;margin-bottom:10px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px"><div id="svList"></div></div><div class="card" style="margin-bottom:16px;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase">Paciente:</span><select id="prPat" style="padding:7px 12px;border:1px solid var(--bdr);border-radius:4px;font-size:13px;min-width:220px" onchange="onPrPat()"><option value="">— Selecione —</option></select><div style="width:1px;height:24px;background:var(--bdr)"></div><span style="font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase">Data:</span><input type="date" id="prDt" style="padding:7px 12px;border:1px solid var(--bdr);border-radius:4px;font-size:13px"><button class="btn bs" style="margin-left:8px" onclick="abrirEscolhaSecoes()" title="Escolher quais seções aparecem no prontuário"><i class="ph-bold ph-eye-slash"></i> Seções</button><div style="flex:1"></div><span id="prSt" style="font-size:11px;color:var(--tx2)"></span></div><div class="card" id="prHist" style="display:none;margin-bottom:16px;padding:14px 18px"></div><div id="prForm"></div></div>
+<div class="page" id="p-o-pront"><div class="ph"><div><h2>Prontuário Clínico</h2><div class="sub">História Clínica de Optometria Integral</div></div><div class="acts"><button class="btn bs bsm" onclick="showSaved()"><i class="ph-bold ph-folder-open"></i> Salvos</button><button class="btn bs bsm" onclick="newPr()"><i class="ph-bold ph-file-plus"></i> Novo</button><button class="btn bo" onclick="savePr()"><i class="ph-bold ph-floppy-disk"></i> Salvar</button><button class="btn bo bsm pr-prx" onclick="if(typeof window.quickPrintRx==='function')window.quickPrintRx();else window.print()" title="Imprimir RX"><i class="ph-bold ph-printer"></i><span class="pr-lbl"> Imprimir RX</span></button></div></div><div class="card" id="svPanel" style="display:none;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:12px"><h4 style="font-size:15px;font-weight:700">Prontuários Salvos</h4><button class="btn bsm bs" onclick="document.getElementById('svPanel').style.display='none'">Fechar</button></div><input id="svSearch" oninput="rSvL()" placeholder="Buscar por nome ou data (ex.: João ou 2026)" style="width:100%;box-sizing:border-box;margin-bottom:10px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px"><div id="svList"></div></div><div class="card" style="margin-bottom:16px;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase">Paciente:</span><select id="prPat" style="padding:7px 12px;border:1px solid var(--bdr);border-radius:4px;font-size:13px;min-width:220px" onchange="onPrPat()"><option value="">— Selecione —</option></select><div style="width:1px;height:24px;background:var(--bdr)"></div><span style="font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase">Data:</span><input type="date" id="prDt" style="padding:7px 12px;border:1px solid var(--bdr);border-radius:4px;font-size:13px"><button class="btn bs" style="margin-left:8px" onclick="abrirEscolhaSecoes()" title="Escolher quais seções aparecem no prontuário"><i class="ph-bold ph-eye-slash"></i> Seções</button><button class="btn bs" id="prColAll" style="margin-left:6px" onclick="prColTudo()" title="Recolher ou abrir todas as seções do prontuário"><i class="ph-bold ph-arrows-in-line-vertical"></i> <span>Recolher tudo</span></button><div style="flex:1"></div><span id="prSt" style="font-size:11px;color:var(--tx2)"></span></div><div class="card" id="prHist" style="display:none;margin-bottom:16px;padding:14px 18px"></div><div id="prForm"></div></div>
 <div class="page" id="p-o-rx"></div>
 <div class="page" id="p-o-docs">
 <div class="ph"><div><h2>Documentos</h2><div class="sub">Receituário, encaminhamentos e atestados</div></div></div>
@@ -704,9 +704,18 @@ function secVisiveis(){
   return SEC_CHAVES.slice();
 }
 function secOn(chave){ return chave==='pac' || secVisiveis().indexOf(chave)!==-1; }
+var PR_COL_KEY='olhar_pront_recolhidas';
+/* sub-blocos longos da anamnese que começam recolhidos; o cabeçalho mostra se há dado dentro */
+var PR_COL_PADRAO={an_dv:1,an_ap:1,an_af:1};
+function prColMap(){try{var v=JSON.parse(localStorage.getItem(PR_COL_KEY)||'null');if(v&&typeof v==='object'&&!Array.isArray(v))return v}catch(e){}var d={};for(var k in PR_COL_PADRAO)d[k]=1;return d}
+function prColGet(k){return !!prColMap()[k]}
+function prColSet(k,on){if(!k)return;var m=prColMap();if(on)m[k]=1;else delete m[k];try{localStorage.setItem(PR_COL_KEY,JSON.stringify(m))}catch(e){}}
+function prSecTog(h){var c=h.parentNode;var on=!c.classList.contains('pr-col');c.classList.toggle('pr-col',on);h.setAttribute('aria-expanded',on?'false':'true');prColSet(c.getAttribute('data-sk'),on);if(typeof window.prCntUpd==='function')window.prCntUpd(c);if(typeof window.prColAllLbl==='function')window.prColAllLbl()}
 function sec(ic,ti,bd,chave){
   if(chave && !secOn(chave)) return '';
-  return '<div class="card" style="margin-bottom:14px;overflow:hidden;padding:0"><div style="background:var(--o);color:#fff;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">'+ic+' '+ti+' <span style="margin-left:auto">&#9660;</span></div><div style="padding:16px">'+bd+'</div></div>';
+  var k=chave||String(ti).toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'_');
+  var col=prColGet(k);
+  return '<div class="card pr-sec'+(col?' pr-col':'')+'" data-sk="'+k+'" style="margin-bottom:14px;overflow:hidden;padding:0"><div class="pr-sh" role="button" tabindex="0" aria-expanded="'+(col?'false':'true')+'" style="background:var(--o);color:#fff;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="prSecTog(this)">'+ic+' '+ti+' <span class="pr-cnt"></span><span class="pr-car">&#9660;</span></div><div class="pr-bd" style="padding:16px">'+bd+'</div></div>'
 }
 var PR_VALORES_ACUMULADOS={};
 function puxarLensometria(){
@@ -4443,6 +4452,7 @@ table{
   };
 
   function ensureSaveFab(){
+    return; /* v41: ações ficam no cabeçalho fixo do prontuário (sem barra flutuante sobre os campos) */
     if($('prSaveFab')) return;
     var host=$('p-o-pront')||document.body;
     var fab=document.createElement('div'); fab.id='prSaveFab';
@@ -5036,7 +5046,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v40 · IndexedDB';
+    var BUILD='Olhar v41 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -6997,7 +7007,7 @@ window.openBackupsPanel=function(){
     if(ph && ph.parentNode===page) page.insertBefore(bar,ph.nextSibling); else page.insertBefore(bar,page.firstChild);
     bar.addEventListener('click',function(e){
       var b=e.target.closest('[data-goto]'); if(!b) return;
-      var t=$(b.getAttribute('data-goto')); if(t){ var card=t.closest('.card'); if(card&&card.lastElementChild&&card.lastElementChild.style.display==='none') card.lastElementChild.style.display='block'; t.scrollIntoView({behavior:'smooth',block:'center'}); }
+      var t=$(b.getAttribute('data-goto')); if(t){ if(typeof window.prReveal==='function') window.prReveal(t); t.scrollIntoView({behavior:'smooth',block:'center'}); }
     });
     return bar;
   }
@@ -7756,4 +7766,172 @@ window.openBackupsPanel=function(){
 })();
 </script>
 
+<style id="sprint2-densidade">
+/* ===== Sprint 2 (v41) — densidade do prontuário ===== */
+.pr-sec>.pr-sh .pr-cnt{margin-left:auto;font-size:12px;font-weight:600;text-transform:none;letter-spacing:0;opacity:.85}
+.pr-sec>.pr-sh .pr-car{display:inline-block;transition:transform .18s ease;font-size:11px}
+.pr-sec:not(.pr-cnt-on)>.pr-sh .pr-cnt{display:none}
+.pr-sec:not(.pr-cnt-on)>.pr-sh .pr-car{margin-left:auto}
+.pr-sec.pr-col>.pr-bd{display:none!important}
+.pr-sec.pr-col>.pr-sh .pr-car{transform:rotate(-90deg)}
+.pr-sec.pr-col{margin-bottom:8px!important}
+html.conforto .pr-sec.pr-col>.pr-sh{border-bottom:0!important}
+.pr-sh:focus-visible,.an-colable>.an-h:focus-visible{outline:2px solid var(--pri);outline-offset:-2px}
+.an-colable>.an-h{cursor:pointer;user-select:none}
+.an-colable>.an-h .pr-cnt{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--tx3);text-transform:none;letter-spacing:0}
+.an-colable>.an-h .an-car{margin-left:8px;display:inline-block;transition:transform .18s ease;font-size:11px;color:var(--tx3)}
+.an-colable:not(.pr-cnt-on)>.an-h .pr-cnt{display:none}
+.an-colable:not(.pr-cnt-on)>.an-h .an-car{margin-left:auto}
+.an-colable.pr-col>*:not(.an-h){display:none!important}
+.an-colable.pr-col{padding-bottom:4px}
+.an-colable.pr-col>.an-h .an-car{transform:rotate(-90deg)}
+.an-colable.pr-col>.an-h .an-hint{display:none}
+.chips-od:not(.od-open) .anam-chip:not(.chip-on){display:none}
+.od-tog{padding:6px 14px;border-radius:999px;border:1px dashed var(--bdr2);background:transparent;color:var(--pri);font:600 13px var(--font);cursor:pointer}
+html.conforto .od-tog{font-size:14px}
+.od-tog:hover{border-color:var(--pri);background:var(--prib)}
+/* cabeçalho do prontuário fixo no topo, com as ações */
+#p-o-pront>.ph{position:sticky;top:0;z-index:40;background:var(--bg);margin:-24px -32px 20px;padding:16px 32px 14px;transition:padding .15s ease;flex-wrap:wrap;gap:10px}
+#p-o-pront>.ph .acts{gap:6px;flex-wrap:wrap}
+#p-o-pront>.ph.ph-stuck{padding-top:10px;padding-bottom:10px;border-bottom:1px solid var(--bdr);box-shadow:0 6px 16px -14px rgba(0,0,0,.45)}
+#p-o-pront>.ph.ph-stuck h2{font-size:18px}
+#p-o-pront>.ph.ph-stuck .sub{display:none}
+#anSafe{top:var(--pr-ph-h,0px)!important}
+#prSaveFab{display:none!important}
+@media (max-width:900px){
+  #fxDock{right:114px!important;max-width:calc(100vw - 72px - 128px)!important}
+  #p-o-pront>.ph .pr-prx .pr-lbl{display:none}
+}
+@media print{#p-o-pront>.ph{position:static}.pr-sec.pr-col>.pr-bd,.an-colable.pr-col>*:not(.an-h){display:block!important}.od-tog{display:none!important}.chips-od .anam-chip{display:inline-flex!important}}
+</style>
+<script id="sprint2-densidade-js">
+(function(){
+  function $(id){return document.getElementById(id)}
+  var SUB={anOptBlk:'an_opt',anCtxBlk:'an_ctx',anDvBlk:'an_dv',anInBlk:'an_in',anApBlk:'an_ap',anAfBlk:'an_af'};
+  var VAZIO={'':1,'0.00':1,'0,00':1,'—':1};
+  function conta(root,skipFirst){
+    var n=0;
+    root.querySelectorAll('input,select,textarea').forEach(function(e){
+      if(skipFirst && skipFirst.contains(e)) return;
+      if(e.id==='an_gen') return;
+      var t=(e.type||'').toLowerCase();
+      if(t==='button'||t==='submit'||t==='file') return;
+      if(t==='checkbox'||t==='radio'){ if(e.checked) n++; return; }
+      var v=(e.value||'').trim();
+      if(!VAZIO[v]) n++;
+    });
+    return n;
+  }
+  function cntUpd(c){
+    if(!c) return;
+    var cnt=c.querySelector(':scope>.pr-sh .pr-cnt, :scope>.an-h .pr-cnt'); if(!cnt) return;
+    var col=c.classList.contains('pr-col');
+    c.classList.toggle('pr-cnt-on',col);
+    if(!col) return;
+    var n=c.classList.contains('pr-sec')?conta(c.querySelector(':scope>.pr-bd')||c):conta(c,c.querySelector(':scope>.an-h'));
+    var txt=n?(n===1?'1 campo preenchido':n+' campos preenchidos'):'vazio';
+    if(cnt.textContent!==txt) cnt.textContent=txt;
+  }
+  window.prCntUpd=cntUpd;
+  function cntTodos(){ document.querySelectorAll('#prForm .pr-sec.pr-col, #prForm .an-colable.pr-col').forEach(cntUpd); }
+  window.prReveal=function(el){
+    var c=el&&el.closest?el.closest('.pr-col'):null;
+    while(c){ c.classList.remove('pr-col'); var h=c.querySelector(':scope>.pr-sh, :scope>.an-h'); if(h) h.setAttribute('aria-expanded','true'); prColSet(c.getAttribute('data-sk'),false); cntUpd(c); c=c.parentElement?c.parentElement.closest('.pr-col'):null; }
+    prColAllLbl();
+  };
+  function prepSub(){
+    Object.keys(SUB).forEach(function(id){
+      var b=$(id); if(!b || b.dataset.sk) return;
+      var h=b.querySelector(':scope>.an-h'); if(!h) return;
+      b.dataset.sk=SUB[id]; b.classList.add('an-colable');
+      h.setAttribute('role','button'); h.setAttribute('tabindex','0');
+      var c=document.createElement('span'); c.className='pr-cnt'; h.appendChild(c);
+      var a=document.createElement('span'); a.className='an-car'; a.innerHTML='&#9660;'; h.appendChild(a);
+      var col=prColGet(SUB[id]); b.classList.toggle('pr-col',col); h.setAttribute('aria-expanded',col?'false':'true');
+      cntUpd(b);
+    });
+  }
+  function subTog(h){
+    var b=h.parentNode, on=!b.classList.contains('pr-col');
+    b.classList.toggle('pr-col',on); h.setAttribute('aria-expanded',on?'false':'true');
+    prColSet(b.dataset.sk,on); cntUpd(b);
+  }
+  /* queixas sob demanda: só as marcadas ficam à vista até tocar em "mostrar" */
+  var QK='olhar_queixas_abertas';
+  function qOpen(){ try{return localStorage.getItem(QK)==='1'}catch(e){return false} }
+  function qLbl(){
+    var bar=$('chips_pr_mc'); if(!bar) return;
+    var t=bar.querySelector('.od-tog'); if(!t) return;
+    var tot=bar.querySelectorAll('.anam-chip').length, on=bar.querySelectorAll('.anam-chip.chip-on').length;
+    var open=bar.classList.contains('od-open');
+    var txt=open?'Recolher a lista':(on?'+ Outras queixas':'Mostrar as '+tot+' queixas');
+    if(t.textContent!==txt) t.textContent=txt;
+    t.setAttribute('aria-expanded',open?'true':'false');
+  }
+  function prepQueixas(){
+    var bar=$('chips_pr_mc'); if(!bar || bar.dataset.od) return;
+    var row=bar.querySelector('.anam-chips-row'); if(!row) return;
+    bar.dataset.od='1'; bar.classList.add('chips-od'); bar.classList.toggle('od-open',qOpen());
+    var t=document.createElement('button'); t.type='button'; t.className='od-tog';
+    t.onclick=function(){ var o=!bar.classList.contains('od-open'); bar.classList.toggle('od-open',o); try{localStorage.setItem(QK,o?'1':'0')}catch(e){} qLbl(); };
+    row.appendChild(t); qLbl();
+  }
+  /* recolher / abrir tudo */
+  function topSecs(){ return [].slice.call(document.querySelectorAll('#prForm>.pr-sec')); }
+  function prColAllLbl(){
+    var b=$('prColAll'); if(!b) return; var s=topSecs(); if(!s.length) return;
+    var algumAberto=s.some(function(c){return !c.classList.contains('pr-col')});
+    var sp=b.querySelector('span'), ic=b.querySelector('i');
+    var txt=algumAberto?'Recolher tudo':'Abrir tudo';
+    if(sp && sp.textContent!==txt) sp.textContent=txt;
+    if(ic) ic.className='ph-bold '+(algumAberto?'ph-arrows-in-line-vertical':'ph-arrows-out-line-vertical');
+  }
+  window.prColAllLbl=prColAllLbl;
+  window.prColTudo=function(){
+    var s=topSecs(); var fechar=s.some(function(c){return !c.classList.contains('pr-col')});
+    s.forEach(function(c){ c.classList.toggle('pr-col',fechar); var h=c.querySelector(':scope>.pr-sh'); if(h) h.setAttribute('aria-expanded',fechar?'false':'true'); prColSet(c.getAttribute('data-sk'),fechar); cntUpd(c); });
+    prColAllLbl();
+    if(!fechar){ var f=$('prForm'); if(f) f.scrollIntoView({block:'start'}); }
+  };
+  /* aplica tudo depois de qualquer remontagem do formulário */
+  var agendado=false;
+  function aplica(){ if(agendado) return; agendado=true; requestAnimationFrame(function(){ agendado=false; prepSub(); prepQueixas(); qLbl(); cntTodos(); prColAllLbl(); }); }
+  window.prSprint2Aplica=aplica;
+  function liga(){
+    var f=$('prForm'); if(!f) return;
+    new MutationObserver(aplica).observe(f,{childList:true,subtree:true});
+    var tm=null;
+    f.addEventListener('input',function(){ clearTimeout(tm); tm=setTimeout(cntTodos,350); });
+    f.addEventListener('change',function(){ clearTimeout(tm); tm=setTimeout(function(){cntTodos();qLbl();},350); });
+    f.addEventListener('click',function(e){
+      if(e.target.closest('#chips_pr_mc .anam-chip')) setTimeout(qLbl,0);
+      var h=e.target.closest('.an-colable>.an-h'); if(!h) return;
+      if(e.target.closest('button,a,input,select,textarea,label')) return;
+      subTog(h);
+    });
+    f.addEventListener('keydown',function(e){
+      if(e.key!=='Enter'&&e.key!==' ') return;
+      var h=e.target; if(!h.matches) return;
+      if(h.matches('.pr-sh')){ e.preventDefault(); prSecTog(h); }
+      else if(h.matches('.an-colable>.an-h')){ e.preventDefault(); subTog(h); }
+    });
+    /* campo recebendo foco por código dentro de seção recolhida: abre a seção */
+    f.addEventListener('focusin',function(e){ if(e.target.closest('.pr-col')&&!e.target.closest('.pr-sh,.an-h')) window.prReveal(e.target); });
+    aplica();
+  }
+  /* depois de carregar um registro salvo, recalcula contadores e o rótulo das queixas */
+  var _set=window.setPrD;
+  if(typeof _set==='function'){ window.setPrD=function(){ var r=_set.apply(this,arguments); setTimeout(function(){ cntTodos(); qLbl(); },0); return r; }; }
+  /* cabeçalho fixo: compacta ao rolar e informa a altura para a faixa de segurança */
+  function stuck(){
+    var ph=document.querySelector('#p-o-pront>.ph'); if(!ph || !ph.offsetParent) return;
+    var on=window.scrollY>40; if(ph.classList.contains('ph-stuck')!==on) ph.classList.toggle('ph-stuck',on);
+    var hh=Math.round(ph.getBoundingClientRect().height)+'px';
+    if(document.documentElement.style.getPropertyValue('--pr-ph-h')!==hh) document.documentElement.style.setProperty('--pr-ph-h',hh);
+  }
+  var sr=false; window.addEventListener('scroll',function(){ if(sr) return; sr=true; requestAnimationFrame(function(){ sr=false; stuck(); }); },{passive:true});
+  window.addEventListener('resize',stuck);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',liga); else liga();
+})();
+</script>
 </body></html>
