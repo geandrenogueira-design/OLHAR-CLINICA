@@ -827,6 +827,85 @@ var AN_ALG_NEG='Nega alergias';
 var AN_CIR=['Facectomia (catarata)','Cirurgia refrativa (LASIK / PRK / SMILE)','Exérese de pterígio','Cirurgia de estrabismo','Cirurgia antiglaucomatosa','Vitrectomia / cirurgia de retina','Crosslinking (CXL)','Anel intraestromal','Transplante de córnea','Lente fácica (ICL)','Injeção intravítrea','Laser (fotocoagulação, iridotomia ou capsulotomia YAG)','Outro procedimento'];
 var AN_MED_SUGEST=['Hidroxicloroquina','Cloroquina','Prednisona','Prednisolona','Dexametasona','Budesonida (inalatória/nasal)','Tansulosina','Topiramato','Amitriptilina','Fluoxetina','Sertralina','Escitalopram','Paroxetina','Venlafaxina','Oxibutinina','Loratadina','Desloratadina','Dexclorfeniramina','Isotretinoína','Amiodarona','Etambutol','Tamoxifeno','Sildenafila','Tadalafila','Varfarina','Rivaroxabana','Apixabana','AAS','Clopidogrel','Metilfenidato','Lisdexanfetamina','Latanoprosta (colírio)','Timolol (colírio)','Brimonidina (colírio)','Dorzolamida (colírio)','Losartana','Enalapril','Anlodipino','Hidroclorotiazida','Metformina','Insulina','Levotiroxina','Sinvastatina','Atorvastatina','Omeprazol','Risperidona','Ácido valproico','Carbamazepina'];
 function anEsc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+/* Ano escolar — organização da educação básica brasileira (LDB 9.394/1996; EF de 9 anos, Lei 11.274/2006).
+   idade = idade completa até 31 de março do ano letivo (Resolução CNE/CEB nº 2/2018). */
+var AN_ANO_ESC=[
+  {g:'Educação Infantil',it:[
+    {v:'Creche (0 a 3 anos)',l:'Creche · 0 a 3 anos'},
+    {v:'Pré-escola – 4 anos',l:'Pré-escola · 4 anos (Infantil 4 / Grupo 4)',i:4},
+    {v:'Pré-escola – 5 anos',l:'Pré-escola · 5 anos (Infantil 5 / Grupo 5)',i:5}]},
+  {g:'Ensino Fundamental — anos iniciais',it:[
+    {v:'1º ano do Ensino Fundamental',l:'1º ano · 6 anos',i:6},
+    {v:'2º ano do Ensino Fundamental',l:'2º ano · 7 anos',i:7},
+    {v:'3º ano do Ensino Fundamental',l:'3º ano · 8 anos',i:8},
+    {v:'4º ano do Ensino Fundamental',l:'4º ano · 9 anos',i:9},
+    {v:'5º ano do Ensino Fundamental',l:'5º ano · 10 anos',i:10}]},
+  {g:'Ensino Fundamental — anos finais',it:[
+    {v:'6º ano do Ensino Fundamental',l:'6º ano · 11 anos',i:11},
+    {v:'7º ano do Ensino Fundamental',l:'7º ano · 12 anos',i:12},
+    {v:'8º ano do Ensino Fundamental',l:'8º ano · 13 anos',i:13},
+    {v:'9º ano do Ensino Fundamental',l:'9º ano · 14 anos',i:14}]},
+  {g:'Ensino Médio',it:[
+    {v:'1ª série do Ensino Médio',l:'1ª série · 15 anos',i:15},
+    {v:'2ª série do Ensino Médio',l:'2ª série · 16 anos',i:16},
+    {v:'3ª série do Ensino Médio',l:'3ª série · 17 anos',i:17},
+    {v:'4ª série do Ensino Médio (técnico integrado)',l:'4ª série · técnico integrado'}]},
+  {g:'Outras situações',it:[
+    {v:'EJA – Ensino Fundamental',l:'EJA · Ensino Fundamental'},
+    {v:'EJA – Ensino Médio',l:'EJA · Ensino Médio'},
+    {v:'Curso técnico / profissionalizante',l:'Curso técnico / profissionalizante'},
+    {v:'Ensino superior',l:'Ensino superior'},
+    {v:'Não frequenta a escola',l:'Não frequenta a escola'}]}
+];
+function anAnoOpts(){
+  return '<option value="">—</option>'+AN_ANO_ESC.map(function(gr){
+    return '<optgroup label="'+anEsc(gr.g)+'">'+gr.it.map(function(x){return '<option value="'+anEsc(x.v)+'">'+anEsc(x.l)+'</option>'}).join('')+'</optgroup>';
+  }).join('');
+}
+function anAnoIdadeEsperada(v){var r=null;AN_ANO_ESC.forEach(function(g){g.it.forEach(function(x){if(x.v===v&&x.i!=null)r=x.i})});return r}
+/* registros antigos tinham texto livre ("3º ano", "3 ano", "1º ano médio"…): tenta casar com a lista; senão mantém o texto */
+function anAnoNormaliza(t){
+  var s=String(t||'').trim(); if(!s) return '';
+  var todos=[];AN_ANO_ESC.forEach(function(g){g.it.forEach(function(x){todos.push(x.v)})});
+  if(todos.indexOf(s)!==-1) return s;
+  var n=s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  var m=n.match(/^(\d)\s*(?:[º°ª]|o\b|a\b)?\.?\s*(ano|serie)?\s*(.*)$/);
+  if(m){
+    var k=+m[1], resto=m[3]||'', ehMedio=/medio|\bem\b/.test(resto);
+    if(m[2]==='serie'&&!ehMedio) return s; /* "3ª série" antiga do fundamental de 8 anos é ambígua: mantém o texto */
+    if(ehMedio&&k>=1&&k<=3) return k+'ª série do Ensino Médio';
+    if(!ehMedio&&k>=1&&k<=9&&(m[2]==='ano'||/fund|\bef\b|^$/.test(resto))) return k+'º ano do Ensino Fundamental';
+  }
+  return s;
+}
+function anAnoSet(val){
+  var el=document.getElementById('an_in_ano'); if(!el) return;
+  var v=anAnoNormaliza(val);
+  if(v&&el.tagName==='SELECT'&&!Array.prototype.some.call(el.options,function(o){return o.value===v})){
+    var o=document.createElement('option'); o.value=v; o.textContent=v+' (registro anterior)'; el.appendChild(o);
+  }
+  el.value=v; anAnoHint();
+}
+/* mostra a idade esperada e sinaliza distorção idade-série (critério INEP: 2 anos ou mais acima da idade esperada) */
+function anAnoHint(){
+  var h=document.getElementById('anAnoHint'), el=document.getElementById('an_in_ano'); if(!h||!el) return;
+  var esp=anAnoIdadeEsperada(el.value); h.className='an-ano-hint'; h.textContent='';
+  if(esp==null) return;
+  var dn=(document.getElementById('pr_dn')||{}).value, dt=(document.getElementById('prDt')||{}).value;
+  var txt='Idade esperada: '+esp+' anos.';
+  if(dn){
+    var b=new Date(dn+'T12:00:00'), ano=(dt?new Date(dt+'T12:00:00'):new Date()).getFullYear(), corte=new Date(ano,2,31,12);
+    if(!isNaN(b)){
+      var id=corte.getFullYear()-b.getFullYear(); if(corte.getMonth()<b.getMonth()||(corte.getMonth()===b.getMonth()&&corte.getDate()<b.getDate())) id--;
+      var dif=id-esp;
+      if(dif>=2){ txt+=' Paciente: '+id+' em 31/03 · distorção idade-série ('+dif+' anos acima, critério INEP).'; h.className='an-ano-hint an-ano-alerta'; }
+      else if(dif<=-1){ txt+=' Paciente: '+id+' em 31/03 · abaixo do esperado.'; }
+      else if(dif===1) txt+=' Paciente: '+id+' em 31/03 · 1 ano acima, sem distorção.';
+      else txt+=' Paciente: '+id+' em 31/03 · dentro do esperado.';
+    }
+  }
+  h.textContent=txt;
+}
 function anOpts(arr,ph){return '<option value="">'+(ph||'—')+'</option>'+arr.map(function(x){return '<option value="'+anEsc(x)+'">'+anEsc(x)+'</option>'}).join('')}
 function anTgs(fid,arr,neg){
   return '<div class="an-tgs" data-f="'+fid+'">'+arr.map(function(q){
@@ -1063,7 +1142,7 @@ function anBlocoInfantil(){
     '</div>'+
     '<div class="an-lbl">Escola</div>'+
     '<div class="fr fr4">'+
-      '<div class="fg"><label>Ano escolar</label><input id="an_in_ano" autocomplete="off" placeholder="ex.: 3º ano"></div>'+
+      '<div class="fg"><label>Ano escolar</label><select id="an_in_ano" onchange="anAnoHint()">'+anAnoOpts()+'</select><div class="an-ano-hint" id="anAnoHint"></div></div>'+
       '<div class="fg"><label>Desempenho</label><select id="an_in_des">'+anOpts(['Ótimo','Bom','Regular','Ruim','Péssimo'])+'</select></div>'+
       '<div class="fg"><label>Repetência</label><select id="an_in_rep">'+anOpts(['Nunca repetiu','Repetiu 1 ano','Repetiu mais de 1 ano'])+'</select></div>'+
       '<div class="fg"><label>Apoio escolar</label><input id="an_in_apoio" autocomplete="off" placeholder="reforço, ledor, prova adaptada"></div>'+
@@ -5046,7 +5125,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v43 · IndexedDB';
+    var BUILD='Olhar v44 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -7717,7 +7796,7 @@ window.openBackupsPanel=function(){
     if((v=V('an_in_fal'))) m.push(v==='Na época esperada'?'fala na época esperada':v==='Atraso de fala'?'atraso de fala':'marco da fala não informado');
     if(m.length) p.push('Desenvolvimento: '+m.join(', ')+'.');
     var e=[];
-    if((v=V('an_in_ano'))) e.push(v);
+    if((v=V('an_in_ano'))) e.push(v==='Não frequenta a escola'?'não frequenta a escola':v);
     if((v=V('an_in_des'))) e.push('desempenho '+lf(v));
     if((v=V('an_in_rep'))) e.push(lf(v));
     if((v=V('an_in_apoio'))) e.push('apoio: '+lf(v.replace(/\.$/,'')));
@@ -8036,6 +8115,22 @@ html.conforto .vbtn.lit-rec{font-size:13.5px!important}
   /* o botão é recriado quando o formulário é remontado */
   function liga(){ var f=$('prForm'); if(!f) return; new MutationObserver(function(){ if($('litRecBtn')&&!$('litRecBtn').dataset.ok){ $('litRecBtn').dataset.ok='1'; if(st) para(); ui(); } }).observe(f,{childList:true,subtree:true}); ui(); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',liga); else liga();
+})();
+</script>
+<style id="ano-escolar">
+.an-ano-hint{font-size:12px;color:var(--tx3);margin-top:5px;line-height:1.4}
+html.conforto .an-ano-hint{font-size:13px}
+.an-ano-hint:empty{display:none}
+.an-ano-hint.an-ano-alerta{color:var(--o);font-weight:600}
+@media print{.an-ano-hint{display:none!important}}
+</style>
+<script id="ano-escolar-js">
+(function(){
+  /* ao abrir um registro: casa texto antigo com a lista, sem perder o valor */
+  var _set=window.setPrD;
+  if(typeof _set==='function'){ window.setPrD=function(d){ var r=_set.apply(this,arguments); try{ if(d&&d.an_in_ano!==undefined) anAnoSet(d.an_in_ano); else anAnoHint(); }catch(e){} return r; }; }
+  document.addEventListener('change',function(e){ var id=e.target&&e.target.id; if(id==='pr_dn'||id==='prDt') try{anAnoHint()}catch(x){} });
+  document.addEventListener('input',function(e){ if(e.target&&e.target.id==='pr_dn') try{anAnoHint()}catch(x){} });
 })();
 </script>
 </body></html>
