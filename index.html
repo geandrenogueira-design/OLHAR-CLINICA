@@ -934,7 +934,7 @@ function anBlocoContexto(){
       '<div class="fg"><label>Encaminhado por</label><select id="an_mc_enc">'+anOpts(AN_ENC)+'</select></div>'+
       '<div class="fg"><label>Expectativa da consulta</label><input id="an_mc_exp" autocomplete="off" placeholder="ex.: voltar a ler sem dor de cabeça"></div>'+
     '</div>'+
-    '<div class="fg"><label>Fala literal do paciente / informante</label><input id="an_mc_lit" autocomplete="off" placeholder="Registre as palavras exatas, sem interpretar"></div>'+
+    '<div class="fg"><label>Fala literal do paciente / informante <button type="button" class="vbtn lit-rec" id="litRecBtn" onclick="litRecTog()" aria-pressed="false"><span class="vdot"></span><span id="litRecTx"><i class="ph-bold ph-microphone"></i> Gravar e transcrever</span></button></label><textarea id="an_mc_lit" rows="2" autocomplete="off" placeholder="Toque em Gravar e deixe o paciente falar. O texto entra aqui, palavra por palavra"></textarea><div class="lit-live" id="litLive" aria-live="polite"></div></div>'+
   '</div>';
 }
 function anBlocoHda(){
@@ -5046,7 +5046,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v41 · IndexedDB';
+    var BUILD='Olhar v42 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -7328,7 +7328,7 @@ window.openBackupsPanel=function(){
   function txtMc(){
     var p=[], rel=V('an_mc_rel'), lit=V('an_mc_lit'), enc=V('an_mc_enc'), exp=V('an_mc_exp');
     if(rel&&rel!=='Próprio paciente') p.push('Informante: '+lf(rel)+'.');
-    if(lit) p.push('Nas palavras '+(rel&&rel!=='Próprio paciente'?'do informante':'do paciente')+': "'+lit.replace(/^["“]|["”]$/g,'')+'".');
+    if(lit) p.push('Nas palavras '+(rel&&rel!=='Próprio paciente'?'do informante':'do paciente')+': "'+lit.replace(/\s*\n+\s*/g,' ').replace(/^["“]|["”]$/g,'')+'".');
     if(enc) p.push(enc==='Procura espontânea'?'Procura espontânea.':'Encaminhado por: '+lf(enc)+'.');
     if(exp) p.push('Expectativa da consulta: '+lf(ponto(exp)));
     return p.join(' ');
@@ -7931,6 +7931,110 @@ html.conforto .od-tog{font-size:14px}
   }
   var sr=false; window.addEventListener('scroll',function(){ if(sr) return; sr=true; requestAnimationFrame(function(){ sr=false; stuck(); }); },{passive:true});
   window.addEventListener('resize',stuck);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',liga); else liga();
+})();
+</script>
+<style id="fala-literal-rec">
+/* ===== Fala literal: gravação com transcrição (v42) ===== */
+#an_mc_lit{min-height:64px;resize:vertical;line-height:1.5}
+.vbtn.lit-rec{padding:5px 14px;font-size:12.5px}
+html.conforto .vbtn.lit-rec{font-size:13.5px!important}
+.vbtn.lit-rec[disabled]{opacity:.5;cursor:not-allowed;animation:none}
+.lit-live{display:none;margin-top:6px;padding:8px 12px;border-radius:10px;background:var(--bg4);color:var(--tx2);font-size:14px;line-height:1.45;font-style:italic}
+.lit-live.on{display:block}
+.lit-live .lit-st{font-style:normal;font-weight:600;color:var(--red);margin-right:6px}
+.lit-live .lit-msg{font-style:normal;color:var(--tx3)}
+@media print{.lit-live,.vbtn.lit-rec{display:none!important}}
+</style>
+<script id="fala-literal-rec-js">
+(function(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var LIMITE=5*60*1000;           /* para sozinho depois de 5 minutos */
+  var st=null;                    /* sessão ativa */
+  function $(id){return document.getElementById(id)}
+  function mmss(ms){var t=Math.floor(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')}
+  function campo(){return $('an_mc_lit')}
+  function junta(base,add){
+    add=(add||'').replace(/\s+/g,' ').trim(); if(!add) return base;
+    if(!base) return add;
+    return /\s$/.test(base)?base+add:base+' '+add;
+  }
+  function avisa(el){ try{ el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} }
+  function ui(){
+    var b=$('litRecBtn'), tx=$('litRecTx'), lv=$('litLive'); if(!b||!tx) return;
+    if(!SR){ b.disabled=true; b.title='Este navegador não transcreve voz. Use Safari (iPad) ou Chrome.'; return; }
+    var on=!!st;
+    b.classList.toggle('vrec',on); b.setAttribute('aria-pressed',on?'true':'false');
+    tx.innerHTML=on?'<i class="ph-bold ph-stop-circle"></i> Parar · '+mmss(Date.now()-st.t0):'<i class="ph-bold ph-microphone"></i> Gravar e transcrever';
+    if(lv){
+      if(on){
+        lv.classList.add('on');
+        lv.innerHTML='<span class="lit-st">● ouvindo</span>'+(st.interim?anEscL(st.interim):'<span class="lit-msg">fale normalmente; o texto entra no campo ao fim de cada frase</span>');
+      } else if(lv.dataset.msg){ lv.classList.add('on'); lv.innerHTML='<span class="lit-msg">'+lv.dataset.msg+'</span>'; }
+      else { lv.classList.remove('on'); lv.innerHTML=''; }
+    }
+  }
+  function anEscL(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function msg(t){ var lv=$('litLive'); if(!lv) return; if(t) lv.dataset.msg=t; else delete lv.dataset.msg; ui(); }
+  function grava(texto){
+    var el=campo(); if(!el) return;
+    var v=junta(el.value,texto); if(v!==el.value){ el.value=v; avisa(el); }
+  }
+  function abre(){
+    var r=new SR(); r.lang='pt-BR'; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
+    r.onresult=function(e){
+      if(!st||st.r!==r) return;
+      var im='';
+      for(var i=e.resultIndex;i<e.results.length;i++){
+        var res=e.results[i], t=res[0].transcript;
+        if(res.isFinal){ if(i>=st.feitos){ grava(t); st.feitos=i+1; } }
+        else im+=t;
+      }
+      st.interim=im.trim(); ui();
+    };
+    r.onerror=function(e){
+      if(!st||st.r!==r) return;
+      if(e.error==='not-allowed'||e.error==='service-not-allowed'){ para('Microfone bloqueado. Libere o microfone para este site nas configurações do navegador.'); }
+      else if(e.error==='network'){ para('Sem internet: a transcrição do navegador precisa de conexão.'); }
+      else if(e.error==='audio-capture'){ para('Nenhum microfone encontrado.'); }
+      /* 'no-speech' e 'aborted': deixa o onend reabrir */
+    };
+    r.onend=function(){
+      if(!st||st.r!==r) return;
+      if(st.interim){ grava(st.interim); st.interim=''; }   /* não perde a última frase */
+      if(Date.now()-st.t0>=LIMITE){ para('Gravação encerrada após 5 minutos. Toque de novo para continuar.'); return; }
+      st.reab++;
+      if(st.reab>40){ para('A transcrição parou de responder. Toque de novo para continuar.'); return; }
+      setTimeout(function(){ if(st&&st.r===r){ st.feitos=0; st.r=abre(); } },250);   /* Safari e Chrome param no silêncio: reabre */
+    };
+    try{ r.start(); }catch(e){ para('Não consegui iniciar o microfone. Tente de novo.'); return r; }
+    return r;
+  }
+  function inicia(){
+    if(!SR) return;
+    if(typeof window.stopVoice==='function') try{ window.stopVoice(); }catch(e){}
+    if(typeof window.prReveal==='function'&&campo()) window.prReveal(campo());
+    msg('');
+    st={t0:Date.now(),feitos:0,interim:'',reab:0,r:null};
+    st.tick=setInterval(function(){ if(st){ ui(); if(Date.now()-st.t0>=LIMITE+3000) para('Gravação encerrada após 5 minutos.'); } },1000);
+    st.r=abre(); ui();
+  }
+  function para(m){
+    if(!st) { if(m) msg(m); return; }
+    var s0=st; st=null; clearInterval(s0.tick);
+    if(s0.interim) grava(s0.interim);
+    try{ s0.r&&s0.r.stop(); }catch(e){}
+    var el=campo(); msg(m||((el&&el.value.trim())?'Transcrição concluída. Revise o texto: corrija só o que a máquina ouviu errado, sem interpretar.':''));
+  }
+  window.litRecTog=function(){ if(st) para(); else inicia(); };
+  window.litRecStop=function(){ if(st) para(); };
+  /* sai da tela, troca de paciente ou abre outro ditado: encerra */
+  document.addEventListener('visibilitychange',function(){ if(document.hidden&&st) para('Gravação encerrada porque o app saiu da tela.'); });
+  var _gp=window.gp; if(typeof _gp==='function'){ window.gp=function(){ if(st) para(); return _gp.apply(this,arguments); }; }
+  var _tv=window.toggleVoice; if(typeof _tv==='function'){ window.toggleVoice=function(){ if(st) para(); return _tv.apply(this,arguments); }; }
+  ['newPr','onPrPat','setPrD'].forEach(function(fn){ var o=window[fn]; if(typeof o==='function'){ window[fn]=function(){ if(st) para(); var lv=$('litLive'); if(lv) delete lv.dataset.msg; var r=o.apply(this,arguments); setTimeout(ui,0); return r; }; } });
+  /* o botão é recriado quando o formulário é remontado */
+  function liga(){ var f=$('prForm'); if(!f) return; new MutationObserver(function(){ if($('litRecBtn')&&!$('litRecBtn').dataset.ok){ $('litRecBtn').dataset.ok='1'; if(st) para(); ui(); } }).observe(f,{childList:true,subtree:true}); ui(); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',liga); else liga();
 })();
 </script>
