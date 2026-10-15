@@ -936,10 +936,7 @@ function anBlocoOptica(){
       '<div class="fg"><label>Tempo da correção atual</label><select id="an_cu_t">'+anOpts(['Menos de 1 ano','1 a 2 anos','Mais de 2 anos','Não sabe informar'])+'</select></div>'+
       '<div class="fg"><label>Regime de uso</label><select id="an_cu_r">'+anOpts(['Uso contínuo','Só para longe','Só para perto','Uso esporádico','Não usa a correção prescrita'])+'</select></div>'+
     '</div>'+
-    '<div class="fr fr2">'+
-      '<div class="fg"><label>Adaptação à correção atual</label><select id="an_cu_a">'+anOpts(['Boa','Regular','Ruim / não se adaptou'])+'</select></div>'+
-      '<div class="fg"><label>Queixas com a correção atual</label><input id="an_cu_q" autocomplete="off" placeholder="ex.: embaça de perto, incomoda nas escadas"></div>'+
-    '</div>'+
+    '<input type="hidden" id="an_cu_a"><input type="hidden" id="an_cu_q">'+ /* v45: campos retirados da tela; guardam o valor de registros antigos */
     '<div id="anLcBlk" class="an-sub">'+
       '<div class="an-lbl">Lentes de contato</div>'+
       '<div class="fr fr3">'+
@@ -5125,7 +5122,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v44 · IndexedDB';
+    var BUILD='Olhar v45 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -7424,9 +7421,8 @@ window.openBackupsPanel=function(){
       var s='Em uso de '+m, t=V('an_cu_t');
       if(t==='Não sabe informar') s+=' (tempo de uso não informado)'; else if(t) s+=' há '+lf(t);
       var r=V('an_cu_r'); if(r) s+=', '+lf(r);
-      var a=V('an_cu_a'); if(a) s+=', '+({'Boa':'com boa adaptação','Regular':'com adaptação regular','Ruim / não se adaptou':'com má adaptação'}[a]||lf(a));
+      /* v45: adaptação e queixas com a correção atual saíram da tela e do texto gerado */
       p.push(s+'.');
-      var q=V('an_cu_q'); if(q) p.push('Queixas com a correção atual: '+lf(ponto(q)));
     }
     var lc=[], v;
     if((v=V('an_lc_t'))) lc.push(lf(v));
