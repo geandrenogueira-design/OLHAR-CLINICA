@@ -54,3 +54,32 @@ window.CENAS_OLHAR = [
   { id:'optotipos', nome:'Tabela de optotipos',  sub:'6 m · 6° · desenhada',
     arquivo:null,                    fov:6,  dist:0,    pupila:4.0, reserva:'optotipos' }
 ];
+
+  /* --------------------------------------------------------------------------
+     CENAS EM VÍDEO — lista à parte (só o simulador de patologias lê)
+     video    clipe em cenas/ (mp4 H.264 sem áudio, em loop). `arquivo` é o
+              quadro de reserva enquanto o clipe carrega ou se ele faltar.
+     Estes clipes são MOVIMENTO DE CÂMERA sobre as fotos acima (avanço, varredura),
+     não filmagem real. Servem para ver a condição reagir ao deslocamento
+     (halos que crescem, borda que some, centro que falha). Para filmagem
+     real, use o botão "Carregar meu vídeo" ou troque o arquivo e mantenha o nome.
+     fov é nominal: no avanço, o enquadramento fecha ~15% ao longo do clipe.
+     -------------------------------------------------------------------------- */
+
+window.CENAS_VIDEO_OLHAR = [
+
+  { id:'avenida-video', nome:'Avenida · avançando',   sub:'vídeo · câmera avança · 65°',
+    arquivo:'avenida-dia.jpg',       video:'avenida-dia.mp4',       fov:65, dist:0,    pupila:3.4 },
+
+  { id:'noite-video',   nome:'Direção noturna · vídeo', sub:'vídeo · aproximação · halos e glare · 65°',
+    arquivo:'estrada-noite.jpg',     video:'estrada-noite.mp4',     fov:65, dist:0,    pupila:5.6, glare:true },
+
+  { id:'fachada-video', nome:'Fachada · aproximando', sub:'vídeo · letreiro · 48°',
+    arquivo:'fachada-comercial.jpg', video:'fachada-comercial.mp4', fov:48, dist:0,    pupila:3.4 },
+
+  { id:'cozinha-video', nome:'Cozinha · caminhando',  sub:'vídeo · varredura lateral · periferia · 60°',
+    arquivo:'cozinha-casa.jpg',      video:'cozinha-casa.mp4',      fov:60, dist:0,    pupila:3.6 },
+
+  { id:'mercado-video', nome:'Mercado · deslizando',  sub:'vídeo · prateleira · 60 cm',
+    arquivo:'supermercado.jpg',      video:'supermercado.mp4',      fov:40, dist:0.60, pupila:3.2 }
+];

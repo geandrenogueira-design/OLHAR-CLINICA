@@ -78,6 +78,10 @@
     font:inherit;font-size:12px;padding:8px;border-radius:7px;cursor:pointer;transition:.15s}
   .ghost:hover{color:var(--txt);border-color:var(--txt-2)}
 
+  .vbar{margin-top:8px}
+  .vbar[hidden]{display:none}
+  .vnote{font-size:10.5px;color:var(--txt-2);line-height:1.4;margin-top:8px}
+
   .stage{flex:1;position:relative;display:flex;flex-direction:column;min-width:0;background:#05080b}
   .stage-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel);flex:0 0 auto}
   .icon-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--txt-2);width:32px;height:32px;
@@ -156,6 +160,12 @@
       <div class="group">
         <h2>Cena</h2>
         <div class="list" id="scenes"></div>
+        <div class="vbar" id="vbar" hidden>
+          <button class="ghost" id="vplay" type="button">Pausar vídeo</button>
+        </div>
+        <button class="ghost" id="vload" type="button" style="margin-top:8px">Carregar meu vídeo…</button>
+        <input type="file" id="vfile" accept="video/*" hidden>
+        <p class="vnote" id="vnote"></p>
       </div>
 
       <div class="group">
@@ -479,6 +489,9 @@ const SCENES=[
   ...(window.CENAS_OLHAR||[])
      .filter(c=>c.arquivo)                       // optotipos não serve aqui
      .map(c=>({...c, img:null, estado:'carregando'})),
+  // cenas em vídeo: lista própria no manifesto, o módulo 01 e o index não a enxergam
+  ...(window.CENAS_VIDEO_OLHAR||[])
+     .map(c=>({...c, img:null, vid:null, estado:'carregando'})),
   {id:'amsler', nome:'Grade de Amsler', sub:'metamorfopsia e escotoma · desenhada',
    arquivo:null, reserva:'amsler', estado:'desenhada'}
 ];
@@ -498,28 +511,87 @@ function carregarImagens(){
       im.onerror=()=>tenta(i+1);
       im.src='cenas/'+cands[i];
     })(0);
+    if(c.video) carregarVideo(c);
   }
 }
 
-/* enquadramento "contain": a foto inteira sempre cabe, nada é cortado */
+/* ---------- vídeo ----------
+   O <video> nunca entra no DOM: o quadro atual é desenhado no canvas a cada
+   render, e o resto do pipeline (desfoque, máscaras, halos) não sabe a diferença. */
+function criarVideo(src){
+  const v=document.createElement('video');
+  v.muted=true; v.loop=true; v.playsInline=true; v.preload='auto';
+  v.setAttribute('muted',''); v.setAttribute('playsinline','');
+  v.addEventListener('playing',()=>{ syncLoop(); atualizarVideoUI(); });
+  v.addEventListener('pause',  ()=>{ syncLoop(); atualizarVideoUI(); });
+  v.src=src;
+  return v;
+}
+function carregarVideo(c){
+  const v=criarVideo('cenas/'+c.video);
+  v.addEventListener('loadeddata',()=>{
+    c.vid=v; c.estado='video'; buildScenes();
+    if(S.scene===c){ aplicarReproducao(); render(); }
+  });
+  v.addEventListener('error',()=>{ if(!c.vid){ c.videoFalhou=true; buildScenes(); } });
+}
+
+/* quadro de origem da cena: vídeo pronto > foto > nada (cena desenhada) */
+function fonte(sc){
+  if(sc.vid && sc.vid.readyState>=2 && sc.vid.videoWidth)
+    return {el:sc.vid, w:sc.vid.videoWidth, h:sc.vid.videoHeight};
+  if(sc.img) return {el:sc.img, w:sc.nw, h:sc.nh};
+  return null;
+}
+function tocando(){ const v=S.scene.vid; return !!(v && !v.paused && !v.ended); }
+
+/* só a cena em exibição toca; as outras ficam paradas (poupa CPU e bateria) */
+function aplicarReproducao(){
+  for(const c of SCENES) if(c.vid && c!==S.scene) c.vid.pause();
+  const v=S.scene.vid;
+  if(!v) { atualizarVideoUI(); return; }
+  if(S.videoPausado) v.pause();
+  else { const p=v.play();
+         if(p&&p.catch) p.catch(()=>{ S.videoPausado=true; atualizarVideoUI(); syncLoop(); render(); }); }
+  atualizarVideoUI();
+}
+function atualizarVideoUI(){
+  const temVid=!!S.scene.vid;
+  document.getElementById('vbar').hidden=!temVid;
+  const b=document.getElementById('vplay');
+  b.textContent = tocando() ? 'Pausar vídeo' : 'Reproduzir vídeo';
+  const n=document.getElementById('vnote');
+  n.textContent = S.scene.vid
+    ? (S.scene.upload
+        ? 'Seu vídeo, só neste aparelho. Enquadramento nominal de '+S.scene.fov+'°. Espaço pausa e retoma.'
+        : 'Movimento de câmera sobre a foto da cena, não filmagem real. Espaço pausa e retoma.')
+    : '';
+}
+function selecionarCena(c){
+  S.scene=c; S.videoPausado=false;
+  aplicarReproducao(); buildScenes(); refreshUI(); syncLoop(); render();
+}
+
+/* enquadramento "contain": o quadro inteiro sempre cabe, nada é cortado */
 function geo(sc){
-  if(!sc.img) return {ox:0, oy:0, w:W, h:H};
-  const k=Math.min(W/sc.nw, H/sc.nh), w=sc.nw*k, h=sc.nh*k;
+  const f=fonte(sc);
+  if(!f) return {ox:0, oy:0, w:W, h:H};
+  const k=Math.min(W/f.w, H/f.h), w=f.w*k, h=f.h*k;
   return {ox:(W-w)/2, oy:(H-h)/2, w, h};
 }
 
 function desenharCena(x){
-  const sc=S.scene;
+  const sc=S.scene, f=fonte(sc);
   clearX(x); LUZES.length=0;
-  if(sc.img){
+  if(f){
     const {ox,oy,w,h}=geo(sc);
     if(ox>1||oy>1){                       // leito borrado no lugar de tarja preta
-      const kc=Math.max(W/sc.nw,H/sc.nh), cw=sc.nw*kc, ch=sc.nh*kc;
+      const kc=Math.max(W/f.w,H/f.h), cw=f.w*kc, ch=f.h*kc;
       x.save(); if(supportsFilter) x.filter=`blur(${20*K}px)`;
-      x.drawImage(sc.img,(W-cw)/2,(H-ch)/2,cw,ch); x.restore();
+      x.drawImage(f.el,(W-cw)/2,(H-ch)/2,cw,ch); x.restore();
       x.fillStyle='rgba(5,8,11,.58)'; x.fillRect(0,0,W,H);
     }
-    x.drawImage(sc.img,ox,oy,w,h);
+    x.drawImage(f.el,ox,oy,w,h);
   } else {
     (RESERVAS[sc.reserva]||cenaRua)(x);
   }
@@ -1111,7 +1183,7 @@ function fundus(w,h,healthy){
 /* ==========================================================================
    ESTADO · RENDER · UI
    ========================================================================== */
-const S={ scene:SCENES[0], patho:PATHOS[0], sev:0.55, mode:'split', split:0.5, fill:true, cap:true, anim:true };
+const S={ scene:SCENES[0], patho:PATHOS[0], sev:0.55, mode:'split', split:0.5, fill:true, cap:true, anim:true, videoPausado:false };
 let t0=performance.now(), raf=null;
 
 function layout(){
@@ -1172,7 +1244,9 @@ function render(){
 
 function loop(){ render(); raf=requestAnimationFrame(loop); }
 function syncLoop(){
-  const precisa = S.anim && S.patho.anim && S.sev>0.02 && S.mode!=='retina';
+  // o laço roda se a condição anima OU se a cena é um vídeo em reprodução
+  const precisa = S.mode!=='retina' &&
+                  ((S.anim && S.patho.anim && S.sev>0.02) || tocando());
   if(precisa && !raf){ raf=requestAnimationFrame(loop); }
   if(!precisa && raf){ cancelAnimationFrame(raf); raf=null; render(); }
 }
@@ -1196,10 +1270,12 @@ function buildScenes(){
   for(const s of SCENES){
     const b=document.createElement('button');
     b.className='item'+(s===S.scene?' on':'');
-    const res=s.arquivo && s.estado!=='foto';
-    b.innerHTML=`<span class="dot${res?' res':''}"></span><span><b>${s.nome}</b><small>${
-      s.estado==='ausente'?'foto ausente — usando reserva':s.sub}</small></span>`;
-    b.onclick=()=>{ S.scene=s; buildScenes(); refreshUI(); syncLoop(); render(); };
+    const res=s.arquivo && s.estado!=='foto' && s.estado!=='video';
+    const aviso=s.estado==='ausente' ? 'foto ausente — usando reserva'
+               : s.videoFalhou      ? 'vídeo ausente — usando o quadro'
+               : s.sub;
+    b.innerHTML=`<span class="dot${res?' res':''}"></span><span><b>${s.nome}</b><small>${aviso}</small></span>`;
+    b.onclick=()=>selecionarCena(s);
     el.appendChild(b);
   }
 }
@@ -1245,6 +1321,36 @@ for(const [id,key] of [['fill','fill'],['cap','cap'],['anim','anim']]){
   el.addEventListener('change',()=>{ S[key]=el.checked; refreshUI(); syncLoop(); render(); });
 }
 
+function alternarVideo(){
+  const v=S.scene.vid; if(!v) return;
+  S.videoPausado = tocando();          // tocando -> pausa; parado -> retoma
+  aplicarReproducao(); syncLoop(); render();
+}
+document.getElementById('vplay').addEventListener('click',alternarVideo);
+
+/* vídeo do próprio paciente/clínica: fica só no aparelho (blob), nada é enviado */
+document.getElementById('vload').addEventListener('click',()=>document.getElementById('vfile').click());
+document.getElementById('vfile').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0]; e.target.value='';
+  if(!f) return;
+  if(!/^video\//.test(f.type)){ document.getElementById('vnote').textContent='Esse arquivo não é um vídeo.'; return; }
+  const antigo=SCENES.find(c=>c.upload);
+  const url=URL.createObjectURL(f);
+  const c={id:'meu-video', nome:'Meu vídeo', sub:f.name+' · 60° nominal', arquivo:null, upload:true,
+           fov:60, dist:0, pupila:3.4, img:null, vid:null, estado:'carregando'};
+  const v=criarVideo(url);
+  v.addEventListener('loadeddata',()=>{
+    c.vid=v; c.estado='video';
+    if(antigo){ SCENES.splice(SCENES.indexOf(antigo),1); if(antigo.vid) antigo.vid.removeAttribute('src'); }
+    SCENES.splice(SCENES.findIndex(x=>x.id==='amsler'),0,c);
+    selecionarCena(c);
+  });
+  v.addEventListener('error',()=>{
+    URL.revokeObjectURL(url);
+    document.getElementById('vnote').textContent='O navegador não conseguiu abrir esse vídeo. Prefira MP4 (H.264) ou WebM.';
+  });
+});
+
 document.getElementById('toggleRail').onclick=()=>{
   document.getElementById('rail').classList.toggle('hidden'); setTimeout(layout,300);
 };
@@ -1263,6 +1369,7 @@ addEventListener('keydown',e=>{
   if(k==='1') document.querySelector('[data-mode="patho"]').click();
   if(k==='2') document.querySelector('[data-mode="normal"]').click();
   if(k==='h') document.getElementById('toggleRail').click();
+  if(e.key===' ' && S.scene.vid){ e.preventDefault(); if(document.activeElement) document.activeElement.blur(); alternarVideo(); }
   if(k==='r') setMode('retina');
   if(k==='v') setMode('ambos');
   const pl=[...document.querySelectorAll('#pathos .item')], i=PATHOS.indexOf(S.patho);
@@ -1281,7 +1388,7 @@ addEventListener('keydown',e=>{
    ========================================================================== */
 function aplicarPatologia(d){
   if(d.patologia){ const p=PATHOS.find(x=>x.id===d.patologia); if(p) S.patho=p; }
-  if(d.cena){ const c=SCENES.find(x=>x.id===d.cena); if(c) S.scene=c; }
+  if(d.cena){ const c=SCENES.find(x=>x.id===d.cena); if(c){ S.scene=c; S.videoPausado=false; aplicarReproducao(); } }
   if(d.sev!=null){ const s=Math.min(100,Math.max(0,parseFloat(d.sev)||0));
                    S.sev=s/100; document.getElementById('sev').value=s;
                    document.querySelectorAll('#presets button').forEach(b=>b.classList.remove('on')); }
@@ -1298,7 +1405,7 @@ addEventListener('message',e=>{
   if(e.data && e.data.tipo==='olhar:patologia') aplicarPatologia(e.data);
 });
 addEventListener('resize',layout);
-refreshUI(); buildScenes(); carregarImagens(); layout(); syncLoop();
+refreshUI(); buildScenes(); carregarImagens(); atualizarVideoUI(); layout(); syncLoop();
 
 const q=new URLSearchParams(location.search);
 if([...q.keys()].length) aplicarPatologia({nome:q.get('nome'), patologia:q.get('patologia'),

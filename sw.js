@@ -12,7 +12,7 @@
    - o fetch é criado do zero com redirect:"follow";
    - nunca devolve index.html no lugar de um simulador.
    ============================================================ */
-var VERSION = 'olhar-v29';
+var VERSION = 'olhar-v30';
 var CACHE = 'olhar-cache-' + VERSION;
 
 var PRECACHE = [
@@ -177,6 +177,10 @@ self.addEventListener('fetch', function (event) {
     );
     return;
   }
+
+  // Vídeo (cenas em movimento): deixa passar direto. O <video> pede Range (206),
+  // que cache.put não aceita, e clipes de MB não devem entrar no pré-cache.
+  if (sameOrigin && (/\.(mp4|webm|mov)$/i.test(url.pathname) || request.headers.has('range'))) return;
 
   var isNavigation = request.mode === 'navigate' ||
     (request.headers.get('accept') || '').indexOf('text/html') !== -1;
