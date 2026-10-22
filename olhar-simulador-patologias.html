@@ -78,6 +78,10 @@
     font:inherit;font-size:12px;padding:8px;border-radius:7px;cursor:pointer;transition:.15s}
   .ghost:hover{color:var(--txt);border-color:var(--txt-2)}
 
+  .vhint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;border:0;cursor:pointer;
+    background:rgba(5,8,11,.78);color:#fff;font:600 15px/1 inherit;padding:14px 22px;border-radius:30px;
+    border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px)}
+  .vhint[hidden]{display:none}
   .vbar{margin-top:8px}
   .vbar[hidden]{display:none}
   .vnote{font-size:10.5px;color:var(--txt-2);line-height:1.4;margin-top:8px}
@@ -211,6 +215,7 @@
       <div class="tag l" id="tagL" style="left:14px">COM A CONDIÇÃO</div>
       <div class="tag r" id="tagR" style="right:14px">VISÃO PRESERVADA</div>
       <div class="handle" id="handle"></div>
+      <button class="vhint" id="vhint" type="button" hidden>▶ Toque para reproduzir</button>
       <div class="caption" id="caption"><b></b><span></span></div>
     </div>
 
@@ -524,16 +529,20 @@ function criarVideo(src){
   v.setAttribute('muted',''); v.setAttribute('playsinline','');
   v.addEventListener('playing',()=>{ syncLoop(); atualizarVideoUI(); });
   v.addEventListener('pause',  ()=>{ syncLoop(); atualizarVideoUI(); });
+  // iOS: vídeo solto fora do DOM pode não decodificar. 1px, quase transparente, sem toque.
+  v.style.cssText='position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none;z-index:-1';
+  document.body.appendChild(v);
   v.src=src;
   return v;
 }
 function carregarVideo(c){
+  // O Safari do iPhone não carrega o vídeo antes de um toque: por isso a cena
+  // já nasce com o <video>, e o primeiro quadro entra quando o navegador liberar.
   const v=criarVideo('cenas/'+c.video);
-  v.addEventListener('loadeddata',()=>{
-    c.vid=v; c.estado='video'; buildScenes();
-    if(S.scene===c){ aplicarReproducao(); render(); }
-  });
-  v.addEventListener('error',()=>{ if(!c.vid){ c.videoFalhou=true; buildScenes(); } });
+  c.vid=v; c.estado='video';
+  v.addEventListener('loadeddata',()=>{ if(S.scene===c) render(); });
+  v.addEventListener('error',()=>{ c.vid=null; c.videoFalhou=true; v.remove(); buildScenes();
+                                   if(S.scene===c){ atualizarVideoUI(); render(); } });
 }
 
 /* quadro de origem da cena: vídeo pronto > foto > nada (cena desenhada) */
@@ -552,7 +561,7 @@ function aplicarReproducao(){
   if(!v) { atualizarVideoUI(); return; }
   if(S.videoPausado) v.pause();
   else { const p=v.play();
-         if(p&&p.catch) p.catch(()=>{ S.videoPausado=true; atualizarVideoUI(); syncLoop(); render(); }); }
+         if(p&&p.catch) p.catch(()=>{ S.bloqueado=true; atualizarVideoUI(); syncLoop(); render(); }); }
   atualizarVideoUI();
 }
 function atualizarVideoUI(){
@@ -560,6 +569,8 @@ function atualizarVideoUI(){
   document.getElementById('vbar').hidden=!temVid;
   const b=document.getElementById('vplay');
   b.textContent = tocando() ? 'Pausar vídeo' : 'Reproduzir vídeo';
+  const dica=document.getElementById('vhint');
+  dica.hidden = !(temVid && S.bloqueado && !S.videoPausado && !tocando());
   const n=document.getElementById('vnote');
   n.textContent = S.scene.vid
     ? (S.scene.upload
@@ -568,7 +579,7 @@ function atualizarVideoUI(){
     : '';
 }
 function selecionarCena(c){
-  S.scene=c; S.videoPausado=false;
+  S.scene=c; S.videoPausado=false; S.bloqueado=false;
   aplicarReproducao(); buildScenes(); refreshUI(); syncLoop(); render();
 }
 
@@ -1183,7 +1194,7 @@ function fundus(w,h,healthy){
 /* ==========================================================================
    ESTADO · RENDER · UI
    ========================================================================== */
-const S={ scene:SCENES[0], patho:PATHOS[0], sev:0.55, mode:'split', split:0.5, fill:true, cap:true, anim:true, videoPausado:false };
+const S={ scene:SCENES[0], patho:PATHOS[0], sev:0.55, mode:'split', split:0.5, fill:true, cap:true, anim:true, videoPausado:false, bloqueado:false };
 let t0=performance.now(), raf=null;
 
 function layout(){
@@ -1323,10 +1334,17 @@ for(const [id,key] of [['fill','fill'],['cap','cap'],['anim','anim']]){
 
 function alternarVideo(){
   const v=S.scene.vid; if(!v) return;
+  S.bloqueado=false;
   S.videoPausado = tocando();          // tocando -> pausa; parado -> retoma
   aplicarReproducao(); syncLoop(); render();
 }
 document.getElementById('vplay').addEventListener('click',alternarVideo);
+function liberarPorToque(){
+  if(S.scene.vid && !S.videoPausado && !tocando()){ S.bloqueado=false; aplicarReproducao(); }
+}
+document.addEventListener('pointerdown',liberarPorToque,{passive:true});
+document.addEventListener('touchend',liberarPorToque,{passive:true});
+document.getElementById('vhint').addEventListener('click',liberarPorToque);
 
 /* vídeo do próprio paciente/clínica: fica só no aparelho (blob), nada é enviado */
 document.getElementById('vload').addEventListener('click',()=>document.getElementById('vfile').click());
