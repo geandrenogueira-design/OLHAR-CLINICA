@@ -1789,6 +1789,7 @@ const DOC_TYPES=[
 {id:'enc',icon:'<i class="ph-bold ph-paper-plane-tilt"></i>',title:'Encaminhamento',desc:'Encaminhamento para avaliação oftalmológica'},
 {id:'atst',icon:'<i class="ph-bold ph-certificate"></i>',title:'Atestado de Comparecimento',desc:'Atestado de presença na clínica'},
 {id:'lc',icon:'<i class="ph-bold ph-eye"></i>',title:'Lentes de Contato',desc:'Receita de lentes de contato com ceratometria'},
+{id:'olh',icon:'<i class="ph-bold ph-eye"></i>',title:'Teste do Olhinho',desc:'Registro do teste do reflexo vermelho (triagem neonatal e infantil)'},
 {id:'livre',icon:'<i class="ph-bold ph-note-blank"></i>',title:'Documento Livre',desc:'Papel timbrado em branco para uso livre'}
 ];
 let curDocType=null;
@@ -1889,6 +1890,25 @@ c.innerHTML='<div class="st">Refração</div>'+
 '<tr><td class="ec">OD</td><td><input id="dlc_fe_od"></td><td><input id="dlc_fc_od"></td><td><input id="dlc_fx_od"></td><td><input id="dlc_fa_od"></td></tr>'+
 '<tr><td class="ec">OE</td><td><input id="dlc_fe_oe"></td><td><input id="dlc_fc_oe"></td><td><input id="dlc_fx_oe"></td><td><input id="dlc_fa_oe"></td></tr>'+
 '</tbody></table>';
+}else if(t==='olh'){
+const opt=(id,arr)=>'<select id="'+id+'"><option value=""></option>'+arr.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join('')+'</select>';
+const ref=[['presente','Presente'],['ausente','Ausente'],['branco','Branco / esbranquiçado (leucocoria)'],['outro','Outra alteração'],['inconclusivo','Inconclusivo (repetir)']];
+const chk=(id,l)=>'<label style="display:flex;align-items:center;gap:6px;font-size:12px;margin:2px 0"><input type="checkbox" id="'+id+'" style="width:auto"> '+l+'</label>';
+c.innerHTML='<div oninput="updateDocPreview()" onchange="updateDocPreview()">'+
+'<div class="st">Nascimento e antecedentes</div>'+
+'<div class="fr fr3"><div class="fg"><label>Idade gestacional (sem.)</label><input id="dolh_ig" type="number" min="20" max="45"></div><div class="fg"><label>Peso ao nascer (g)</label><input id="dolh_peso" type="number" min="300" max="6000"></div><div class="fg"><label>Responsável</label><input id="dolh_resp"></div></div>'+
+'<div class="fg"><label>Fatores de risco informados</label>'+chk('dolh_fr_prem','Prematuridade')+chk('dolh_fr_uti','Internação em UTI neonatal')+chk('dolh_fr_o2','Uso de oxigênio')+chk('dolh_fr_fam','Histórico familiar de doença ocular na infância')+chk('dolh_fr_inf','Infecção na gestação')+chk('dolh_fr_sind','Síndrome ou malformação conhecida')+'</div>'+
+'<div class="st">Exame</div>'+
+'<div class="fr fr3"><div class="fg"><label>Momento</label>'+opt('dolh_mom',[['Maternidade (antes da alta)','Maternidade (antes da alta)'],['Primeiras 72 horas','Primeiras 72 horas'],['Consulta de rotina','Consulta de rotina'],['Seguimento','Seguimento'],['Queixa dos pais','Queixa dos pais']])+'</div><div class="fg"><label>Instrumento</label>'+opt('dolh_instr',[['Oftalmoscópio direto','Oftalmoscópio direto'],['Retinoscópio','Retinoscópio'],['Outro','Outro']])+'</div><div class="fg"><label>Examinador</label><input id="dolh_exam" value="'+(D.cfg.pn||'').replace(/"/g,'&quot;')+'"></div></div>'+
+'<div class="fg">'+chk('dolh_luz','Ambiente com luz reduzida')+chk('dolh_calmo','Bebê calmo, olhos abertos')+chk('dolh_rep','Teste repetido nesta sessão')+'</div>'+
+'<div class="st">Resultado</div>'+
+'<div class="fr fr3"><div class="fg"><label>Reflexo OD</label>'+opt('dolh_od',ref)+'</div><div class="fg"><label>Reflexo OE</label>'+opt('dolh_oe',ref)+'</div><div class="fg"><label>Simetria</label>'+opt('dolh_sim',[['simetrico','Simétrico'],['assimetrico','Assimétrico (brilho ou cor)']])+'</div></div>'+
+'<div class="fg"><label>Descrição</label><textarea id="dolh_desc" style="min-height:50px" placeholder="Cor, brilho, aspecto da pupila"></textarea></div>'+
+'<div class="st">Conduta</div>'+
+'<div class="fg">'+chk('dolh_c_acomp','Manter acompanhamento de rotina')+chk('dolh_c_rep','Repetir o teste')+chk('dolh_c_oft','Encaminhar ao oftalmologista')+chk('dolh_c_ped','Comunicar o pediatra')+'</div>'+
+'<div class="fr fr2"><div class="fg"><label>Prazo sugerido</label><input id="dolh_prazo"></div><div class="fg"><label>Destino do encaminhamento</label><input id="dolh_dest"></div></div>'+
+'<div class="fg"><label>Orientações à família</label><textarea id="dolh_orient" style="min-height:50px"></textarea></div>'+
+'</div>';
 }else{c.innerHTML=''}
 }
 
@@ -1969,6 +1989,45 @@ body=docHeader()+
 '<tr><td><strong>OE</strong></td><td>'+vv('dlc_fe_oe')+'</td><td>'+vv('dlc_fc_oe')+'</td><td>'+vv('dlc_fx_oe')+'</td><td>'+vv('dlc_fa_oe')+'</td></tr>'+
 '</tbody></table>'+
 docFooter();
+
+}else if(curDocType==='olh'){
+const vv=id=>(document.getElementById(id)||{}).value||'';
+const cc=id=>!!(document.getElementById(id)||{}).checked;
+const esc=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const LB={presente:'Presente',ausente:'Ausente',branco:'Branco / esbranquiçado (leucocoria)',outro:'Outra alteração',inconclusivo:'Inconclusivo (repetir)'};
+const od=vv('dolh_od'),oe=vv('dolh_oe'),sim=vv('dolh_sim');
+const alt=x=>x==='ausente'||x==='branco'||x==='outro';
+let idade='';
+const nb=v('docNasc'),de=v('docDate');
+if(nb&&de){const a=new Date(nb+'T00:00:00'),b=new Date(de+'T00:00:00');const dias=Math.round((b-a)/86400000);
+if(dias<0)idade='data inválida';else if(dias<60)idade=dias+(dias===1?' dia':' dias');else{let m=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());if(b.getDate()<a.getDate())m--;idade=m<24?m+(m===1?' mês':' meses'):Math.floor(m/12)+' anos'+(m%12?' e '+(m%12)+(m%12===1?' mês':' meses'):'');}}
+let aviso='';
+if(alt(od)||alt(oe)||sim==='assimetrico')aviso='<div style="border:1px solid #a4342a;color:#a4342a;border-radius:4px;padding:6px 8px;margin:10px 0;font-weight:700;font-size:11px">Resultado alterado: indicada avaliação oftalmológica especializada, sem adiar.</div>';
+else if(od==='inconclusivo'||oe==='inconclusivo')aviso='<div style="border:1px solid #a4342a;color:#a4342a;border-radius:4px;padding:6px 8px;margin:10px 0;font-weight:700;font-size:11px">Resultado inconclusivo: repetir o teste; persistindo a dúvida, encaminhar para avaliação oftalmológica.</div>';
+else if(od==='presente'&&oe==='presente'&&sim==='simetrico')aviso='<div style="border:1px solid #1f6b4a;color:#1f6b4a;border-radius:4px;padding:6px 8px;margin:10px 0;font-weight:700;font-size:11px">Reflexo presente e simétrico nos dois olhos. Manter o teste nas consultas pediátricas de rotina.</div>';
+const fr=[['dolh_fr_prem','Prematuridade'],['dolh_fr_uti','UTI neonatal'],['dolh_fr_o2','Uso de oxigênio'],['dolh_fr_fam','Histórico familiar de doença ocular'],['dolh_fr_inf','Infecção na gestação'],['dolh_fr_sind','Síndrome/malformação']].filter(x=>cc(x[0])).map(x=>x[1]);
+const cond=[['dolh_c_acomp','Manter acompanhamento de rotina'],['dolh_c_rep','Repetir o teste'],['dolh_c_oft','Encaminhar ao oftalmologista'],['dolh_c_ped','Comunicar o pediatra']].filter(x=>cc(x[0])).map(x=>x[1]);
+const cd=[['dolh_luz','Luz reduzida'],['dolh_calmo','Bebê calmo, olhos abertos'],['dolh_rep','Teste repetido']].filter(x=>cc(x[0])).map(x=>x[1]);
+const fld=(l,x)=>x?'<div class="dp-field"><strong>'+l+':</strong> <span class="dp-val">'+esc(x)+'</span></div>':'';
+body=docHeader()+
+'<div class="dp-title">Teste do Olhinho<br>Reflexo Vermelho</div>'+
+'<div class="dp-field"><strong>Paciente:</strong> <span class="dp-val">'+esc(pName)+'</span></div>'+
+'<div style="display:flex;gap:24px;flex-wrap:wrap"><div class="dp-field"><strong>Data do exame:</strong> <span class="dp-val">'+dt+'</span></div><div class="dp-field"><strong>Nascimento:</strong> <span class="dp-val">'+nasc+'</span></div>'+(idade?'<div class="dp-field"><strong>Idade:</strong> <span class="dp-val">'+idade+'</span></div>':'')+'</div>'+
+fld('Responsável',vv('dolh_resp'))+
+((vv('dolh_ig')||vv('dolh_peso'))?'<div class="dp-field"><strong>Gestação e parto:</strong> '+(vv('dolh_ig')?'idade gestacional '+esc(vv('dolh_ig'))+' semanas':'')+(vv('dolh_ig')&&vv('dolh_peso')?' · ':'')+(vv('dolh_peso')?'peso '+esc(vv('dolh_peso'))+' g':'')+'</div>':'')+
+fld('Fatores de risco informados',fr.join(', '))+
+fld('Momento',vv('dolh_mom'))+fld('Instrumento',vv('dolh_instr'))+fld('Condições',cd.join(', '))+
+'<table class="dp-rxtbl"><thead><tr><th></th><th>Reflexo vermelho</th></tr></thead><tbody>'+
+'<tr><td><strong>OD</strong></td><td>'+(LB[od]||'')+'</td></tr>'+
+'<tr><td><strong>OE</strong></td><td>'+(LB[oe]||'')+'</td></tr>'+
+'<tr><td><strong>Simetria</strong></td><td>'+(sim==='simetrico'?'Simétrico':sim==='assimetrico'?'Assimétrico (diferença de brilho ou cor)':'')+'</td></tr>'+
+'</tbody></table>'+
+aviso+
+fld('Descrição',vv('dolh_desc'))+
+fld('Conduta',cond.join('; '))+fld('Prazo sugerido',vv('dolh_prazo'))+fld('Destino',vv('dolh_dest'))+fld('Orientações à família',vv('dolh_orient'))+
+'<div class="dp-obs"><label>Observações:</label><div class="dp-obsbox">'+(obs||'&nbsp;')+'</div></div>'+
+'<div style="font-size:9px;color:#444;margin:10px 0 6px;line-height:1.4">O teste do reflexo vermelho é uma triagem e não substitui a avaliação oftalmológica nem uma avaliação visual completa. Um resultado normal não exclui catarata parcial nem retinoblastoma em fase inicial; por isso, o teste deve ser repetido nas consultas de rotina. Procure atendimento diante de brilho branco na pupila, desvio dos olhos ou diferença entre as pupilas.</div>'+
+'<div class="dp-footer"><div class="dp-sign"><strong>'+esc(vv('dolh_exam')||D.cfg.pn)+'</strong>'+D.cfg.pt+'<br>'+D.cfg.pr+'</div><div class="dp-addr"><strong>'+D.cfg.ad+'</strong>'+D.cfg.ad2+'</div></div>';
 
 }else if(curDocType==='livre'){
 body=docHeader()+
@@ -6133,7 +6192,7 @@ async function previewToPdf(src){if(!window.html2canvas)await loadScript(PP_LIBS
   /* cópia fora da tela com largura A5 fixa: no celular a prévia encolhe, e a cópia garante o mesmo layout da impressão */
   var host=document.createElement('div');host.setAttribute('aria-hidden','true');host.style.cssText='position:fixed;left:-10000px;top:0;width:148mm;background:#fff;z-index:-1;pointer-events:none';var el=src.cloneNode(true);el.style.width='148mm';el.style.maxWidth='none';el.style.margin='0';el.style.boxShadow='none';el.style.borderRadius='0';host.appendChild(el);document.body.appendChild(host);
   try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;var tries=[[2,.85],[1.6,.72],[1.25,.6]];for(var i=0;i<tries.length;i++){var canvas=await window.html2canvas(el,{scale:tries[i][0],backgroundColor:'#ffffff',useCORS:true,logging:false});if(!canvas.width||!canvas.height)throw new Error('A prévia do documento está vazia.');var img=canvas.toDataURL('image/jpeg',tries[i][1]);var doc=new window.jspdf.jsPDF({unit:'mm',format:'a5',orientation:'portrait',compress:true});var w=148,hh=canvas.height*w/canvas.width,x=0;if(hh>210){hh=210;w=canvas.width*hh/canvas.height;x=(148-w)/2}doc.addImage(img,'JPEG',x,0,w,hh);var bytes=new Uint8Array(doc.output('arraybuffer'));if(bytes.length<=PP_MAX)return bytes}throw new Error('O documento ficou acima de 700 KB mesmo comprimido. Encurte o texto ou envie como arquivo.')}finally{host.remove()}}
-var DOC_MAP={rx:'rx',lc:'lc',enc:'enc',atst:'atst',livre:'outro'};
+var DOC_MAP={rx:'rx',lc:'lc',enc:'enc',atst:'atst',livre:'outro',olh:'outro'};
 window.sendDocToOptica=async function(){var t=(typeof curDocType!=='undefined')?curDocType:null,pid=(document.getElementById('docPat')||{}).value||'',btn=document.getElementById('docSendOpticaBtn');if(!t){alert('Escolha o tipo de documento.');return}if(!pid){alert('Selecione o paciente antes de enviar.');return}if(typeof updateDocPreview==='function')updateDocPreview();var el=document.querySelector('#docPreviewBox .doc-preview');if(!el){alert('Prévia indisponível.');return}var old=btn?btn.innerHTML:'';if(btn){btn.disabled=true;btn.innerHTML='<span class="pp-spinner"></span> Gerando PDF…'}try{var bytes=await previewToPdf(el);var p=patient(pid),type=DOC_MAP[t]||'outro',date=(document.getElementById('docDate')||{}).value||todayIso();openPartnerPortalManager('file',null,{patientId:pid,opticaId:p.opticaId||'',docType:type,date:date,title:t==='atst'?'Atestado de comparecimento':'',file:{name:type+'_'+cleanFile(p.name)+'.pdf',bytes:bytes,generated:true}})}catch(e){alert(e.message||'Falha ao gerar o PDF.')}finally{if(btn){btn.disabled=false;btn.innerHTML=old}}};
 window.partnerSendMode=function(m){var file=m==='file';var a=document.getElementById('ppSendRx'),b=document.getElementById('ppSendFile');if(a)a.style.display=file?'none':'block';if(b)b.style.display=file?'block':'none';var ca=document.getElementById('ppModeRx'),cb=document.getElementById('ppModeFile');if(ca)ca.classList.toggle('active',!file);if(cb)cb.classList.toggle('active',file)};
 window.partnerFilePatChanged=function(){var p=patient((document.getElementById('ppFilePat')||{}).value),sel=document.getElementById('ppFileOptica');if(sel&&p.opticaId&&!sel.value)sel.value=p.opticaId};
