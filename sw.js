@@ -12,7 +12,7 @@
    - o fetch é criado do zero com redirect:"follow";
    - nunca devolve index.html no lugar de um simulador.
    ============================================================ */
-var VERSION = 'olhar-v32';
+var VERSION = 'olhar-v33';
 var CACHE = 'olhar-cache-' + VERSION;
 
 var PRECACHE = [
@@ -240,7 +240,7 @@ self.addEventListener('fetch', function (event) {
   }
 
   // 3) FONTES / CDN — stale while revalidate.
-  if (/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.jsdelivr\.net|unpkg\.com)/.test(url.host)) {
+  if (/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com)/.test(url.host)) {
     event.respondWith(
       caches.open(CACHE).then(function (cache) {
         return cache.match(request).then(function (cached) {
