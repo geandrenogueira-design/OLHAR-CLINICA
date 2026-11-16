@@ -523,6 +523,7 @@ html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!
 <div class="ssec">Clínico</div>
 <div class="si active" data-p="o-dash" onclick="gp(this)"><span class="ic"><i class="ph-bold ph-squares-four"></i></span>Painel Clínico</div>
 <div class="si" data-p="o-pront" onclick="gp(this)"><span class="ic"><i class="ph-bold ph-clipboard-text"></i></span>Prontuário</div>
+<div class="si" data-p="o-neuro" onclick="gp(this)" title="Neuro-optometria"><span class="ic"><i class="ph-bold ph-brain"></i></span>Neuro-optometria</div>
 <div class="si" data-p="o-docs" onclick="gp(this)"><span class="ic"><i class="ph-bold ph-printer"></i></span>Documentos</div>
 <div class="ssec">Consulta</div>
 <div class="si" data-p="o-agenda" onclick="gp(this)"><span class="ic"><i class="ph-bold ph-calendar-dots"></i></span>Agenda do Dia</div>
@@ -609,6 +610,704 @@ html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!
 <div class="page" id="p-o-simul"><div class="ph"><h1>Simulador de Ametropia</h1><p>Mostre na TV o que a refração dele faz com a cena.</p></div><div id="simAmetPanel" class="simPanel"></div></div>
 <div class="page" id="p-o-patol"><div class="ph"><h1>Simulador de Patologias</h1><p>Mostre na TV como um quadro clínico altera a cena.</p></div><div id="simPatoPanel" class="simPanel"></div></div>
 <div class="page" id="p-o-fluxo"><div class="ph"><div><h2>Fluxo de Caixa</h2><div class="sub">Visão financeira mensal</div></div></div><div class="card"><div class="cha" id="flChart"></div><div style="display:flex;gap:16px;justify-content:center;margin-top:12px"><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)"><div style="width:8px;height:8px;border-radius:2px;background:var(--t)"></div>Entradas</div><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)"><div style="width:8px;height:8px;border-radius:2px;background:var(--red);opacity:.6"></div>Saídas</div></div></div><div class="stats" style="grid-template-columns:repeat(3,1fr);margin-top:16px" id="flStats"></div><div class="card" style="margin-top:16px;padding:0"><table><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody id="flTbl"></tbody></table></div><div class="card" style="margin-top:16px"><h4 style="font-size:15px;font-weight:700;margin-bottom:12px">A Receber — Óticas</h4><div id="flPendOticas"></div></div></div>
+<div class="page" id="p-o-neuro">
+<div class="ph"><div><h1>Neuro-optometria</h1><p>Padula (2000) 3ª ed. · Suter &amp; Harvey (2011)</p></div>
+<div class="acts">
+<button class="btn bs bsm" onclick="NEURO.nova()"><i class="ph-bold ph-file-plus"></i> Nova avaliação</button>
+<button class="btn bt" onclick="NEURO.gerarPDF()"><i class="ph-bold ph-file-pdf"></i> Gerar PDF</button>
+</div></div>
+
+<div class="np-bar card">
+  <div class="np-bar-pac">
+    <label for="np_pac">Paciente</label>
+    <select id="np_pac" onchange="NEURO.selPac()"></select>
+    <div class="np-bar-meta" id="np_pacMeta">Selecione um paciente do cadastro</div>
+  </div>
+  <div class="np-bar-prog">
+    <div class="pc-head"><div class="pc-num" id="pcN">0</div><div class="pc-den">de 4 módulos<br>concluídos</div></div>
+    <ul class="ms"><li class="ms-i" id="ms-ptvs"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">PTVS</span><span class="ms-s">Pendente</span></li><li class="ms-i" id="ms-vmss"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">VMSS</span><span class="ms-s">Pendente</span></li><li class="ms-i" id="ms-exam"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">Exame neuro-optométrico</span><span class="ms-s">Pendente</span></li><li class="ms-i" id="ms-motor"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">Qualidade motora</span><span class="ms-s">Pendente</span></li></ul>
+    <div class="pc-act"><div class="pc-act-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></div>
+    <div class="pc-act-tx" id="pcActTx">Próximo: PTVS</div>
+    <button class="pc-act-btn" id="pcActBtn" aria-label="Abrir PTVS"><i class="ph-bold ph-arrow-right np-ic" aria-hidden="true"></i></button></div>
+  </div>
+  <div class="np-bar-hist">
+    <div class="np-bar-hl">Avaliações deste paciente</div>
+    <div id="np_hist" class="np-hist">—</div>
+  </div>
+</div>
+
+<nav class="np-tabs" role="tablist"><button class="np-tab" data-np="pat" onclick="NEURO.go('pat')"><i class="ph-bold ph-user"></i><span>Paciente</span></button><button class="np-tab" data-np="ptvs" onclick="NEURO.go('ptvs')"><i class="ph-bold ph-eye"></i><span>PTVS</span></button><button class="np-tab" data-np="vmss" onclick="NEURO.go('vmss')"><i class="ph-bold ph-crosshair"></i><span>VMSS</span></button><button class="np-tab" data-np="exam" onclick="NEURO.go('exam')"><i class="ph-bold ph-clipboard-text"></i><span>Exame</span></button><button class="np-tab" data-np="motor" onclick="NEURO.go('motor')"><i class="ph-bold ph-person-simple-walk"></i><span>Motor</span></button></nav>
+<div class="np-panel" id="np-p-pat">
+      <div class="mhd">
+        <div class="mhd-ic"><i class="ph-bold ph-user np-ic" aria-hidden="true"></i></div>
+        <div>
+          <div class="mhd-title">Dados do paciente</div>
+          <div class="mhd-sub">Identificação · GCS · anamnese atual e pré-lesão</div>
+        </div>
+        <div class="mhd-bdg">Etapa 0</div>
+      </div>
+
+      <!-- Row 1: Identificação + Contexto -->
+      <div class="p2">
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Identificação</div>
+            <div class="np-field">
+              <label>Nome completo</label>
+              <input type="text" id="p_nome" placeholder="Nome do paciente" autocomplete="name" oninput="NEURO.updHdr()">
+            </div>
+            <div class="f2">
+              <div class="np-field"><label>Nascimento</label><input type="date" id="p_nasc"></div>
+              <div class="np-field"><label>Data do exame</label><input type="date" id="p_data"></div>
+            </div>
+            <div class="np-field">
+              <label>Diagnóstico neurológico</label>
+              <select id="p_diag" onchange="NEURO.updHdr()">
+                <option value="">Selecione...</option>
+                <option>TBI — Traumatic Brain Injury</option>
+                <option>AVC / CVA</option>
+                <option>Whiplash</option>
+                <option>Paralisia Cerebral</option>
+                <option>Esclerose Múltipla</option>
+                <option>Hemiplegia</option>
+                <option>Hemiparesia</option>
+                <option>Outro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Contexto clínico</div>
+            <div class="np-field">
+              <label>Lado afetado</label>
+              <div class="pg">
+                <button class="pill" onclick="NEURO.sp(this,'lado')">Direito</button>
+                <button class="pill" onclick="NEURO.sp(this,'lado')">Esquerdo</button>
+                <button class="pill" onclick="NEURO.sp(this,'lado')">Bilateral</button>
+                <button class="pill" onclick="NEURO.sp(this,'lado')">N/A</button>
+              </div>
+            </div>
+            <div class="np-field" style="margin-top:12px;">
+              <label>Queixa principal</label>
+              <textarea id="p_queixa" placeholder="Queixa visual e contexto clínico..." style="min-height:88px;"></textarea>
+            </div>
+            <div class="np-field">
+              <label>Leitura prolongada pós-lesão</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('leitura',this)"><input type="radio" name="leitura" value="normal"><span class="ri-lbl">Mantida — sem limitação</span></label>
+                <label class="ri" onclick="NEURO.sr2('leitura',this)"><input type="radio" name="leitura" value="reduzida"><span class="ri-lbl">Reduzida — tolera menos de 1 página</span></label>
+                <label class="ri" onclick="NEURO.sr2('leitura',this)"><input type="radio" name="leitura" value="impossivel"><span class="ri-lbl">Impossível / não tentou desde a lesão</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GCS -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>Glasgow Coma Scale — GCS (Suter & Harvey, 2011 · Apêndice 12.1)</div>
+        <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Registrar GCS na admissão (histórico) e GCS atual. Score &le;8 → adaptar protocolos para testes objetivos.</div>
+        <div class="m2">
+          <div>
+            <div class="sdv">GCS — Admissão (histórico)</div>
+            <div class="f3">
+              <div class="np-field">
+                <label>Olhos (E) 1–4</label>
+                <select id="gcs_e_adm" onchange="NEURO.calcGCS('adm')">
+                  <option value="">—</option>
+                  <option value="1">1 — Não abre</option>
+                  <option value="2">2 — Dor</option>
+                  <option value="3">3 — Voz</option>
+                  <option value="4">4 — Espontâneo</option>
+                </select>
+              </div>
+              <div class="np-field">
+                <label>Verbal (V) 1–5</label>
+                <select id="gcs_v_adm" onchange="NEURO.calcGCS('adm')">
+                  <option value="">—</option>
+                  <option value="1">1 — Sem sons</option>
+                  <option value="2">2 — Incompreensível</option>
+                  <option value="3">3 — Palavras inapropriadas</option>
+                  <option value="4">4 — Confuso</option>
+                  <option value="5">5 — Orientado</option>
+                </select>
+              </div>
+              <div class="np-field">
+                <label>Motor (M) 1–6</label>
+                <select id="gcs_m_adm" onchange="NEURO.calcGCS('adm')">
+                  <option value="">—</option>
+                  <option value="1">1 — Sem mov.</option>
+                  <option value="2">2 — Extensão (descerebração)</option>
+                  <option value="3">3 — Flexão anormal</option>
+                  <option value="4">4 — Retirada à dor</option>
+                  <option value="5">5 — Localiza dor</option>
+                  <option value="6">6 — Obedece</option>
+                </select>
+              </div>
+            </div>
+            <div id="gcs_adm_res" class="rc np-tl" style="display:none;margin-top:4px;">
+              <div class="rc-lbl">GCS Admissão</div>
+              <div class="rc-val" id="gcs_adm_val">—</div>
+              <div class="rc-sub" id="gcs_adm_cls"></div>
+            </div>
+          </div>
+          <div>
+            <div class="sdv">GCS — Atual</div>
+            <div class="f3">
+              <div class="np-field">
+                <label>Olhos (E) 1–4</label>
+                <select id="gcs_e_now" onchange="NEURO.calcGCS('now')">
+                  <option value="">—</option>
+                  <option value="1">1 — Não abre</option>
+                  <option value="2">2 — Dor</option>
+                  <option value="3">3 — Voz</option>
+                  <option value="4">4 — Espontâneo</option>
+                </select>
+              </div>
+              <div class="np-field">
+                <label>Verbal (V) 1–5</label>
+                <select id="gcs_v_now" onchange="NEURO.calcGCS('now')">
+                  <option value="">—</option>
+                  <option value="1">1 — Sem sons</option>
+                  <option value="2">2 — Incompreensível</option>
+                  <option value="3">3 — Palavras inapropriadas</option>
+                  <option value="4">4 — Confuso</option>
+                  <option value="5">5 — Orientado</option>
+                </select>
+              </div>
+              <div class="np-field">
+                <label>Motor (M) 1–6</label>
+                <select id="gcs_m_now" onchange="NEURO.calcGCS('now')">
+                  <option value="">—</option>
+                  <option value="1">1 — Sem mov.</option>
+                  <option value="2">2 — Extensão (descerebração)</option>
+                  <option value="3">3 — Flexão anormal</option>
+                  <option value="4">4 — Retirada à dor</option>
+                  <option value="5">5 — Localiza dor</option>
+                  <option value="6">6 — Obedece</option>
+                </select>
+              </div>
+            </div>
+            <div id="gcs_now_res" class="rc np-tl" style="display:none;margin-top:4px;">
+              <div class="rc-lbl">GCS Atual</div>
+              <div class="rc-val" id="gcs_now_val">—</div>
+              <div class="rc-sub" id="gcs_now_cls"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anamnese Atual/Pré-lesão -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>Anamnese Estruturada — Atual vs Pré-lesão (Suter & Harvey, 2011 · Apêndice 12.2)</div>
+        <div class="al wrn"><span class="al-ic"><i class="ph-bold ph-warning np-ic" aria-hidden="true"></i></span>Marcar cada sintoma: se presente <strong>Atualmente</strong> e/ou <strong>Pré-lesão</strong>. Sintomas novos (somente Atual) são atribuíveis à lesão.</div>
+
+        <!-- Cabeçalho da tabela de sintomas -->
+        <div style="display:grid;grid-template-columns:1fr 72px 72px;gap:6px;padding:8px 10px 4px;border-bottom:1px solid var(--border);margin-bottom:6px;">
+          <div style="font-size:12.5px;font-weight:600;color:var(--text-md);">Sintoma</div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--teal-dk);text-align:center;">Atual</div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--o);text-align:center;">Pré-lesão</div>
+        </div>
+        <div id="anamnese-list"></div>
+        <div id="anamnese-summary" style="display:none;margin-top:12px;"></div>
+        <button class="np-btn btn-out" style="margin-top:10px;" onclick="NEURO.calcAnamnese()">Analisar sintomas novos</button>
+      </div>
+
+      <button class="np-btn btn-tl" style="margin-top:4px;" onclick="NEURO.savePat()">Salvar e iniciar avaliação</button>
+      <div style="height:10px"></div>
+    </div><div class="np-panel" id="np-p-ptvs">
+      <div class="mhd">
+        <div class="mhd-ic"><i class="ph-bold ph-eye np-ic" aria-hidden="true"></i></div>
+        <div>
+          <div class="mhd-title">PTVS — Post-Trauma Vision Syndrome</div>
+          <div class="mhd-sub">Padula (2000) Cap. XIV · Tabela 3</div>
+        </div>
+        <div class="mhd-bdg">Módulo 1</div>
+      </div>
+
+      <div class="m2">
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Características clínicas</div>
+            <div class="cg" id="pc-carac"></div>
+          </div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Sintomas relatados</div>
+            <div class="cg" id="pc-symp"></div>
+          </div>
+        </div>
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Oclusão binasal</div>
+            <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Introduzir durante AV. Registrar resposta subjetiva e objetiva do paciente.</div>
+            <div class="np-field">
+              <label>Resposta — Distância</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('bd',this)"><input type="radio" name="bd" value="melhora"><span class="ri-lbl">✓ Melhora — letras mais claras / param de se mover</span></label>
+                <label class="ri" onclick="NEURO.sr2('bd',this)"><input type="radio" name="bd" value="sem"><span class="ri-lbl">— Sem mudança significativa</span></label>
+                <label class="ri" onclick="NEURO.sr2('bd',this)"><input type="radio" name="bd" value="piora"><span class="ri-lbl">✕ Piora</span></label>
+              </div>
+            </div>
+            <div class="np-field">
+              <label>Resposta — Perto</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('bp',this)"><input type="radio" name="bp" value="melhora"><span class="ri-lbl">✓ Melhora</span></label>
+                <label class="ri" onclick="NEURO.sr2('bp',this)"><input type="radio" name="bp" value="sem"><span class="ri-lbl">— Sem mudança</span></label>
+                <label class="ri" onclick="NEURO.sr2('bp',this)"><input type="radio" name="bp" value="piora"><span class="ri-lbl">✕ Piora</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Prisma Base-In</div>
+            <div class="al wrn"><span class="al-ic"><i class="ph-bold ph-warning np-ic" aria-hidden="true"></i></span>Iniciar 0,5–1 DP AO. Avançar até 2 DP. Observar estabilização e mudança postural.</div>
+            <div class="np-field">
+              <label>Quantidade (DP / olho)</label>
+              <div class="pg">
+                <button class="pill" onclick="NEURO.sp(this,'pdp')">0,5 DP</button>
+                <button class="pill" onclick="NEURO.sp(this,'pdp')">1,0 DP</button>
+                <button class="pill" onclick="NEURO.sp(this,'pdp')">1,5 DP</button>
+                <button class="pill" onclick="NEURO.sp(this,'pdp')">2,0 DP</button>
+              </div>
+            </div>
+            <div class="np-field" style="margin-top:12px;">
+              <label>Resposta ao prisma</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('pr',this)"><input type="radio" name="pr" value="positivo"><span class="ri-lbl">✓ Positivo — estabilização, conforto, mudança postural</span></label>
+                <label class="ri" onclick="NEURO.sr2('pr',this)"><input type="radio" name="pr" value="neutro"><span class="ri-lbl">— Neutro</span></label>
+                <label class="ri" onclick="NEURO.sr2('pr',this)"><input type="radio" name="pr" value="negativo"><span class="ri-lbl">✕ Negativo — evitação, piora</span></label>
+              </div>
+            </div>
+            <div class="np-field" style="margin-top:12px;">
+              <label>Observações comportamentais</label>
+              <textarea id="ptvs_obs" placeholder="Tônus cervical, postura, fala, relato do paciente..."></textarea>
+            </div>
+          </div>
+          <div class="wc" id="ptvs-rw" style="display:none;">
+            <div class="wc-ttl"><i></i>Conclusão PTVS</div>
+            <div id="ptvs-ri"></div>
+          </div>
+          <button class="np-btn btn-tl" onclick="NEURO.calcPTVS()">Calcular e concluir módulo</button>
+          <div style="height:10px"></div>
+          
+        </div>
+      </div>
+    </div><div class="np-panel" id="np-p-vmss">
+      <div class="mhd">
+        <div class="mhd-ic"><i class="ph-bold ph-crosshair np-ic" aria-hidden="true"></i></div>
+        <div>
+          <div class="mhd-title">VMSS — Visual Midline Shift</div>
+          <div class="mhd-sub">Padula (2000) Cap. XV · Tabela 7</div>
+        </div>
+        <div class="mhd-bdg">Módulo 2</div>
+      </div>
+
+      <div class="m2">
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Teste Lateral (Midline Horizontal)</div>
+            <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Wand a ~40 cm. Mover Esq→Dir e Dir→Esq. Paciente indica quando está na frente do nariz.</div>
+            <div class="np-field">
+              <label>Esquerda → Direita</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('led',this)"><input type="radio" name="led" value="normal"><span class="ri-lbl">Centro (normal)</span></label>
+                <label class="ri" onclick="NEURO.sr2('led',this)"><input type="radio" name="led" value="dir"><span class="ri-lbl">Desviado à Direita</span></label>
+                <label class="ri" onclick="NEURO.sr2('led',this)"><input type="radio" name="led" value="esq"><span class="ri-lbl">Desviado à Esquerda</span></label>
+              </div>
+            </div>
+            <div class="np-field">
+              <label>Direita → Esquerda</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('lde',this)"><input type="radio" name="lde" value="normal"><span class="ri-lbl">Centro (normal)</span></label>
+                <label class="ri" onclick="NEURO.sr2('lde',this)"><input type="radio" name="lde" value="dir"><span class="ri-lbl">Desviado à Direita</span></label>
+                <label class="ri" onclick="NEURO.sr2('lde',this)"><input type="radio" name="lde" value="esq"><span class="ri-lbl">Desviado à Esquerda</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Teste Vertical (Midline Vertical)</div>
+            <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Mover wand Cima→Baixo e Baixo→Cima. Paciente indica quando está no nível dos olhos.</div>
+            <div class="np-field">
+              <label>Cima → Baixo</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('vcd',this)"><input type="radio" name="vcd" value="normal"><span class="ri-lbl">Nível correto</span></label>
+                <label class="ri" onclick="NEURO.sr2('vcd',this)"><input type="radio" name="vcd" value="acima"><span class="ri-lbl">Reportado acima → Shift Posterior</span></label>
+                <label class="ri" onclick="NEURO.sr2('vcd',this)"><input type="radio" name="vcd" value="abaixo"><span class="ri-lbl">Reportado abaixo → Shift Anterior</span></label>
+              </div>
+            </div>
+            <div class="np-field">
+              <label>Baixo → Cima</label>
+              <div class="rg">
+                <label class="ri" onclick="NEURO.sr2('vbc',this)"><input type="radio" name="vbc" value="normal"><span class="ri-lbl">Nível correto</span></label>
+                <label class="ri" onclick="NEURO.sr2('vbc',this)"><input type="radio" name="vbc" value="acima"><span class="ri-lbl">Reportado acima → Shift Posterior</span></label>
+                <label class="ri" onclick="NEURO.sr2('vbc',this)"><input type="radio" name="vbc" value="abaixo"><span class="ri-lbl">Reportado abaixo → Shift Anterior</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Postura e contexto</div>
+            <div class="np-field">
+              <label>Tendência postural observada</label>
+              <div class="pg">
+                <button class="pill" onclick="NEURO.sp(this,'postura')">Inclina Dir</button>
+                <button class="pill" onclick="NEURO.sp(this,'postura')">Inclina Esq</button>
+                <button class="pill" onclick="NEURO.sp(this,'postura')">Flexão</button>
+                <button class="pill" onclick="NEURO.sp(this,'postura')">Extensão</button>
+                <button class="pill" onclick="NEURO.sp(this,'postura')">Normal</button>
+              </div>
+            </div>
+            <div class="np-field" style="margin-top:12px;">
+              <label>Posição do teste</label>
+              <div class="pg">
+                <button class="pill" onclick="NEURO.sp(this,'vpos')">Sentado</button>
+                <button class="pill" onclick="NEURO.sp(this,'vpos')">Em pé</button>
+                <button class="pill" onclick="NEURO.sp(this,'vpos')">Ambos</button>
+              </div>
+            </div>
+            <div class="np-field" style="margin-top:12px;">
+              <label>Observações</label>
+              <textarea id="vmss_obs" placeholder="Consistência entre tentativas, lado parético, comportamento..."></textarea>
+            </div>
+          </div>
+          <div class="wc" id="vmss-rw" style="display:none;">
+            <div class="wc-ttl"><i></i>Classificação e Prescrição Yoked — Tabela 7</div>
+            <div id="vmss-ri"></div>
+          </div>
+          <button class="np-btn btn-tl" onclick="NEURO.calcVMSS()">Classificar e gerar Rx yoked</button>
+          <div style="height:10px"></div>
+          
+        </div>
+      </div>
+    </div><div class="np-panel" id="np-p-exam">
+      <div class="mhd">
+        <div class="mhd-ic"><i class="ph-bold ph-clipboard-text np-ic" aria-hidden="true"></i></div>
+        <div>
+          <div class="mhd-title">Exame Neuro-Optométrico</div>
+          <div class="mhd-sub">Padula (2000) Cap. VI · Sequência completa</div>
+        </div>
+        <div class="mhd-bdg">Módulo 3</div>
+      </div>
+
+      <!-- AV -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>1 — Acuidade Visual</div>
+        <div class="f2">
+          <div class="np-field"><label>AV Longe Binocular</label><input type="text" id="av_db" placeholder="20/___"></div>
+          <div class="np-field"><label>AV Longe + Ocl. Binasal</label><input type="text" id="av_db_oc" placeholder="20/___"></div>
+        </div>
+        <div class="f3">
+          <div class="np-field"><label>AV Longe OD</label><input type="text" id="av_od" placeholder="20/___"></div>
+          <div class="np-field"><label>AV Longe OE</label><input type="text" id="av_oe" placeholder="20/___"></div>
+          <div class="np-field"><label>Dist. trabalho</label><input type="text" id="av_dt" placeholder="40 cm"></div>
+        </div>
+        <div class="f2">
+          <div class="np-field"><label>AV Perto Binocular</label><input type="text" id="av_pb" placeholder="20/___"></div>
+          <div class="np-field"><label>AV Perto + Ocl. Binasal</label><input type="text" id="av_pb_oc" placeholder="20/___"></div>
+        </div>
+        <div class="np-field"><label>Observações comportamentais</label><textarea id="av_obs" placeholder="Distância preferida, letras se movendo, postura..."></textarea></div>
+      </div>
+
+      <!-- Sensorimotor -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>2 — Análise Sensorimotor</div>
+        <div class="al wrn"><span class="al-ic"><i class="ph-bold ph-warning np-ic" aria-hidden="true"></i></span>Inconsistência entre testes é esperada no PTVS. Anotar variações.</div>
+        <div class="np-field">
+          <label>Qualidade de pursuits</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'pursuits')">Suaves</button>
+            <button class="pill" onclick="NEURO.sp(this,'pursuits')">Sacádicos</button>
+            <button class="pill" onclick="NEURO.sp(this,'pursuits')">Instáveis</button>
+            <button class="pill" onclick="NEURO.sp(this,'pursuits')">Interrompidos</button>
+          </div>
+        </div>
+        <div class="f2" style="margin-top:12px;">
+          <div class="np-field"><label>Cover Test (longe)</label><input type="text" id="ct_d" placeholder="XP 4 / EP 2..."></div>
+          <div class="np-field"><label>Cover Test (perto)</label><input type="text" id="ct_p" placeholder="XP 6 / ET 4..."></div>
+        </div>
+        <div class="f2">
+          <div class="np-field"><label>PPC — Break</label><input type="text" id="ppc_b" placeholder="cm"></div>
+          <div class="np-field"><label>PPC — Recovery</label><input type="text" id="ppc_r" placeholder="cm"></div>
+        </div>
+        <div class="f2">
+          <div class="np-field"><label>Estereopsis</label><input type="text" id="ester" placeholder="seg de arco / TNO"></div>
+          <div class="np-field"><label>Vergências</label><input type="text" id="verg" placeholder="BI x/8/4"></div>
+        </div>
+        <div class="np-field"><label>Maddox Rod / Lente Vermelha</label><input type="text" id="maddox" placeholder="Resultado..."></div>
+        <div class="np-field"><label>Observações</label><textarea id="sm_obs" placeholder="Limitações de motilidade, mialgia, variações..."></textarea></div>
+      </div>
+
+      <!-- Nystagmus + Ducções (Suter & Harvey Cap. 12) -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>2B — Nistagmo · Ducções · VOR · Pupilas <span class="src-bdg">Suter &amp; Harvey (2011) Cap. 12</span></div>
+
+        <div class="sdv">Nistagmo — Classificação</div>
+        <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Selecionar padrão observado. A classificação orienta localização neuroanatômica da lesão.</div>
+        <div class="rg" id="nyst-rg">
+          <label class="ri" onclick="NEURO.sr2('nyst',this);updNystInfo()"><input type="radio" name="nyst" value="ausente"><span class="ri-lbl">Ausente / Normal</span></label>
+          <label class="ri" onclick="NEURO.sr2('nyst',this);updNystInfo()"><input type="radio" name="nyst" value="ritmico"><span class="ri-lbl">Rítmico — fase lenta + recuperação rápida (binocular)</span></label>
+          <label class="ri" onclick="NEURO.sr2('nyst',this);updNystInfo()"><input type="radio" name="nyst" value="bobbing"><span class="ri-lbl">Ocular Bobbing — jerk rápido para baixo + retorno lento</span></label>
+          <label class="ri" onclick="NEURO.sr2('nyst',this);updNystInfo()"><input type="radio" name="nyst" value="dismetria"><span class="ri-lbl">Dismetria Ocular — overshoot + oscilações</span></label>
+          <label class="ri" onclick="NEURO.sr2('nyst',this);updNystInfo()"><input type="radio" name="nyst" value="flutter"><span class="ri-lbl">Ocular Flutter — oscilações horizontais rápidas ao redor do ponto de fixação</span></label>
+          <label class="ri" onclick="NEURO.sr2('nyst',this);updNystInfo()"><input type="radio" name="nyst" value="opsoclonus"><span class="ri-lbl">Opsoclonus — movimentos conjugados, rápidos, multidirecionais e irregulares</span></label>
+        </div>
+        <div id="nyst-info" class="rc np-tl" style="display:none;margin-top:8px;"></div>
+
+        <div class="sdv" style="margin-top:18px;">Ducções Monoculares</div>
+        <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Testar cada olho separadamente (contralateral ocluído). Registrar limitação por campo de gaze.</div>
+        <div class="f2">
+          <div class="np-field"><label>Ducções OD</label><input type="text" id="duc_od" placeholder="Completas / Limitação: supra, infra..."></div>
+          <div class="np-field"><label>Ducções OE</label><input type="text" id="duc_oe" placeholder="Completas / Limitação: supra, infra..."></div>
+        </div>
+        <div class="np-field">
+          <label>Versões Binoculares (9 posições)</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'versoes')">Completas</button>
+            <button class="pill" onclick="NEURO.sp(this,'versoes')">Limitação H</button>
+            <button class="pill" onclick="NEURO.sp(this,'versoes')">Limitação V</button>
+            <button class="pill" onclick="NEURO.sp(this,'versoes')">Limitação Diagonal</button>
+            <button class="pill" onclick="NEURO.sp(this,'versoes')">Apraxia</button>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:12px;"><label>Síndromes de Gaze Identificadas</label>
+          <div class="cg" id="gaze-synd-cg"></div>
+        </div>
+
+        <div class="sdv" style="margin-top:18px;">Reflexo Vestíbulo-Ocular (VOR) Clínico</div>
+        <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Paciente fixa objeto estático → mover cabeça H e V mantendo fixação. Avaliar estabilidade do olhar e sintomas.</div>
+        <div class="f2">
+          <div class="np-field">
+            <label>VOR Horizontal</label>
+            <div class="rg">
+              <label class="ri" onclick="NEURO.sr2('vor_h',this)"><input type="radio" name="vor_h" value="normal"><span class="ri-lbl">Normal — olhar estável</span></label>
+              <label class="ri" onclick="NEURO.sr2('vor_h',this)"><input type="radio" name="vor_h" value="instavel"><span class="ri-lbl">Instável / nistagmo durante movimento</span></label>
+              <label class="ri" onclick="NEURO.sr2('vor_h',this)"><input type="radio" name="vor_h" value="sintomas"><span class="ri-lbl">Sintomas — tontura, náusea ao movimento</span></label>
+            </div>
+          </div>
+          <div class="np-field">
+            <label>VOR Vertical</label>
+            <div class="rg">
+              <label class="ri" onclick="NEURO.sr2('vor_v',this)"><input type="radio" name="vor_v" value="normal"><span class="ri-lbl">Normal</span></label>
+              <label class="ri" onclick="NEURO.sr2('vor_v',this)"><input type="radio" name="vor_v" value="instavel"><span class="ri-lbl">Instável</span></label>
+              <label class="ri" onclick="NEURO.sr2('vor_v',this)"><input type="radio" name="vor_v" value="sintomas"><span class="ri-lbl">Sintomas</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="np-field">
+          <label>Reflexo Oculocefálico — "Doll's Eyes"</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'roc')">Presente (tronco íntegro)</button>
+            <button class="pill" onclick="NEURO.sp(this,'roc')">Ausente (lesão tronco)</button>
+            <button class="pill" onclick="NEURO.sp(this,'roc')">Não testado</button>
+          </div>
+        </div>
+
+        <div class="sdv" style="margin-top:18px;">Pupilas</div>
+        <div class="f2">
+          <div class="np-field">
+            <label>Anisocoria</label>
+            <div class="rg">
+              <label class="ri" onclick="NEURO.sr2('aniso_p',this)"><input type="radio" name="aniso_p" value="ausente"><span class="ri-lbl">Ausente / Fisiológica (&le;1,5mm)</span></label>
+              <label class="ri" onclick="NEURO.sr2('aniso_p',this)"><input type="radio" name="aniso_p" value="presente"><span class="ri-lbl">Presente &gt;1,5mm — registrar</span></label>
+            </div>
+          </div>
+          <div class="np-field"><label>Tamanho OD / OE (mm)</label><input type="text" id="pupila_sz" placeholder="Ex: 4 / 3 mm"></div>
+        </div>
+        <div class="np-field">
+          <label>Reflexo Pupilar</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">Normal AO</button>
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">Lento AO</button>
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">RAPD OD</button>
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">RAPD OE</button>
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">Adie</button>
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">Horner</button>
+            <button class="pill" onclick="NEURO.sp(this,'pupila_ref')">Fixo Dilatado (NC III)</button>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:12px;"><label>Observações oculomotoras</label><textarea id="ocm_obs" placeholder="Limitações específicas, correlação neuroanatômica, padrão NC III/IV/VI..."></textarea></div>
+      </div>
+
+      <!-- Refração -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>3 — Sequência Refrativa</div>
+        <div class="al wrn"><span class="al-ic"><i class="ph-bold ph-warning np-ic" aria-hidden="true"></i></span>Em PTVS: balanceamento binocular. Evitar excesso de lente negativa. Atenção a shift miópico pós-TBI.</div>
+        <div class="f2">
+          <div class="np-field"><label>Retinoscopia OD</label><input type="text" id="ret_od" placeholder="+/- ___"></div>
+          <div class="np-field"><label>Retinoscopia OE</label><input type="text" id="ret_oe" placeholder="+/- ___"></div>
+        </div>
+        <div class="f2">
+          <div class="np-field"><label>Rx Subjetivo OD</label><input type="text" id="rx_od" placeholder="esf/cil/eixo"></div>
+          <div class="np-field"><label>Rx Subjetivo OE</label><input type="text" id="rx_oe" placeholder="esf/cil/eixo"></div>
+        </div>
+        <div class="np-field">
+          <label>Anisometropia presente?</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'aniso')">Sim</button>
+            <button class="pill" onclick="NEURO.sp(this,'aniso')">Não</button>
+          </div>
+        </div>
+        <div class="f2" style="margin-top:12px;">
+          <div class="np-field"><label>Bell Retinoscopy (Grasp/Release)</label><input type="text" id="bell" placeholder="_cm / _cm"></div>
+          <div class="np-field"><label>MEM / Book Retinoscopy</label><input type="text" id="mem" placeholder="With / Against / Neutral"></div>
+        </div>
+        <div class="np-field"><label>Observações refrativas</label><textarea id="rx_obs" placeholder="Resposta a prisma, conforto, postura..."></textarea></div>
+      </div>
+
+      <!-- Adicionais -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>4 — Testes Adicionais</div>
+        <div class="f2">
+          <div class="np-field"><label>Campo Visual</label><input type="text" id="campo" placeholder="Normal / Hemianopsia..."></div>
+          <div class="np-field"><label>Visão de Cores</label><input type="text" id="cores" placeholder="Normal / Alterada"></div>
+        </div>
+        <div class="np-field">
+          <label>VEP</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'vep')">Solicitado</button>
+            <button class="pill" onclick="NEURO.sp(this,'vep')">Já realizado</button>
+            <button class="pill" onclick="NEURO.sp(this,'vep')">Não indicado</button>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:12px;"><label>Resultado VEP</label><textarea id="vep_r" placeholder="Latência P100, amplitude N1-P1, binocular com/sem prisma..."></textarea></div>
+        <div class="np-field"><label>Observações gerais</label><textarea id="ex_obs" placeholder="Tônus, padrões extensão/flexão, postura, instruções..."></textarea></div>
+      </div>
+
+      <!-- Sensibilidade de Contraste + AV para Movimento (Suter & Harvey Cap. 12) -->
+      <div class="wc">
+        <div class="wc-ttl"><i></i>4B — Sensibilidade de Contraste · AV para Movimento <span class="src-bdg">Suter &amp; Harvey (2011) Cap. 12</span></div>
+        <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Redução em baixas–médias freq. espaciais é frequente no TBI por disfunção magnocelular (via M / dorsal stream). Paciente pode queixar "não enxergo bem" com AV e campo normais.</div>
+
+        <div class="sdv">Sensibilidade de Contraste</div>
+        <div class="f2">
+          <div class="np-field">
+            <label>SC OD — Resultado</label>
+            <div class="pg col">
+              <button class="pill" onclick="NEURO.sp(this,'sc_od')">Normal</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_od')">Reduzida — baixas freqs</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_od')">Reduzida — médias freqs</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_od')">Reduzida — altas freqs</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_od')">Reduzida — difusa</button>
+            </div>
+          </div>
+          <div class="np-field">
+            <label>SC OE — Resultado</label>
+            <div class="pg col">
+              <button class="pill" onclick="NEURO.sp(this,'sc_oe')">Normal</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_oe')">Reduzida — baixas freqs</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_oe')">Reduzida — médias freqs</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_oe')">Reduzida — altas freqs</button>
+              <button class="pill" onclick="NEURO.sp(this,'sc_oe')">Reduzida — difusa</button>
+            </div>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:10px;">
+          <label>Instrumento utilizado</label>
+          <input type="text" id="sc_inst" placeholder="Ex: CSV-1000 / Pelli-Robson / FACT...">
+        </div>
+        <div id="sc_alert" class="al wrn" style="display:none;margin-top:8px;"><span class="al-ic"><i class="ph-bold ph-warning np-ic" aria-hidden="true"></i></span><strong>Disfunção magnocelular suspeita.</strong> Correlacionar com VMSS, equilíbrio e velocidade de processamento visual. Considerar avaliação de sácades em altas velocidades.</div>
+
+        <div class="sdv" style="margin-top:18px;">Acuidade Visual para Movimento (Dynamic VA)</div>
+        <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Avalia integridade da via M (magnocelular). Dissociada da AV estática. Relevante em queixas de sobrecarga visual, veering e oscilação de imagens em movimento.</div>
+        <div class="f2">
+          <div class="np-field">
+            <label>AV Dinâmica OD</label>
+            <div class="pg">
+              <button class="pill" onclick="NEURO.sp(this,'avd_od')">Normal</button>
+              <button class="pill" onclick="NEURO.sp(this,'avd_od')">Reduzida &lt;2 linhas</button>
+              <button class="pill" onclick="NEURO.sp(this,'avd_od')">Reduzida 2–4 linhas</button>
+              <button class="pill" onclick="NEURO.sp(this,'avd_od')">Reduzida &gt;4 linhas</button>
+            </div>
+          </div>
+          <div class="np-field">
+            <label>AV Dinâmica OE</label>
+            <div class="pg">
+              <button class="pill" onclick="NEURO.sp(this,'avd_oe')">Normal</button>
+              <button class="pill" onclick="NEURO.sp(this,'avd_oe')">Reduzida &lt;2 linhas</button>
+              <button class="pill" onclick="NEURO.sp(this,'avd_oe')">Reduzida 2–4 linhas</button>
+              <button class="pill" onclick="NEURO.sp(this,'avd_oe')">Reduzida &gt;4 linhas</button>
+            </div>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:10px;">
+          <label>Velocidade de Processamento Visual — Targets Estáticos (flash)</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'vp_est')">Normal</button>
+            <button class="pill" onclick="NEURO.sp(this,'vp_est')">Reduzida — leve</button>
+            <button class="pill" onclick="NEURO.sp(this,'vp_est')">Reduzida — moderada</button>
+            <button class="pill" onclick="NEURO.sp(this,'vp_est')">Reduzida — grave</button>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:10px;">
+          <label>Velocidade de Processamento Visual — Targets em Movimento</label>
+          <div class="pg">
+            <button class="pill" onclick="NEURO.sp(this,'vp_mov')">Normal</button>
+            <button class="pill" onclick="NEURO.sp(this,'vp_mov')">Reduzida — leve</button>
+            <button class="pill" onclick="NEURO.sp(this,'vp_mov')">Reduzida — moderada</button>
+            <button class="pill" onclick="NEURO.sp(this,'vp_mov')">Reduzida — grave</button>
+          </div>
+        </div>
+        <div class="np-field" style="margin-top:10px;"><label>Observações SC / AV Dinâmica</label><textarea id="sc_obs" placeholder="Instrumento, distância de teste, comparação OD-OE, correlação clínica..."></textarea></div>
+      </div>
+
+      <button class="np-btn btn-tl" onclick="NEURO.saveExam()">Salvar exame</button>
+      <div style="height:10px"></div>
+      
+    </div><div class="np-panel" id="np-p-motor">
+      <div class="mhd">
+        <div class="mhd-ic"><i class="ph-bold ph-person-simple-walk np-ic" aria-hidden="true"></i></div>
+        <div>
+          <div class="mhd-title">Qualidade motora</div>
+          <div class="mhd-sub">Cap. XI · Magrun · Criteria-Based Assessment</div>
+        </div>
+        <div class="mhd-bdg">Módulo 4</div>
+      </div>
+
+      <div class="m2">
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Subteste — Prone Reach</div>
+            <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span><strong>Posição inicial:</strong> cotovelos e braços a 90°. Estender em pivot prone. 3 tentativas de 10 seg.</div>
+            <div class="sdv">Desempenho Normal — Quality Performance</div>
+            <div class="cg" id="mq-pos"></div>
+          </div>
+          <div class="wc">
+            <div class="sdv">Padrões Disfuncionais — Problem Performance</div>
+            <div class="cg" id="mq-neg"></div>
+          </div>
+        </div>
+        <div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Tarefa personalizada (criteria-based)</div>
+            <div class="np-field"><label>Tarefa avaliada</label><input type="text" id="m_tar" placeholder="Ex: Alcançar objeto / Pegar bola lançada..."></div>
+            <div class="np-field"><label>Critérios definidos</label><textarea id="m_crit" placeholder="1. Postura simétrica&#10;2. Contato visual&#10;3. Alcance bilateral..." style="min-height:110px;"></textarea></div>
+            <div class="np-field"><label>Resultado (T1, T2, T3)</label><textarea id="m_res" placeholder="T1: ... T2: ... T3: ..."></textarea></div>
+          </div>
+          <div class="wc">
+            <div class="wc-ttl"><i></i>Scoring chart</div>
+            <div id="m-score">
+              <div class="al inf"><span class="al-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></span>Marque os itens e clique em Calcular.</div>
+            </div>
+            <div class="sdv" style="margin-top:14px;">Distribuição por Segmento Corporal</div>
+            <div class="pg" style="margin-bottom:14px;">
+              <button class="pill" onclick="NEURO.tgSeg(this,'cabeca')">Cabeça/Pescoço</button>
+              <button class="pill" onclick="NEURO.tgSeg(this,'omb_d')">Ombro Dir</button>
+              <button class="pill" onclick="NEURO.tgSeg(this,'omb_e')">Ombro Esq</button>
+              <button class="pill" onclick="NEURO.tgSeg(this,'tronco')">Tronco</button>
+              <button class="pill" onclick="NEURO.tgSeg(this,'pelve')">Pelve</button>
+              <button class="pill" onclick="NEURO.tgSeg(this,'mmii_d')">MMII Dir</button>
+              <button class="pill" onclick="NEURO.tgSeg(this,'mmii_e')">MMII Esq</button>
+            </div>
+            <div class="np-field"><label>Observações e conduta</label><textarea id="m_obs" placeholder="Mudanças após lentes/prismas, segmentos, intervenção..."></textarea></div>
+          </div>
+          <button class="np-btn btn-tl" onclick="NEURO.calcMotor()">Calcular quality score</button>
+          <div style="height:10px"></div>
+          
+        </div>
+      </div>
+    </div>
+</div>
 </main><div id="mC"></div><div id="printArea"></div>
 <script>
 const DB='olhar_v3';let D={patients:[],appointments:[],opticas:[],transactions:[],prescriptions:[],records:[],leads:[],cfg:{cn:'Olhar',pn:'Geandré Nogueira',pt:'Bel. Optometrista',pr:'CROO 1726',ad:'Galeria Mauro Lima, Salas 105 e 106',ad2:'Praça João Pessoa, 33 — Centro — Garanhuns'}};
@@ -635,7 +1334,7 @@ else{role='sec';document.getElementById('sbOpto').style.display='none';document.
 const fi=document.querySelector('.sidebar[style*="flex"] .si');if(fi){fi.classList.add('active');document.getElementById('p-'+fi.dataset.p).classList.add('active');rp(fi.dataset.p)}}
 function gp(el){el.closest('.sidebar').querySelectorAll('.si').forEach(i=>i.classList.remove('active'));el.classList.add('active');
 document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=document.getElementById('p-'+el.dataset.p);if(pg){pg.classList.add('active');rp(el.dataset.p)}}
-function rp(p){const m={'s-dash':rSD,'s-agenda':rAg,'s-pac':rSecPat,'s-oti':rOti,'s-call':rCall,'s-crm':rCRM,'s-kpi':rKPI,'s-caixa':rCx,'o-dash':rOD,'o-pront':rPr,'o-docs':rDocs,'o-agenda':rOA,'o-pac':rOptPat,'o-fluxo':rFl,'o-simul':rSimAmet,'o-patol':rSimPato};if(m[p])m[p]()}
+function rp(p){const m={'s-dash':rSD,'s-agenda':rAg,'s-pac':rSecPat,'s-oti':rOti,'s-call':rCall,'s-crm':rCRM,'s-kpi':rKPI,'s-caixa':rCx,'o-dash':rOD,'o-pront':rPr,'o-docs':rDocs,'o-agenda':rOA,'o-pac':rOptPat,'o-fluxo':rFl,'o-simul':rSimAmet,'o-patol':rSimPato,'o-neuro':function(){if(window.rNeuro)window.rNeuro()}};if(m[p])m[p]()}
 
 function openM(t,eid){let h='';if(t==='apt')h=mApt();if(t==='oti')h=mOti();if(t==='tx')h=mTx();if(t==='rx')h=mRx();if(t==='lead')h=mLead(eid);
 document.getElementById('mC').innerHTML='<div class="mbg" onclick="if(event.target===this)clM()">'+h+'</div>'}
@@ -8178,6 +8877,800 @@ html.conforto .an-ano-hint{font-size:13px}
 .an-ano-hint:empty{display:none}
 .an-ano-hint.an-ano-alerta{color:var(--o);font-weight:600}
 @media print{.an-ano-hint{display:none!important}}
+
+/* ═══ MÓDULO NEURO-OPTOMETRIA ═══ */
+#p-o-neuro{
+  /* herda os tokens do app: o modulo acompanha tema claro e escuro */
+  --teal:var(--pri); --teal-dk:var(--pri); --teal-md:var(--pri);
+  --teal-lt:var(--pril); --teal-pl:var(--pril);
+  --teal-fill:var(--pri);        /* preenchimento; texto sempre var(--bg), convencao do .bt do app */
+  --peach:var(--ol); --peach-dk:var(--o); --peach-pl:var(--op);
+  --slate:var(--pri); --slate-md:var(--prid);
+  --white:var(--bg2);   /* nao redefinir --bg aqui: auto-referencia invalida a variavel */
+  --text:var(--tx); --text-md:var(--tx2); --text-lt:var(--tx3);
+  --border:var(--bdr);
+  --ok:var(--grn); --warn:var(--wn); --crit:var(--red);
+  --s1:none; --s2:none; --s3:none;
+  --sar:0px; --sal:0px; --sat:0px; --sab:0px;
+  font-family:var(--font);
+}
+
+/* Outfit — tipografia da identidade Olhar, embutida para uso sem rede */
+
+
+/* ─── RESET ─── */
+#p-o-neuro *{box-sizing:border-box;margin:0;padding:0;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;}
+#p-o-neuro input, #p-o-neuro textarea, #p-o-neuro select{-webkit-touch-callout:default;}
+
+/* ─── TOKENS ─── */
+
+
+/* ─── ROOT LAYOUT ─── */
+
+
+
+/* ─── SIDEBAR (landscape: left column, portrait: bottom tab bar) ─── */
+#p-o-neuro .np-sidebar{
+  width:88px;
+  background:var(--slate);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:calc(var(--sat) + 20px) 0 calc(var(--sab) + 16px);
+  flex-shrink:0;
+  z-index:100;
+  /* iOS momentum scroll prevention */
+  touch-action:none;
+}
+
+#p-o-neuro .sb-logo{
+  width:46px;height:46px;
+  background:rgba(255,255,255,.14);
+  border-radius:15px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:32px;
+  font-size:24px;color:#fff;
+  font-family:'Outfit',system-ui,sans-serif;font-weight:600;
+  flex-shrink:0;
+}
+
+#p-o-neuro .sb-nav{
+  display:flex;flex-direction:column;
+  align-items:center;gap:4px;flex:1;
+  width:100%;padding:0 8px;
+}
+
+/* NAV ITEMS — 52px tall minimum touch target */
+#p-o-neuro .ni{
+  display:flex;flex-direction:column;align-items:center;
+  gap:4px;width:100%;min-height:var(--touch);
+  border-radius:14px;
+  background:none;border:none;
+  color:rgba(255,255,255,.72);
+  font-family:'Outfit',system-ui,sans-serif;
+  font-size:10.5px;font-weight:500;
+  letter-spacing:.005em;
+  cursor:pointer;padding:10px 4px 8px;
+  transition:background .18s,color .18s;
+  justify-content:center;
+  /* Prevent text selection on tap */
+  user-select:none;-webkit-user-select:none;
+}
+#p-o-neuro .ni:active{background:rgba(255,255,255,.12);}
+#p-o-neuro .ni.np-on{background:rgba(255,255,255,.16);color:#fff;font-weight:600;}
+#p-o-neuro .ni-ic{font-size:20px;line-height:1;margin-bottom:2px;}
+
+#p-o-neuro .sb-av{
+  width:40px;height:40px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.2);
+  background:var(--teal-fill);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:15px;
+  flex-shrink:0;margin-top:8px;
+}
+
+/* ─── MAIN ─── */
+#p-o-neuro .np-main{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+/* ─── TOPBAR ─── */
+#p-o-neuro .topbar{
+  display:flex;align-items:center;
+  padding:calc(var(--sat) + 14px) calc(var(--sar) + 20px) 14px 20px;
+  gap:12px;flex-shrink:0;
+  background:transparent;
+}
+
+#p-o-neuro .tb-back{
+  display:flex;align-items:center;gap:6px;
+  min-height:var(--touch);padding:0 18px;
+  background:var(--white);border:none;
+  border-radius:26px;box-shadow:var(--s1);
+  font-size:15px;font-weight:500;color:var(--text-md);
+  font-family:'Outfit',system-ui,sans-serif;cursor:pointer;
+  flex-shrink:0;
+}
+#p-o-neuro .tb-back:active{opacity:.7;}
+
+#p-o-neuro .tb-tabs{
+  display:flex;gap:3px;
+  background:var(--white);border-radius:26px;
+  padding:4px;box-shadow:var(--s1);
+}
+#p-o-neuro .tb-tab{
+  min-height:44px;padding:0 22px;border-radius:22px;
+  font-size:14px;font-weight:600;cursor:pointer;
+  border:none;background:none;
+  color:var(--text-lt);
+  font-family:'Outfit',system-ui,sans-serif;
+  transition:background .2s,color .2s;
+  white-space:nowrap;
+}
+#p-o-neuro .tb-tab.np-on{background:var(--slate);color:#fff;}
+#p-o-neuro .tb-tab:active{opacity:.8;}
+
+#p-o-neuro .tb-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+#p-o-neuro .pt-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--white);border-radius:26px;
+  padding:6px 16px 6px 7px;box-shadow:var(--s1);
+  font-size:13px;font-weight:600;color:var(--text-md);
+  white-space:nowrap;max-width:180px;overflow:hidden;
+}
+#p-o-neuro .pt-dot{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--teal-fill),var(--teal-dk));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:12px;font-weight:700;
+}
+#p-o-neuro .pt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ─── CONTENT SCROLL AREA ─── */
+#p-o-neuro .content{
+  flex:1;
+  overflow-y:scroll;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  padding:0 calc(var(--sar) + 20px) calc(var(--sab) + 32px) 20px;
+}
+
+/* ─── SCREENS ─── */
+#p-o-neuro .screen{display:none;}
+#p-o-neuro .screen.np-on{display:block;}
+
+/* ─── HOME GRID ─── */
+#p-o-neuro .hero-grid{
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:14px;margin-bottom:14px;
+}
+
+/* HERO TEAL */
+#p-o-neuro .hero{
+  background:linear-gradient(140deg,#44817f 0%,#366873 55%,#2b5462 100%);
+  border-radius:var(--rxl);padding:28px 30px;
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-start;gap:22px;
+  box-shadow:var(--s3);min-height:0;
+}
+#p-o-neuro .hero::before, #p-o-neuro .hero::after{
+  content:'';position:absolute;border-radius:50%;pointer-events:none;
+}
+#p-o-neuro .hero::before{right:-50px;top:-50px;width:260px;height:260px;background:rgba(255,255,255,.055);}
+#p-o-neuro .hero::after{right:20px;bottom:-70px;width:200px;height:200px;background:rgba(255,255,255,.035);}
+#p-o-neuro .h-lbl{font-size:13px;font-weight:500;color:rgba(255,255,255,.82);margin-bottom:4px;}
+#p-o-neuro .h-name{font-size:31px;font-weight:600;letter-spacing:-.02em;color:#fff;line-height:1.12;margin-bottom:3px;}
+#p-o-neuro .h-meta{font-size:13.5px;color:rgba(255,255,255,.8);}
+#p-o-neuro .h-stats{display:flex;gap:10px;flex-wrap:wrap;}
+#p-o-neuro .h-stat{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.11);
+  border-radius:13px;padding:10px 14px;
+  border:1px solid rgba(255,255,255,.09);
+}
+#p-o-neuro .h-stat-ic{
+  width:30px;height:30px;border-radius:8px;
+  background:rgba(255,255,255,.14);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+#p-o-neuro .h-stat-v{font-size:16px;font-weight:700;color:#fff;line-height:1;}
+#p-o-neuro .h-stat-l{font-size:11.5px;color:rgba(255,255,255,.72);}
+#p-o-neuro .h-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:14.5px;font-weight:600;
+  letter-spacing:0;
+  border-radius:14px;padding:14px 22px;
+  cursor:pointer;align-self:flex-start;margin-top:16px;
+  font-family:'Outfit',system-ui,sans-serif;min-height:var(--touch);
+  -webkit-appearance:none;
+}
+#p-o-neuro .h-cta:active{opacity:.75;}
+
+/* PEACH CARD */
+#p-o-neuro .pc{
+  background:var(--peach-pl);
+  border-radius:var(--rxl);padding:24px 24px;
+  border:1px solid var(--peach);
+  box-shadow:var(--s2);
+  display:flex;flex-direction:column;
+}
+#p-o-neuro .pc-lbl{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;}
+#p-o-neuro .pc-num{font-size:46px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+#p-o-neuro .pc-bdg{
+  display:inline-flex;align-items:center;
+  background:var(--teal);color:#fff;
+  font-size:10px;font-weight:700;border-radius:6px;padding:2px 9px;margin-bottom:10px;
+}
+#p-o-neuro .gauge-w{display:flex;justify-content:center;margin:2px 0 10px;}
+#p-o-neuro .pc-desc{font-size:12px;color:var(--text-md);line-height:1.5;margin-bottom:14px;flex:1;}
+#p-o-neuro .pc-act{
+  display:flex;align-items:center;gap:11px;
+  background:var(--white);border-radius:13px;padding:12px 14px;
+  border:1px solid var(--border);
+}
+#p-o-neuro .pc-act-ic{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--teal-fill);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:16px;flex-shrink:0;
+}
+#p-o-neuro .pc-act-tx{font-size:13px;font-weight:500;color:var(--text);line-height:1.35;flex:1;}
+#p-o-neuro .pc-act-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--peach-dk);border:none;
+  display:flex;align-items:center;justify-content:center;
+  color:#1e2e38;cursor:pointer;flex-shrink:0;
+  -webkit-appearance:none;
+}
+#p-o-neuro .pc-act-btn:active{opacity:.7;}
+
+/* MODULE CARDS GRID */
+#p-o-neuro .mod-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+#p-o-neuro .mc{
+  background:var(--white);border-radius:var(--rl);
+  padding:20px;box-shadow:var(--s1);
+  border:1.5px solid var(--border);
+  cursor:pointer;
+  transition:border-color .2s;
+  position:relative;overflow:hidden;
+  min-height:150px;
+  display:flex;flex-direction:column;
+  -webkit-tap-highlight-color:transparent;
+}
+#p-o-neuro .mc:active{background:#f4f8fa;}
+#p-o-neuro .mc.done{border-color:var(--teal);background:linear-gradient(160deg,#fff 55%,var(--teal-pl));}
+#p-o-neuro .mc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+#p-o-neuro .mc-ic{
+  width:46px;height:46px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:21px;
+}
+#p-o-neuro .mc-ic{background:var(--teal-pl);}
+#p-o-neuro .mc-dot{display:none;}
+#p-o-neuro .mc-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
+#p-o-neuro .mc-sub{font-size:11px;color:var(--text-lt);line-height:1.35;}
+#p-o-neuro .mc-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:auto;padding-top:12px;border-top:1px solid var(--border);
+}
+#p-o-neuro .mc-st{font-size:12.5px;font-weight:500;color:var(--text-lt);}
+#p-o-neuro .mc.done .mc-st{color:var(--teal-dk);font-weight:600;}
+#p-o-neuro .mc-arr{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--teal-pl);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--teal-dk);font-size:13px;font-weight:700;
+}
+#p-o-neuro .mc.done .mc-arr{background:var(--teal-fill);color:#fff;}
+
+/* ─── GENERIC WHITE CARD ─── */
+#p-o-neuro .wc{
+  background:var(--white);border-radius:var(--rl);
+  padding:20px 22px;box-shadow:var(--s1);
+  border:1px solid var(--border);margin-bottom:14px;
+}
+#p-o-neuro .wc-ttl{
+  font-size:15px;font-weight:600;letter-spacing:-.01em;
+  color:var(--text);margin-bottom:15px;
+  display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  padding-bottom:11px;border-bottom:1px solid var(--border);
+}
+#p-o-neuro .wc-ttl i{display:none;}
+
+/* ─── MODULE SCREEN HEADER ─── */
+#p-o-neuro .mhd{
+  display:flex;align-items:center;gap:14px;
+  background:var(--white);border-radius:var(--rl);
+  padding:16px 20px;margin-bottom:14px;
+  box-shadow:var(--s1);border:1px solid var(--border);
+}
+#p-o-neuro .mhd-ic{
+  width:50px;height:50px;border-radius:15px;
+  background:linear-gradient(135deg,var(--teal-pl),var(--teal-lt));
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  flex-shrink:0;
+}
+#p-o-neuro .mhd-title{font-size:21px;font-weight:600;letter-spacing:-.015em;color:var(--text);line-height:1.2;}
+#p-o-neuro .mhd-sub{font-size:12px;color:var(--text-lt);margin-top:1px;}
+#p-o-neuro .mhd-bdg{
+  margin-left:auto;
+  background:var(--teal-pl);color:var(--teal-dk);
+  font-size:11.5px;font-weight:600;
+  padding:6px 13px;border-radius:20px;
+  border:1px solid var(--teal-lt);white-space:nowrap;flex-shrink:0;
+}
+
+/* ─── FORM: FIELD ─── */
+#p-o-neuro .np-field{margin-bottom:14px;}
+#p-o-neuro .np-field > label{
+  display:block;font-size:12.5px;font-weight:500;
+  color:var(--text-md);
+  margin-bottom:7px;
+}
+/* All inputs/selects — 50px height for comfortable tap */
+#p-o-neuro .np-field input, #p-o-neuro .np-field select{
+  width:100%;height:50px;padding:0 16px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-size:16px; /* 16px prevents iOS zoom on focus */
+  background:var(--white);color:var(--text);
+  -webkit-appearance:none;appearance:none;
+  font-family:'Outfit',system-ui,sans-serif;
+  transition:border-color .18s;
+}
+#p-o-neuro .np-field textarea{
+  width:100%;padding:14px 16px;
+  border:1.5px solid var(--border);border-radius:12px;
+  font-size:16px;
+  background:var(--white);color:var(--text);
+  -webkit-appearance:none;appearance:none;
+  font-family:'Outfit',system-ui,sans-serif;
+  min-height:88px;resize:none;line-height:1.5;
+  transition:border-color .18s;
+}
+#p-o-neuro .np-field input:focus, #p-o-neuro .np-field select:focus, #p-o-neuro .np-field textarea:focus{
+  outline:none;border-color:var(--teal);
+}
+/* iOS select arrow */
+#p-o-neuro .np-field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238aa0ae' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 16px center;
+  padding-right:40px;
+}
+
+#p-o-neuro .f2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+#p-o-neuro .f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+/* ─── CHECK ITEMS ─── */
+#p-o-neuro .cg{display:flex;flex-direction:column;gap:6px;}
+/* 52px min height for comfortable tap */
+#p-o-neuro .np-ci{
+  display:flex;align-items:center;gap:13px;
+  min-height:52px;padding:12px 16px;
+  background:#f7fafb;border-radius:12px;
+  border:1.5px solid var(--border);
+  cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  transition:border-color .15s,background .15s;
+}
+#p-o-neuro .np-ci.np-on{border-color:var(--teal);background:var(--teal-pl);}
+#p-o-neuro .np-ci input[type=checkbox]{
+  width:22px;height:22px;
+  accent-color:var(--teal);flex-shrink:0;
+  cursor:pointer;
+}
+#p-o-neuro .ci-lbl{font-size:14px;line-height:1.3;flex:1;}
+#p-o-neuro .np-ci:active{background:var(--teal-pl);}
+
+/* ─── RADIO ITEMS ─── */
+#p-o-neuro .rg{display:flex;flex-direction:column;gap:6px;}
+#p-o-neuro .ri{
+  display:flex;align-items:center;gap:13px;
+  min-height:52px;padding:12px 16px;
+  background:#f7fafb;border-radius:12px;
+  border:1.5px solid var(--border);
+  cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+  transition:border-color .15s,background .15s;
+}
+#p-o-neuro .ri.np-on{border-color:var(--teal);background:var(--teal-pl);}
+#p-o-neuro .ri input[type=radio]{width:22px;height:22px;accent-color:var(--teal);flex-shrink:0;}
+#p-o-neuro .ri-lbl{font-size:14px;flex:1;}
+#p-o-neuro .ri:active{background:var(--teal-pl);}
+
+/* ─── PILLS ─── */
+#p-o-neuro .pg{display:flex;gap:8px;flex-wrap:wrap;}
+#p-o-neuro .pill{
+  min-height:44px;padding:0 20px;
+  border-radius:22px;
+  border:1.5px solid var(--border);
+  background:var(--white);
+  font-size:14px;font-weight:600;cursor:pointer;
+  color:var(--text-md);
+  font-family:'Outfit',system-ui,sans-serif;
+  -webkit-appearance:none;
+  user-select:none;-webkit-user-select:none;
+  transition:background .15s,border-color .15s,color .15s;
+}
+#p-o-neuro .pill.np-on{background:var(--teal-fill);border-color:var(--teal-fill);color:#fff;}
+#p-o-neuro .pill:active{opacity:.75;}
+
+/* ─── ÍCONES (Phosphor) ─── */
+#p-o-neuro .np-ic{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;font-size:1em;}
+#p-o-neuro .ni .np-ic{font-size:21px;margin-bottom:5px;}
+#p-o-neuro .mc-ic .np-ic, #p-o-neuro .mhd-ic .np-ic{font-size:23px;color:var(--teal-dk);}
+#p-o-neuro .h-stat-ic .np-ic{font-size:16px;color:#fff;}
+#p-o-neuro .pc-act-ic .np-ic{font-size:18px;color:#fff;}
+#p-o-neuro .pc-act-btn .np-ic, #p-o-neuro .mc-arr .np-ic{font-size:17px;}
+#p-o-neuro .al-ic .np-ic{font-size:17px;}
+#p-o-neuro .al.inf .al-ic .np-ic{color:var(--teal-dk);}
+#p-o-neuro .al.wrn .al-ic .np-ic{color:#8a6a10;}
+#p-o-neuro .tb-back .np-ic, #p-o-neuro .tb-tab .np-ic{font-size:16px;display:inline-block;vertical-align:-2px;}
+#p-o-neuro .h-cta .np-ic{font-size:17px;}
+
+/* ─── FOCO VISÍVEL (navegação por teclado) ─── */
+#p-o-neuro :focus-visible{outline:2.5px solid var(--teal-dk);outline-offset:2px;border-radius:6px;}
+#p-o-neuro .ni:focus-visible{outline-color:#fff;outline-offset:-3px;}
+#p-o-neuro .hero :focus-visible{outline-color:#fff;}
+
+/* ─── NÚMEROS CLÍNICOS: figuras tabulares ─── */
+#p-o-neuro .np-field input, #p-o-neuro .pb-lbl, #p-o-neuro .thr-val, #p-o-neuro .ms-n, #p-o-neuro .h-stat-v{font-variant-numeric:tabular-nums;}
+
+/* ─── MOVIMENTO REDUZIDO ─── */
+@media (prefers-reduced-motion:reduce){
+  #p-o-neuro *, #p-o-neuro *::before, #p-o-neuro *::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+  #p-o-neuro .np-btn:active{transform:none;}
+}
+
+/* ─── RESULT CARDS ─── */
+#p-o-neuro .rc{border-radius:14px;padding:16px 18px;margin-top:12px;border:1.5px solid;}
+#p-o-neuro .rc.np-tl{background:var(--teal-pl);border-color:var(--teal-lt);}
+#p-o-neuro .rc.wn{background:#fffbec;border-color:#e8d060;}
+#p-o-neuro .rc.dg{background:#fff0f0;border-color:#e8a0a0;}
+#p-o-neuro .rc-lbl{font-size:12px;font-weight:500;color:var(--text-md);margin-bottom:5px;}
+#p-o-neuro .rc-val{font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--text);margin-bottom:4px;line-height:1.25;}
+#p-o-neuro .rc-sub{font-size:13px;color:var(--text-md);line-height:1.5;}
+
+/* ─── FAIXA DE MÓDULOS (substitui o medidor decorativo) ─── */
+#p-o-neuro .pc-head{display:flex;align-items:baseline;gap:9px;margin-bottom:14px;}
+#p-o-neuro .pc-den{font-size:12.5px;color:var(--text-md);line-height:1.3;}
+#p-o-neuro .ms{list-style:none;display:flex;flex-direction:column;gap:2px;margin-bottom:14px;}
+#p-o-neuro .ms-i{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 2px;border-bottom:1px solid rgba(196,150,110,.28);
+  font-size:13.5px;color:var(--text-md);
+}
+#p-o-neuro .ms-i:last-child{border-bottom:none;}
+#p-o-neuro .ms-k{
+  width:17px;height:17px;border-radius:5px;flex-shrink:0;
+  border:1.5px solid var(--peach-dk);background:transparent;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+}
+#p-o-neuro .ms-k .np-ic{font-size:11px;opacity:0;}
+#p-o-neuro .ms-i.done .ms-k{background:var(--teal-fill);border-color:var(--teal-fill);}
+#p-o-neuro .ms-i.done .ms-k .np-ic{opacity:1;}
+#p-o-neuro .ms-n{flex:1;}
+#p-o-neuro .ms-i.done .ms-n{color:var(--text);font-weight:500;}
+#p-o-neuro .ms-s{font-size:12px;color:var(--text-lt);}
+#p-o-neuro .ms-i.done .ms-s{color:var(--teal-dk);font-weight:500;}
+
+/* ─── ESCALA DE LIMIARES (comparação: onde o paciente cai) ─── */
+#p-o-neuro .thr{margin-top:12px;}
+#p-o-neuro .thr-cap{font-size:12px;color:var(--text-md);margin-bottom:9px;}
+#p-o-neuro .thr-track{position:relative;height:9px;border-radius:5px;overflow:hidden;display:flex;background:var(--border);}
+#p-o-neuro .thr-band{display:block;height:100%;}
+#p-o-neuro .thr-b1{background:#cdd9df;}
+#p-o-neuro .thr-b2{background:#a8cece;}
+#p-o-neuro .thr-b3{background:#e8cf8f;}
+#p-o-neuro .thr-b4{background:#dda39c;}
+#p-o-neuro .thr-mark{
+  position:absolute;top:-4px;width:3px;height:17px;border-radius:2px;
+  background:var(--text);transform:translateX(-50%);
+}
+#p-o-neuro .thr-lbls{display:flex;margin-top:7px;font-size:11.5px;color:var(--text-lt);}
+#p-o-neuro .thr-lbls span{display:block;}
+#p-o-neuro .thr-val{font-size:12.5px;color:var(--text);font-weight:500;margin-top:8px;}
+
+/* ─── ALERTS ─── */
+/* fluxo inline: com display:flex o <strong> virava uma coluna separada */
+#p-o-neuro .al{
+  display:flow-root;
+  padding:13px 16px;border-radius:12px;
+  font-size:13.5px;line-height:1.55;margin-bottom:14px;
+}
+#p-o-neuro .al-ic{float:left;margin:1px 11px 0 0;}
+#p-o-neuro .al.inf{background:var(--teal-pl);border:1px solid var(--teal-lt);color:var(--teal-dk);}
+#p-o-neuro .al.wrn{background:#fffbec;border:1px solid #e8d080;color:#6a5400;}
+#p-o-neuro .al.np-err{background:#fdf0ef;border:1px solid #e3b0aa;color:#8c2f26;}
+
+
+/* ─── SECTION DIVIDER ─── */
+#p-o-neuro .sdv{
+  font-size:13px;font-weight:600;letter-spacing:-.005em;
+  color:var(--text-md);
+  margin:20px 0 10px;padding-bottom:7px;
+  border-bottom:1px solid var(--border);
+}
+
+/* ─── BUTTONS ─── */
+#p-o-neuro .np-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;min-height:var(--touch);
+  padding:0 20px;border-radius:14px;
+  font-size:15px;font-weight:700;
+  border:none;cursor:pointer;
+  font-family:'Outfit',system-ui,sans-serif;
+  letter-spacing:.02em;-webkit-appearance:none;
+  user-select:none;-webkit-user-select:none;
+  gap:8px;
+}
+#p-o-neuro .np-btn:active{transform:scale(.98);opacity:.9;}
+#p-o-neuro .btn-tl{background:var(--teal-fill);color:#fff;box-shadow:0 4px 14px rgba(63,120,119,.3);}
+#p-o-neuro .btn-out{background:transparent;border:1.5px solid var(--border);color:var(--text-md);}
+
+/* ─── PROGRESS BAR ─── */
+#p-o-neuro .pb{width:100%;height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+#p-o-neuro .pb-f{height:100%;border-radius:4px;background:var(--teal-fill);transition:width .5s cubic-bezier(.4,0,.2,1);}
+#p-o-neuro .pb-lbl{font-size:12px;color:var(--text-lt);margin-top:5px;}
+
+/* ─── SCORE ROW ─── */
+#p-o-neuro .sr{
+  display:flex;align-items:center;gap:16px;
+  background:linear-gradient(135deg,var(--teal-pl),#fff);
+  border-radius:14px;padding:16px 18px;
+  border:1px solid var(--teal-lt);margin-bottom:12px;
+}
+#p-o-neuro .sr-n{font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--teal-dk);font-variant-numeric:tabular-nums;}
+#p-o-neuro .sr-m{flex:1;}
+#p-o-neuro .sr-ml{font-size:12px;font-weight:500;color:var(--text-md);}
+
+/* ─── PATIENT 2-COL ─── */
+#p-o-neuro .p2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+
+/* ─── 2-COL MODULE LAYOUT (landscape) ─── */
+#p-o-neuro .m2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+
+/* ─── PILL COLUMN VARIANT ─── */
+#p-o-neuro .pg.col{flex-direction:column;align-items:stretch;}
+#p-o-neuro .pg.col .pill{text-align:left;}
+
+/* ─── ANAMNESE ROW — responsive ─── */
+#p-o-neuro .np-an-row{
+  display:grid;
+  grid-template-columns:1fr 72px 72px;
+  gap:6px;align-items:center;
+  min-height:52px;padding:10px 12px;
+  background:#f7fafb;border-radius:12px;
+  border:1.5px solid var(--border);margin-bottom:6px;
+}
+#p-o-neuro .an-row-lbl{font-size:14px;line-height:1.3;}
+#p-o-neuro .an-chk{display:flex;align-items:center;justify-content:center;min-height:44px;cursor:pointer;}
+#p-o-neuro .an-chk input{width:24px;height:24px;}
+
+/* ─── WC-TTL SOURCE BADGE ─── */
+#p-o-neuro .src-bdg{
+  font-weight:400;color:var(--text-lt);
+  font-size:11.5px;letter-spacing:0;
+}
+
+/* ─── GCS RESULT INLINE ─── */
+#p-o-neuro .gcs-block{display:flex;flex-direction:column;gap:10px;}
+
+/* ─── PORTRAIT / TABLET PORTRAIT ─── */
+@media (orientation:portrait),(max-width:900px){
+  /* Sidebar → bottom tab bar */
+  
+  #p-o-neuro .np-sidebar{
+    order:99;width:100%;height:auto;
+    flex-direction:row;
+    padding:6px calc(var(--sar) + 6px) calc(var(--sab) + 6px) calc(var(--sal) + 6px);
+    border-top:1px solid rgba(255,255,255,.1);
+  }
+  #p-o-neuro .sb-logo, #p-o-neuro .sb-av{display:none;}
+  #p-o-neuro .sb-nav{
+    flex-direction:row;gap:2px;flex:1;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;justify-content:space-around;
+  }
+  #p-o-neuro .sb-nav::-webkit-scrollbar{display:none;}
+  #p-o-neuro .ni{
+    flex-direction:column;min-height:58px;width:auto;
+    padding:8px 16px 6px;border-radius:12px;flex-shrink:0;
+    font-size:9px;
+  }
+  #p-o-neuro .ni-ic{font-size:20px;}
+
+  #p-o-neuro .np-main{flex:1;overflow:hidden;}
+  #p-o-neuro .content{
+    padding:0 calc(var(--sar) + 16px) 10px calc(var(--sal) + 16px);
+  }
+  #p-o-neuro .topbar{
+    padding:calc(var(--sat) + 10px) calc(var(--sar) + 16px) 10px calc(var(--sal) + 16px);
+    gap:8px;
+  }
+  #p-o-neuro .tb-tabs .tb-tab{padding:0 14px;font-size:13px;}
+
+  /* Hero */
+  #p-o-neuro .hero-grid{grid-template-columns:1fr;}
+  #p-o-neuro .hero-grid > .pc{display:none;}
+
+  /* Module cards: 2-col portrait */
+  #p-o-neuro .mod-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  #p-o-neuro .mc{min-height:130px;}
+
+  /* Layouts → single column */
+  #p-o-neuro .p2, #p-o-neuro .m2{grid-template-columns:1fr;}
+
+  /* f2/f3: keep 2-col on iPad portrait (≥768px wide) */
+  /* collapsed only on phone */
+}
+
+/* ─── IPAD SPECIFIC (768–1024px) ─── */
+@media (min-width:768px) and (max-width:1024px){
+  /* Landscape sidebar: slightly narrower */
+  #p-o-neuro .np-sidebar{width:80px;}
+  #p-o-neuro .ni{font-size:8.5px;}
+
+  /* Content breathing room */
+  #p-o-neuro .content{padding:0 calc(var(--sar) + 18px) calc(var(--sab) + 28px) 18px;}
+
+  /* Hero compact */
+  #p-o-neuro .hero{padding:22px 24px;}
+  #p-o-neuro .h-name{font-size:26px;}
+
+  /* Module grid: 4-col landscape, 2-col portrait handled above */
+  #p-o-neuro .mod-grid{gap:12px;}
+  #p-o-neuro .mc{padding:16px;}
+
+  /* White cards */
+  #p-o-neuro .wc{padding:18px 20px;margin-bottom:12px;}
+
+  /* Fields */
+  #p-o-neuro .np-field input, #p-o-neuro .np-field select{height:50px;font-size:16px;}
+  #p-o-neuro .np-field textarea{font-size:16px;}
+
+  /* f3 stays 3-col on iPad landscape */
+}
+
+/* ─── IPAD PORTRAIT ONLY (768px wide) ─── */
+@media (orientation:portrait) and (min-width:700px){
+  /* f2 stays 2-col */
+  #p-o-neuro .f2{grid-template-columns:1fr 1fr;}
+  /* f3 → 2-col (3 is tight) */
+  #p-o-neuro .f3{grid-template-columns:1fr 1fr;}
+  /* anamnese row stays readable */
+  #p-o-neuro .np-an-row{grid-template-columns:1fr 80px 80px;}
+}
+
+/* ─── SMALL PHONE ─── */
+@media (max-width:600px){
+  #p-o-neuro .mod-grid{grid-template-columns:1fr 1fr;}
+  #p-o-neuro .tb-tabs{display:none;}
+  #p-o-neuro .f2, #p-o-neuro .f3{grid-template-columns:1fr;}
+  #p-o-neuro .np-an-row{grid-template-columns:1fr 60px 60px;}
+  #p-o-neuro .an-row-lbl{font-size:13px;}
+}
+
+/* ─── LANDSCAPE COMPACT (iPad mini landscape / small) ─── */
+@media (orientation:landscape) and (max-height:700px){
+  #p-o-neuro .hero{padding:18px 22px;}
+  #p-o-neuro .h-name{font-size:24px;}
+  #p-o-neuro .hero-grid{margin-bottom:10px;}
+  #p-o-neuro .mod-grid{gap:10px;}
+  #p-o-neuro .wc{padding:14px 16px;margin-bottom:10px;}
+  #p-o-neuro .mhd{padding:12px 16px;margin-bottom:10px;}
+  #p-o-neuro .sdv{margin:14px 0 8px;}
+}
+
+/* iPad: faixa de módulos e escala respiram melhor */
+@media (min-width:768px) and (max-width:1024px){
+  #p-o-neuro .ms-i{padding:8px 2px;font-size:13px;}
+  #p-o-neuro .pc-num{font-size:42px;}
+}
+
+/* ─── LANDSCAPE FULL (iPad Pro 12.9 landscape) ─── */
+@media (orientation:landscape) and (min-height:900px){
+  #p-o-neuro .np-sidebar{width:96px;}
+  #p-o-neuro .content{padding:0 calc(var(--sar) + 24px) calc(var(--sab) + 36px) 24px;}
+  #p-o-neuro .wc{padding:22px 24px;}
+  #p-o-neuro .hero{padding:30px 32px;}
+}
+#p-o-neuro .np-btn.btn-tl,#p-o-neuro .pill.np-on{color:var(--bg);}
+#p-o-neuro .np-btn.btn-tl .np-ic,#p-o-neuro .pill.np-on .np-ic{color:var(--bg);}
+#p-o-neuro .ms-i.done .ms-k .np-ic{color:var(--bg);}
+#p-o-neuro .mc-arr,#p-o-neuro .pc-act-ic{color:var(--bg);}
+
+
+/* ── tema: o modulo tinha cores claras fixas do app avulso. Aqui elas passam
+      a ser tokens do Sistema Olhar, para o modulo funcionar nos dois temas. ── */
+#p-o-neuro .wc, #p-o-neuro .mhd, #p-o-neuro .rc, #p-o-neuro .sr{background:var(--bg2);border-color:var(--bdr);}
+#p-o-neuro .ri, #p-o-neuro .np-ci, #p-o-neuro .an-row, #p-o-neuro .pill{
+  background:var(--bg3);border-color:var(--bdr);color:var(--tx);}
+#p-o-neuro .ri:hover, #p-o-neuro .np-ci:hover, #p-o-neuro .pill:hover{border-color:var(--pri);}
+#p-o-neuro .ri.np-on, #p-o-neuro .np-ci.np-on{background:var(--pril);border-color:var(--pri);}
+#p-o-neuro .ri .ri-lbl, #p-o-neuro .np-ci .ci-lbl, #p-o-neuro .an-row-lbl{color:var(--tx);}
+#p-o-neuro .field input, #p-o-neuro .np-field input,
+#p-o-neuro .field select, #p-o-neuro .np-field select,
+#p-o-neuro .field textarea, #p-o-neuro .np-field textarea{
+  background:var(--bg3);border-color:var(--bdr);color:var(--tx);}
+#p-o-neuro .field input::placeholder, #p-o-neuro .np-field input::placeholder,
+#p-o-neuro .field textarea::placeholder, #p-o-neuro .np-field textarea::placeholder{color:var(--tx3);}
+
+/* alertas e cartoes de resultado seguem a escala de estado do app */
+#p-o-neuro .al.inf{background:var(--pril);border:1px solid var(--bdr);color:var(--tx2);}
+#p-o-neuro .al.wrn{background:var(--wl);border:1px solid var(--wn);color:var(--tx);}
+#p-o-neuro .al.np-err{background:var(--rl);border:1px solid var(--red);color:var(--tx);}
+#p-o-neuro .al.inf .al-ic{color:var(--pri);}
+#p-o-neuro .al.wrn .al-ic{color:var(--wn);}
+#p-o-neuro .al.np-err .al-ic{color:var(--red);}
+#p-o-neuro .rc.np-tl{background:var(--grl);border-color:var(--grn);}
+#p-o-neuro .rc.wn{background:var(--wl);border-color:var(--wn);}
+#p-o-neuro .rc.dg{background:var(--rl);border-color:var(--red);}
+#p-o-neuro .rc-val, #p-o-neuro .rc-lbl, #p-o-neuro .rc-sub{color:var(--tx);}
+#p-o-neuro .rc-lbl, #p-o-neuro .rc-sub{color:var(--tx2);}
+
+/* botao primario: fundo --pri com texto --bg, a mesma convencao do .bt do app */
+#p-o-neuro .np-btn.btn-tl{background:var(--pri);color:var(--bg);box-shadow:none;}
+#p-o-neuro .np-btn.btn-tl:hover{background:var(--prid);}
+#p-o-neuro .np-btn.btn-tl .np-ic{color:var(--bg);}
+#p-o-neuro .np-btn.btn-out{background:transparent;color:var(--tx);border:1.5px solid var(--bdr);}
+#p-o-neuro .pill.np-on{background:var(--pri);border-color:var(--pri);color:var(--bg);}
+
+/* faixa de limiares: escala de severidade, legivel nos dois temas */
+#p-o-neuro .thr-track{background:var(--bg4);}
+#p-o-neuro .thr-mark{background:var(--tx);}
+#p-o-neuro .thr-lbls{color:var(--tx3);}
+/* controles nativos seguem o acento do app nos dois temas */
+#p-o-neuro input[type=checkbox],#p-o-neuro input[type=radio]{accent-color:var(--pri);}
+#p-o-neuro select{color-scheme:light dark;}
+
+/* ── invólucro do módulo dentro do app ── */
+#p-o-neuro .np-bar{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:22px;align-items:start;margin-bottom:18px;}
+#p-o-neuro .np-bar-pac label{display:block;font-size:12.5px;font-weight:500;color:var(--tx2);margin-bottom:7px;}
+#p-o-neuro .np-bar-pac select{width:100%;height:46px;padding:0 14px;border:1.5px solid var(--bdr);border-radius:var(--r);
+  background:var(--bg3);color:var(--tx);font-family:var(--font);font-size:15px;}
+#p-o-neuro .np-bar-meta{margin-top:9px;font-size:13px;color:var(--tx3);line-height:1.4;}
+#p-o-neuro .np-bar-prog .pc-head{margin-bottom:10px;}
+#p-o-neuro .np-bar-prog .ms-i{border-bottom:1px solid var(--bdr);}
+#p-o-neuro .np-bar-prog .ms-k{border-color:var(--pri);}
+#p-o-neuro .np-bar-hl{font-size:12.5px;font-weight:500;color:var(--tx2);margin-bottom:9px;}
+#p-o-neuro .np-hist{display:flex;flex-direction:column;gap:6px;max-height:190px;overflow:auto;}
+#p-o-neuro .np-hist-vazio{font-size:13px;color:var(--tx3);}
+#p-o-neuro .np-hist-i{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  min-height:44px;padding:9px 13px;border:1.5px solid var(--bdr);border-radius:var(--r);
+  background:var(--bg3);color:var(--tx);font-family:var(--font);font-size:13.5px;cursor:pointer;text-align:left;}
+#p-o-neuro .np-hist-i:hover{border-color:var(--pri);}
+#p-o-neuro .np-hist-i.np-on{border-color:var(--pri);background:var(--pril);}
+#p-o-neuro .np-hist-i span{font-size:12.5px;color:var(--tx3);}
+#p-o-neuro .np-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;
+  border-bottom:1px solid var(--bdr);padding-bottom:10px;}
+#p-o-neuro .np-tab{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 18px;
+  border:1.5px solid transparent;border-radius:var(--r);background:transparent;color:var(--tx2);
+  font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+#p-o-neuro .np-tab i{font-size:18px;}
+#p-o-neuro .np-tab:hover{background:var(--bg3);color:var(--tx);}
+#p-o-neuro .np-tab.np-on{background:var(--pri);color:var(--bg);border-color:var(--pri);font-weight:600;}
+#p-o-neuro .np-panel{display:none;}
+#p-o-neuro .np-panel.np-on{display:block;}
+#p-o-neuro .wc{background:var(--bg2);border:1px solid var(--bdr);box-shadow:none;}
+#p-o-neuro .mhd{background:var(--bg2);border:1px solid var(--bdr);box-shadow:none;}
+#p-o-neuro .ph h1{font-family:var(--font-h);font-size:28px;font-weight:700;color:var(--pri);}
+#p-o-neuro .ph p{font-size:12px;color:var(--tx3);margin-top:3px;}
+@media (max-width:1100px){ #p-o-neuro .np-bar{grid-template-columns:1fr;} }
+
 </style>
 <script id="ano-escolar-js">
 (function(){
@@ -8187,5 +9680,939 @@ html.conforto .an-ano-hint{font-size:13px}
   document.addEventListener('change',function(e){ var id=e.target&&e.target.id; if(id==='pr_dn'||id==='prDt') try{anAnoHint()}catch(x){} });
   document.addEventListener('input',function(e){ if(e.target&&e.target.id==='pr_dn') try{anAnoHint()}catch(x){} });
 })();
+</script>
+
+<script>
+
+/* ═══════════════════════════════════════════════════════════════
+   MÓDULO NEURO-OPTOMETRIA  —  Padula (2000) 3ª ed. · Suter & Harvey (2011)
+   Vive dentro do Sistema Olhar. Tudo em IIFE: nada vaza para o escopo global
+   além de window.NEURO. Não depende de nenhuma função do arquivo legado sem
+   antes checar em runtime (vide esc()/CLIN aprendidos em builds anteriores).
+   ═══════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+/* --- pontes com o app, todas defensivas --- */
+function tst(m){ try{ if(typeof toast==='function'){toast(m);return;} }catch(e){} try{console.log(m)}catch(e){} }
+function hostD(){ try{ return (typeof D!=='undefined'&&D)?D:(window.D||null) }catch(e){ return window.D||null } }
+function hostSv(){ try{ if(typeof sv==='function'){sv();return true} }catch(e){} return false }
+function hostGid(){ try{ if(typeof gid==='function') return gid() }catch(e){} 
+  return Date.now().toString(36)+Math.random().toString(36).substr(2,5) }
+function hostFd(d){ try{ if(typeof fd==='function') return fd(d) }catch(e){}
+  if(!d)return'—'; var p=String(d).split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d }
+var JSPDF_URL='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+function carregarJsPDF(){
+  if(window.jspdf&&window.jspdf.jsPDF) return Promise.resolve();
+  try{ if(typeof loadScript==='function') return loadScript(JSPDF_URL); }catch(e){}
+  return new Promise(function(ok,fail){
+    var s=document.createElement('script'); s.src=JSPDF_URL; s.async=true;
+    s.onload=function(){ok()}; s.onerror=function(){s.remove();fail(new Error('cdn'))};
+    document.head.appendChild(s);
+  });
+}
+// ── STATE ──
+const S={
+  avalId:null, _init:0,
+  pat:{nome:'',nasc:'',data:'',diag:'',queixa:'',lado:''},
+  pv:{},
+  done:{ptvs:0,vmss:0,exam:0,motor:0},
+  segs:[]
+};
+
+// ── DATA ──
+const PCARAC=['Exotropia ou Alta Exoforia','Disfunção Acomodativa','Insuficiência de Convergência','Baixa Taxa de Piscamento','Desorientação Espacial','Fixações e Pursuits Pobres','Visão Ambiente Instável'];
+const PSYMP=['Possível Diplopia','Objetos parecem se mover','Baixa Concentração e Atenção','Comportamento de Olhar Fixo (Staring)','Memória Visual Pobre','Fotofobia / Sensibilidade a Brilho','Sintomas Astenópicos','Dificuldades Neuromotoras — Equilíbrio','Dificuldades Neuromotoras — Coordenação','Dificuldades Neuromotoras — Postura'];
+const MQPOS=['Posição inicial simétrica em prono','Levanta pernas e braços juntos em extensão','Cotovelos em extensão no alcance','Mãos abertas e relaxadas','Peso distribuído no abdômen','Joelhos em extensão','Cabeça elevada e alinhada','Ombros relaxados e estáveis','Retorna suavemente à posição inicial'];
+const MQNEG=['Tronco superior desalinhado para a direita','Tronco superior desalinhado para a esquerda','Perna direita em rotação interna','Perna esquerda em rotação interna','Cabeça mantida baixa / levanta com dificuldade','Braços permanecem em flexão','Ombros elevam e tensionam','Apenas as pernas elevam','Apenas o corpo superior eleva','Pernas elevam primeiro depois corpo superior','Cabeça/tronco elevam primeiro depois pernas','Inclina para direita ou esquerda','Cotovelos permanecem em flexão','Mãos em punho','Peso no tronco com cabeça/braços apenas elevados','Joelhos em flexão','Cabeça/pescoço em hiperextensão extrema','Ombros elevam para manter elevação','Colapsa da postura após manutenção'];
+
+// Anamnese — 40 sintomas (Suter & Harvey App 12.2)
+const ANAMNESE_ITEMS=[
+  {cat:'Visão',items:['Visão embaçada','Diplopia (visão dupla)','Flashes de luz','Sensibilidade à luz (fotofobia)','Sensibilidade à luz fluorescente','Dificuldade para ver em ambiente escuro','Campo visual reduzido / cegueira lateral','Objetos pulam ou se movem ao ler','Perda de lugar / pula palavras ao ler']},
+  {cat:'Oculomotor',items:['Dor ao mover os olhos','Dor em ou ao redor dos olhos','Esforço / fadiga visual','Um olho desvia (para dentro, fora, cima ou baixo)','Dificuldade de mover ou virar os olhos','Redução de percepção de profundidade','Piscar / fechar um olho para ver melhor']},
+  {cat:'Espacial / Vestibular',items:['Tontura / vertigem','Desequilíbrio / postura estranha','Confusão / desorientação no espaço','Perde o caminho com frequência','Incomoda objetos em movimento ao redor','Enjoo de movimento / cinetose','Dificuldade em ambientes visualmente cheios']},
+  {cat:'Leitura / Cognitivo',items:['Dificuldade para entender o que lê','Desconforto ou cansaço ao ler','Período curto de atenção para tarefas próximas','Orienta escrita ou desenho mal na página','Dificuldade em seguir sequência de instruções']},
+  {cat:'Memória Visual',items:['Dificuldade em lembrar coisas vistas','Dificuldade em lembrar nomes de objetos','Dificuldade em reconhecer faces / pessoas conhecidas','Dificuldade em lembrar informações recentes','Dificuldade em lembrar informações do passado']},
+  {cat:'Atividades Diárias',items:['Dificuldade em vestir-se / higiene pessoal','Dificuldade de usar os dois lados do corpo juntos','Incomoda com ruídos','Incomoda com toque','Dificuldade em dirigir / mobilidade']}
+];
+
+// Gaze syndromes data
+const GAZE_SYNDROMES=[
+  'Paralisia NC III — exotropia, ptose, midríase',
+  'Paralisia NC IV — hipertropia + inclinação de cabeça (Park-Bielschowsky)',
+  'Paralisia NC VI — esotropia com limitação de abdução',
+  'Síndrome One-and-a-Half (MLF + centro de gaze ipsilateral)',
+  'Oftalmoplegia Internuclear — INO (lesão no MLF)',
+  'Síndrome de Parinaud — paralisia do olhar superior (tumor pineal / infarto mesencéfalo)',
+  'Desvio skew',
+  'Nenhuma síndrome identificada'
+];
+
+// Nystagmus info map
+const NYST_INFO={
+  ausente:{t:'Normal — sem nistagmo',s:'Movimentos oculares estáveis, sem fase rápida involuntária.',c:'tl'},
+  ritmico:{t:'Nistagmo rítmico — origem no ouvido interno',s:'Movimentos rítmicos binoculares com fase lenta + recuperação rápida. Sugere disfunção vestibular periférica (labirinto / NC VIII).',c:'wn'},
+  bobbing:{t:'Ocular Bobbing — lesão pontina extensa',s:'Jerk rápido para baixo com retorno lento à posição. Indicativo de lesão pontina bilateral grave — encaminhar neurologia urgente.',c:'dg'},
+  dismetria:{t:'Dismetria Ocular — distúrbio cerebelar',s:'Overshooting do alvo seguido de oscilações amortecidas. Indicativo de disfunção cerebelar (conexões cerebelo-ponte-tronco).',c:'wn'},
+  flutter:{t:'Ocular Flutter — amplo espectro etiológico',s:'Oscilações horizontais rápidas em torno do ponto de fixação. Associado a encefalopatia anóxico/hipóxica, neoplasia, encefalite e toxicidade medicamentosa.',c:'wn'},
+  opsoclonus:{t:'Opsoclonus — amplo espectro etiológico',s:'Movimentos conjugados rápidos, multidirecionais e irregulares. Associado a encefalopatia anóxico/hipóxica, neoplasia, encefalite e toxicidade. Encaminhar neurologia.',c:'dg'}
+};
+
+// ── INIT ──
+function init(){
+  bld('pc-carac',PCARAC,'pc');
+  bld('pc-symp',PSYMP,'ps');
+  bld('mq-pos',MQPOS,'mp');
+  bld('mq-neg',MQNEG,'mn');
+  bldAnamnese();
+  bldGazeSyndromes();
+  document.getElementById('p_data').value=new Date().toISOString().split('T')[0];
+  updGauge(0);
+  updCta();
+  rPac(); go('pat');
+}
+
+function bld(id,arr,pfx){
+  const c=document.getElementById(id);
+  c.innerHTML='';
+  arr.forEach((t,i)=>{
+    const l=document.createElement('label');
+    l.className='ci';
+    l.innerHTML=`<input type="checkbox" id="${pfx}${i}"><span class="ci-lbl">${t}</span>`;
+    l.querySelector('input').addEventListener('change',function(){
+      l.classList.toggle('np-on',this.checked);
+    });
+    c.appendChild(l);
+  });
+}
+
+function bldAnamnese(){
+  const c=document.getElementById('anamnese-list');
+  c.innerHTML='';
+  let gi=0;
+  ANAMNESE_ITEMS.forEach(grp=>{
+    const hd=document.createElement('div');
+    hd.className='sdv';hd.textContent=grp.cat;
+    c.appendChild(hd);
+    grp.items.forEach(txt=>{
+      const row=document.createElement('div');
+      row.className='an-row';
+      row.innerHTML=`
+        <span class="an-row-lbl">${txt}</span>
+        <label class="an-chk">
+          <input type="checkbox" id="an_a${gi}" style="accent-color:var(--teal);">
+        </label>
+        <label class="an-chk">
+          <input type="checkbox" id="an_p${gi}" style="accent-color:var(--peach-dk);">
+        </label>`;
+      c.appendChild(row);
+      gi++;
+    });
+  });
+}
+
+function bldGazeSyndromes(){
+  const c=document.getElementById('gaze-synd-cg');
+  if(!c)return;
+  c.innerHTML='';
+  GAZE_SYNDROMES.forEach((t,i)=>{
+    const l=document.createElement('label');
+    l.className='ci';
+    l.innerHTML=`<input type="checkbox" id="gs${i}"><span class="ci-lbl">${t}</span>`;
+    l.querySelector('input').addEventListener('change',function(){l.classList.toggle('np-on',this.checked);});
+    c.appendChild(l);
+  });
+}
+
+// ── NAVIGATION ──
+function go(name){
+  const root=document.getElementById('p-o-neuro'); if(!root)return;
+  root.querySelectorAll('.np-panel').forEach(p=>p.classList.remove('np-on'));
+  root.querySelectorAll('.np-tab').forEach(t=>t.classList.remove('np-on'));
+  const p=document.getElementById('np-p-'+name); if(p)p.classList.add('np-on');
+  const t=root.querySelector('.np-tab[data-np="'+name+'"]'); if(t)t.classList.add('np-on');
+}
+
+
+
+// ── PILLS ──
+function sp(btn,key){
+  btn.closest('.pg').querySelectorAll('.pill').forEach(p=>p.classList.remove('np-on'));
+  btn.classList.add('np-on');
+  S.pv[key]=btn.textContent.trim();
+  // SC alert logic
+  if(key==='sc_od'||key==='sc_oe'){
+    const od=S.pv['sc_od']||'';const oe=S.pv['sc_oe']||'';
+    const alert=document.getElementById('sc_alert');
+    if(alert){
+      const magno=(od.includes('baixas')||od.includes('médias')||oe.includes('baixas')||oe.includes('médias'));
+      alert.style.display=magno?'flex':'none';
+    }
+  }
+}
+
+// ── RADIOS ──
+function sr2(name,lbl){
+  document.querySelectorAll(`input[name="${name}"]`).forEach(r=>{
+    r.closest('.ri').classList.remove('np-on');
+  });
+  lbl.classList.add('np-on');
+}
+
+// ── NYSTAGMUS INFO ──
+function updNystInfo(){
+  const val=document.querySelector('input[name="nyst"]:checked')?.value;
+  const box=document.getElementById('nyst-info');
+  if(!box)return;
+  if(!val||val==='ausente'){box.style.display='none';return;}
+  const d=NYST_INFO[val];
+  if(!d){box.style.display='none';return;}
+  box.className=`rc ${d.c}`;
+  box.innerHTML=`<div class="rc-lbl">Localização Neuroanatômica</div><div class="rc-val" style="font-size:16px;">${d.t}</div><div class="rc-sub">${d.s}</div>`;
+  box.style.display='block';
+}
+
+// ── GCS ──
+function calcGCS(ctx){
+  const e=parseInt(document.getElementById(`gcs_e_${ctx}`)?.value)||0;
+  const v=parseInt(document.getElementById(`gcs_v_${ctx}`)?.value)||0;
+  const m=parseInt(document.getElementById(`gcs_m_${ctx}`)?.value)||0;
+  const res=document.getElementById(`gcs_${ctx}_res`);
+  const val=document.getElementById(`gcs_${ctx}_val`);
+  const cls=document.getElementById(`gcs_${ctx}_cls`);
+  if(!e||!v||!m){if(res)res.style.display='none';return;}
+  const tot=e+v+m;
+  let grav,col;
+  if(tot<=8){grav='Grave — adaptar para testes objetivos';col='dg';}
+  else if(tot<=12){grav='Moderado';col='wn';}
+  else{grav='Leve / Preservado';col='tl';}
+  if(res){res.style.display='block';res.className=`rc ${col}`;}
+  if(val)val.textContent=`GCS ${tot} = E${e} V${v} M${m}`;
+  if(cls)cls.textContent=grav;
+}
+
+// ── ANAMNESE ANALYSIS ──
+function calcAnamnese(){
+  let total=0;let novos=[];let preexist=[];
+  let gi=0;
+  ANAMNESE_ITEMS.forEach(grp=>{
+    grp.items.forEach(txt=>{
+      const a=document.getElementById(`an_a${gi}`)?.checked;
+      const p=document.getElementById(`an_p${gi}`)?.checked;
+      if(a&&!p)novos.push(txt);
+      if(a&&p)preexist.push(txt);
+      total++;gi++;
+    });
+  });
+  const box=document.getElementById('anamnese-summary');
+  if(!box)return;
+  let h=`<div class="rc dg"><div class="rc-lbl">Sintomas Novos (atribuíveis à lesão)</div><div class="rc-val">${novos.length} de ${total}</div>`;
+  if(novos.length)h+=`<div class="rc-sub">${novos.join(' · ')}</div>`;
+  h+=`</div>`;
+  if(preexist.length){
+    h+=`<div class="rc wn" style="margin-top:8px;"><div class="rc-lbl">Pré-existentes (não atribuíveis)</div><div class="rc-val">${preexist.length}</div><div class="rc-sub">${preexist.join(' · ')}</div></div>`;
+  }
+  box.innerHTML=h;box.style.display='block';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── MOTOR SEGMENTS ──
+function tgSeg(btn,seg){
+  btn.classList.toggle('np-on');
+  const i=S.segs.indexOf(seg);
+  i>=0?S.segs.splice(i,1):S.segs.push(seg);
+}
+
+// ── PATIENT ──
+const MODNOMES={ptvs:'PTVS',vmss:'VMSS',exam:'Exame neuro-optométrico',motor:'Qualidade motora'};
+const ICP='<i class="ph-bold ph-file-pdf np-ic" aria-hidden="true"></i>';
+const ICU='<i class="ph-bold ph-user np-ic" aria-hidden="true"></i>';
+
+// Próximo passo real: o rótulo e o destino do botão são sempre os mesmos
+function updProx(){
+  const tx=document.getElementById('pcActTx'),bt=document.getElementById('pcActBtn');
+  if(!tx||!bt)return;
+  const prox=['ptvs','vmss','exam','motor'].find(m=>!S.done[m]);
+  if(prox){
+    tx.textContent='Próximo: '+MODNOMES[prox];
+    bt.setAttribute('aria-label','Abrir '+MODNOMES[prox]);
+    bt.onclick=()=>go(prox);
+  }else{
+    tx.textContent='Todos os módulos concluídos';
+    bt.setAttribute('aria-label','Gerar relatório PDF');
+    bt.onclick=()=>gerarPDF();
+  }
+}
+
+// Sem paciente, gerar PDF não faz sentido: o CTA vira o primeiro passo
+function updCta(){
+  const b=document.getElementById('hCta');if(!b){updProx();return;}
+  const nome=(document.getElementById('p_nome')||{}).value||S.pat.nome||'';
+  const lbl=document.getElementById('hLbl');
+  const nm=document.getElementById('hName'),mt=document.getElementById('hMeta');
+  if(nome){
+    b.innerHTML=ICP+'Gerar relatório PDF';
+    b.onclick=gerarPDF;
+    if(lbl)lbl.textContent='Paciente ativo';
+  }else{
+    b.innerHTML=ICU+'Começar pelos dados do paciente';
+    b.onclick=()=>go('pat');
+    if(lbl)lbl.textContent='Nova avaliação';
+    if(nm)nm.textContent='Nenhum paciente ativo';
+    if(mt)mt.textContent='Preencha a identificação para liberar os módulos clínicos.';
+  }
+}
+
+function updHdr(){
+  const nome=(document.getElementById('p_nome')||{}).value||'';
+  const d=(document.getElementById('p_diag')||{}).value||'';
+  const meta=document.getElementById('np_pacMeta');
+  if(meta){
+    var pa=pacAtual(), bits=[];
+    if(pa&&pa.dob){ try{ if(typeof ca==='function'){ var idade=ca(pa.dob); if(idade!=='—') bits.push(idade+' anos') } }catch(e){} }
+    if(d) bits.push(d);
+    var nasc=(document.getElementById('p_nasc')||{}).value;
+    if(!bits.length && nasc) bits.push('nasc. '+hostFd(nasc));
+    meta.textContent = nome ? (bits.join(' · ')||'Sem diagnóstico informado')
+                            : 'Selecione um paciente do cadastro';
+  }
+  updCta();
+}
+
+function savePat(){
+  S.pat={
+    nome:document.getElementById('p_nome').value,
+    nasc:document.getElementById('p_nasc').value,
+    data:document.getElementById('p_data').value,
+    diag:document.getElementById('p_diag').value,
+    queixa:document.getElementById('p_queixa').value,
+    lado:S.pv['lado']||''
+  };
+  updHdr(); salvar();
+  const prox=['ptvs','vmss','exam','motor'].find(m=>!S.done[m]);
+  go(prox||'ptvs');
+  tst('Dados do paciente salvos');
+}
+
+// ── GAUGE ──
+function updGauge(n){
+  const pcN=document.getElementById('pcN');
+  if(pcN)pcN.textContent=n;
+  const sm=document.getElementById('sMod'); if(sm) sm.textContent=n+'/4';
+  Object.keys(S.done).forEach(m=>{
+    const row=document.getElementById('ms-'+m);
+    if(!row)return;
+    const done=!!S.done[m];
+    row.classList.toggle('done',done);
+    row.querySelector('.ms-s').textContent=done?'Concluído':'Pendente';
+  });
+  updProx();
+}
+
+function markDone(mod){
+  S.done[mod]=1;
+  updGauge(Object.values(S.done).reduce((a,b)=>a+b,0));
+  salvar();
+}
+
+// ── PTVS ──
+function calcPTVS(){
+  const cY=PCARAC.filter((_,i)=>document.getElementById('pc'+i)?.checked).length;
+  const sY=PSYMP.filter((_,i)=>document.getElementById('ps'+i)?.checked).length;
+  const tot=cY+sY;
+  const bd=document.querySelector('input[name="bd"]:checked')?.value||'';
+  const pr=document.querySelector('input[name="pr"]:checked')?.value||'';
+  const dp=S.pv['pdp']||'—';
+  let tipo,cls;
+  if(tot>=10&&bd==='melhora'&&pr==='positivo'){tipo='Alta Suspeita de PTVS';cls='dg';}
+  else if(tot>=6||(bd==='melhora'&&pr==='positivo')){tipo='Suspeita Moderada de PTVS';cls='wn';}
+  else if(tot>=3){tipo='Suspeita Leve — Monitorar';cls='tl';}
+  else{tipo='Baixa Suspeita / Dados Insuficientes';cls='tl';}
+  const pos=Math.min(100,Math.max(0,tot/17*100));
+  let h=`<div class="rc ${cls}">
+    <div class="rc-lbl">Classificação PTVS</div>
+    <div class="rc-val">${tipo}</div>
+    <div class="rc-sub">${cY} características + ${sY} sintomas · ${tot} de 17 presentes</div>
+    <div class="thr">
+      <div class="thr-cap">Posição do paciente nos limiares do protocolo</div>
+      <div class="thr-track">
+        <i class="thr-band thr-b1" style="width:17.6%"></i>
+        <i class="thr-band thr-b2" style="width:17.6%"></i>
+        <i class="thr-band thr-b3" style="width:23.5%"></i>
+        <i class="thr-band thr-b4" style="width:41.3%"></i>
+        <i class="thr-mark" style="left:${pos}%"></i>
+      </div>
+      <div class="thr-lbls">
+        <span style="width:17.6%">Baixa</span>
+        <span style="width:17.6%">Leve</span>
+        <span style="width:23.5%">Moderada</span>
+        <span style="width:41.3%">Alta</span>
+      </div>
+      <div class="thr-val">Escore ${tot}/17 · limiares em 3, 6 e 10 (Padula, 2000, Tabela 3)</div>
+    </div>
+  </div>`;
+  if(cls==='dg'||cls==='wn'){
+    h+=`<div class="rc tl" style="margin-top:10px;">
+      <div class="rc-lbl">Conduta — Padula (2000)</div>
+      <div class="rc-val" style="font-size:17px;">${pr==='positivo'?`Prisma base-in ${dp} AO`:'Testar prisma base-in 0,5–2 DP AO'}</div>
+      <div class="rc-sub" style="margin-top:6px;">
+        ${bd==='melhora'?'· Oclusão binasal positiva — considerar no Rx.<br>':''}
+        · Balancear Rx binocularmente — evitar excesso de lente negativa.<br>
+        · Solicitar VEP binocular: sem e com prisma + oclusão binasal.<br>
+        · Comunicar equipe de TO / PT / Fonoaudiologia.
+      </div>
+    </div>`;
+  }
+  document.getElementById('ptvs-ri').innerHTML=h;
+  document.getElementById('ptvs-rw').style.display='block';
+  markDone('ptvs');
+  document.getElementById('ptvs-rw').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── VMSS ──
+function calcVMSS(){
+  const led=document.querySelector('input[name="led"]:checked')?.value||'';
+  const lde=document.querySelector('input[name="lde"]:checked')?.value||'';
+  const vcd=document.querySelector('input[name="vcd"]:checked')?.value||'';
+  const vbc=document.querySelector('input[name="vbc"]:checked')?.value||'';
+  const ld={dir:0,esq:0};
+  if(led==='dir')ld.dir++;if(led==='esq')ld.esq++;
+  if(lde==='dir')ld.dir++;if(lde==='esq')ld.esq++;
+  const ls=ld.dir>ld.esq?'direita':ld.esq>ld.dir?'esquerda':'normal';
+  const vd={ant:0,post:0};
+  if(vcd==='abaixo')vd.ant++;if(vcd==='acima')vd.post++;
+  if(vbc==='abaixo')vd.ant++;if(vbc==='acima')vd.post++;
+  const vs=vd.ant>vd.post?'anterior':vd.post>vd.ant?'posterior':'normal';
+  const rxM={direita:'Base Esquerda (AO)',esquerda:'Base Direita (AO)',anterior:'Base Inferior (AO)',posterior:'Base Superior (AO)'};
+  const lrx=rxM[ls],vrx=rxM[vs];
+  const par=ls==='direita'?'Hemiparesia/plegia Esquerda provável':ls==='esquerda'?'Hemiparesia/plegia Direita provável':'';
+  const vDesc=vs==='anterior'?'Shift Anterior → postura em flexão':vs==='posterior'?'Shift Posterior → postura em extensão':'';
+  let h='';
+  h+=`<div class="rc ${ls!=='normal'?'wn':'tl'}">
+    <div class="rc-lbl">Shift Lateral</div>
+    <div class="rc-val">${ls==='normal'?'Normal':'Desviado para '+ls.charAt(0).toUpperCase()+ls.slice(1)}</div>
+    ${par?`<div class="rc-sub">${par}</div>`:''}
+  </div>`;
+  h+=`<div class="rc ${vs!=='normal'?'wn':'tl'}" style="margin-top:10px;">
+    <div class="rc-lbl">Shift Vertical</div>
+    <div class="rc-val">${vs==='normal'?'Normal':'Midline '+vs.charAt(0).toUpperCase()+vs.slice(1)}</div>
+    ${vDesc?`<div class="rc-sub">${vDesc}</div>`:''}
+  </div>`;
+  if(lrx||vrx){
+    h+=`<div class="rc tl" style="margin-top:10px;">
+      <div class="rc-lbl">Prescrição Yoked — Tabela 7</div>
+      ${lrx?`<div class="rc-val">Lateral: <strong>${lrx}</strong></div>`:''}
+      ${vrx?`<div class="rc-val" style="font-size:17px;margin-top:4px;">Vertical: <strong>${vrx}</strong></div>`:''}
+      <div class="rc-sub" style="margin-top:6px;">Iniciar com 1–2 DP. Observar mudança postural durante atividade motora.</div>
+    </div>`;
+  }
+  document.getElementById('vmss-ri').innerHTML=h;
+  document.getElementById('vmss-rw').style.display='block';
+  markDone('vmss');
+  document.getElementById('vmss-rw').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── EXAM ──
+function saveExam(){markDone('exam');tst('Exame salvo');const p=['ptvs','vmss','exam','motor'].find(m=>!S.done[m]);if(p)go(p);}
+
+// ── MOTOR ──
+function calcMotor(){
+  const pc=MQPOS.length;
+  const py=MQPOS.filter((_,i)=>document.getElementById('mp'+i)?.checked).length;
+  const ny=MQNEG.filter((_,i)=>document.getElementById('mn'+i)?.checked).length;
+  const pct=Math.round(py/pc*100);const dPct=Math.round(ny/pc*100);
+  const niv=pct>=80?'Qualidade Preservada':pct>=50?'Qualidade Moderada':'Qualidade Baixa — Intervenção Prioritária';
+  const cls=pct>=80?'tl':pct>=50?'wn':'dg';
+  const segs=S.segs.map(s=>s.replace(/_/g,' ')).join(', ')||'Não especificado';
+  document.getElementById('m-score').innerHTML=`
+    <div class="sr">
+      <div class="sr-n">${py}/${pc}</div>
+      <div class="sr-m">
+        <div class="sr-ml">Quality Score</div>
+        <div class="pb" style="margin-top:7px;"><div class="pb-f" style="width:${pct}%"></div></div>
+        <div class="pb-lbl">${pct}% qualidade normal · Dysfunction ${dPct}%</div>
+      </div>
+    </div>
+    <div class="rc ${cls}">
+      <div class="rc-lbl">Classificação</div>
+      <div class="rc-val">${niv}</div>
+      <div class="rc-sub">Quality: ${py} · Dysfunction: ${ny} · Segmentos: ${segs}</div>
+    </div>`;
+  markDone('motor');
+}
+
+// ─────────────────────────────────────────
+// ── PDF REESTRUTURADO — Suter & Harvey (8) ──
+// ─────────────────────────────────────────
+function pdfErro(msg){
+  let b=document.getElementById('pdfErr');
+  if(!b){
+    b=document.createElement('div');
+    b.id='pdfErr';b.className='al err';
+    b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:900;max-width:520px;box-shadow:0 8px 32px rgba(62,90,106,.24);';
+    document.body.appendChild(b);
+  }
+  b.innerHTML='<span class="al-ic"><i class="ph-bold ph-warning np-ic" aria-hidden="true"></i></span><span>'+msg+'</span>';
+  b.style.display='block';
+  clearTimeout(b._t);b._t=setTimeout(()=>{b.style.display='none';},8000);
+}
+
+async function gerarPDF(){
+ try{
+  syncPat();
+  if(!(window.jspdf&&window.jspdf.jsPDF)){
+    try{ await carregarJsPDF(); }
+    catch(e){ pdfErro('Não foi possível carregar o gerador de PDF. Verifique a internet.'); return; }
+  }
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,ml=18,mr=18,tw=W-ml-mr;
+  let y=0;
+  const addPg=()=>{doc.addPage();y=22;pgHdr();};
+  const ck=(n=18)=>{if(y+n>272)addPg();};
+
+  function pgHdr(){
+    doc.setFillColor(61,90,106);doc.rect(0,0,210,11,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+    doc.text('OLHAR — CLÍNICA DA VISÃO  ·  Relatório Neuro-Optométrico  ·  CROo 1726',ml,7.5);
+    doc.setTextColor(30,30,30);
+  }
+  function hl(yy){doc.setDrawColor(210,205,195);doc.setLineWidth(.25);doc.line(ml,yy,W-mr,yy);}
+  function sec(t,c=[78,141,141]){
+    ck(14);doc.setFillColor(...c);doc.rect(ml,y,2.5,7.5,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(40,70,90);
+    doc.text(t.toUpperCase(),ml+7,y+5.5);y+=12;
+  }
+  function fld(l,v){
+    if(!v)return;ck(9);
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(130,150,160);
+    doc.text(l,ml,y);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(30,30,30);
+    const lines=doc.splitTextToSize(String(v),tw-48);
+    doc.text(lines,ml+48,y);
+    y+=Math.max(6,lines.length*5);
+  }
+  function prg(t){
+    if(!t)return;ck(7);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(50,50,50);
+    const lines=doc.splitTextToSize(t,tw);
+    doc.text(lines,ml,y);y+=lines.length*4.8+2;
+  }
+  // ── Número de diagnóstico sequencial ──
+  let diagN=0;
+  function diag(txt,sub=''){
+    diagN++;ck(12);
+    doc.setFillColor(232,237,240);doc.rect(ml,y,tw,8,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(40,70,90);
+    doc.text(`(${diagN}) ${txt}`,ml+4,y+5.5);y+=10;
+    if(sub){
+      doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(90,110,120);
+      const ls=doc.splitTextToSize(sub,tw-6);
+      doc.text(ls,ml+6,y);y+=ls.length*4.5+2;
+    }
+  }
+  function planItem(txt){
+    ck(7);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(50,50,50);
+    doc.text('•',ml+2,y);
+    const ls=doc.splitTextToSize(txt,tw-8);
+    doc.text(ls,ml+8,y);y+=ls.length*4.8+1.5;
+  }
+
+  // ── CAPA ──
+  doc.setFillColor(61,90,106);doc.rect(0,0,210,55,'F');
+  doc.setFillColor(95,165,165);doc.rect(0,45,210,12,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.text('Relatório Neuro-Optométrico',ml,24);
+  doc.setFontSize(10);doc.setFont('helvetica','normal');
+  doc.text('Padula (2000) 3ª Ed. · Suter & Harvey (2011)  ·  OEP Foundation / CRC Press',ml,33);
+  doc.setFontSize(9);doc.text('Olhar — Clínica da Visão  ·  CROo 1726  ·  Garanhuns, PE',ml,50);
+  y=68;pgHdr();
+
+  // ── 1. IDENTIFICAÇÃO ──
+  sec('1. Identificação do Paciente');
+  const p=S.pat;
+  fld('Paciente',p.nome||'—');
+  fld('Nascimento',p.nasc?new Date(p.nasc+'T12:00').toLocaleDateString('pt-BR'):'—');
+  fld('Data do Exame',p.data?new Date(p.data+'T12:00').toLocaleDateString('pt-BR'):'—');
+  fld('Diagnóstico',p.diag||'—');fld('Lado Afetado',p.lado||'—');
+  const gcse=document.getElementById('gcs_e_now')?.value;
+  const gcsv=document.getElementById('gcs_v_now')?.value;
+  const gcsm=document.getElementById('gcs_m_now')?.value;
+  if(gcse&&gcsv&&gcsm){
+    const tot=parseInt(gcse)+parseInt(gcsv)+parseInt(gcsm);
+    const grav=tot<=8?'Grave':tot<=12?'Moderado':'Leve';
+    fld('GCS Atual',`${tot} = E${gcse} V${gcsv} M${gcsm} — ${grav}`);
+  }
+  const gcse2=document.getElementById('gcs_e_adm')?.value;
+  const gcsv2=document.getElementById('gcs_v_adm')?.value;
+  const gcsm2=document.getElementById('gcs_m_adm')?.value;
+  if(gcse2&&gcsv2&&gcsm2)fld('GCS Admissão',`${parseInt(gcse2)+parseInt(gcsv2)+parseInt(gcsm2)} = E${gcse2} V${gcsv2} M${gcsm2}`);
+  if(p.queixa){ck(10);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(130,150,160);doc.text('Queixa Principal',ml,y);y+=5;prg(p.queixa);}
+  hl(y+2);y+=8;
+
+  // ── 2. ANAMNESE ──
+  ck(14);sec('2. Anamnese Estruturada — Sintomas Novos (Atribuíveis à Lesão)',[100,80,160]);
+  let gi2=0;const novos2=[];const preexist2=[];
+  ANAMNESE_ITEMS.forEach(grp=>grp.items.forEach(txt=>{
+    const a=document.getElementById(`an_a${gi2}`)?.checked;
+    const p2=document.getElementById(`an_p${gi2}`)?.checked;
+    if(a&&!p2)novos2.push(txt);if(a&&p2)preexist2.push(txt);gi2++;
+  }));
+  fld('Sintomas novos',novos2.length?novos2.join(' · '):'Nenhum identificado');
+  if(preexist2.length)fld('Pré-existentes',preexist2.join(' · '));
+  const leit=document.querySelector('input[name="leitura"]:checked')?.value;
+  if(leit)fld('Leitura pós-lesão',leit==='normal'?'Mantida':leit==='reduzida'?'Reduzida (<1 página)':'Impossível desde a lesão');
+  hl(y+2);y+=8;
+
+  // ── 3. PTVS ──
+  ck(30);sec('3. PTVS — Post-Trauma Vision Syndrome',[176,80,60]);
+  const cY=PCARAC.filter((_,i)=>document.getElementById('pc'+i)?.checked);
+  const sY=PSYMP.filter((_,i)=>document.getElementById('ps'+i)?.checked);
+  if(cY.length)fld('Características',cY.join(' · '));
+  if(sY.length)fld('Sintomas',sY.join(' · '));
+  fld('Oclusão Binasal Longe',document.querySelector('input[name="bd"]:checked')?.value||'—');
+  fld('Oclusão Binasal Perto',document.querySelector('input[name="bp"]:checked')?.value||'—');
+  fld('Prisma Base-In',(S.pv['pdp']||'—')+' · '+(document.querySelector('input[name="pr"]:checked')?.value||'—'));
+  fld('Observações',document.getElementById('ptvs_obs')?.value);
+  hl(y+2);y+=8;
+
+  // ── 4. VMSS ──
+  ck(35);sec('4. VMSS — Visual Midline Shift Syndrome',[60,130,100]);
+  const lm={normal:'Normal',dir:'Desviado à Direita',esq:'Desviado à Esquerda',acima:'Acima (Shift Posterior)',abaixo:'Abaixo (Shift Anterior)'};
+  fld('Lateral Esq→Dir',lm[document.querySelector('input[name="led"]:checked')?.value]||'—');
+  fld('Lateral Dir→Esq',lm[document.querySelector('input[name="lde"]:checked')?.value]||'—');
+  fld('Vertical Cima→Baixo',lm[document.querySelector('input[name="vcd"]:checked')?.value]||'—');
+  fld('Vertical Baixo→Cima',lm[document.querySelector('input[name="vbc"]:checked')?.value]||'—');
+  fld('Postura',S.pv['postura']||'—');
+  const rxCalc=()=>{
+    const ld2={dir:0,esq:0};
+    const l1=document.querySelector('input[name="led"]:checked')?.value||'';
+    const l2=document.querySelector('input[name="lde"]:checked')?.value||'';
+    if(l1==='dir')ld2.dir++;if(l1==='esq')ld2.esq++;
+    if(l2==='dir')ld2.dir++;if(l2==='esq')ld2.esq++;
+    const ls2=ld2.dir>ld2.esq?'direita':ld2.esq>ld2.dir?'esquerda':'normal';
+    const vd2={ant:0,post:0};
+    const v1=document.querySelector('input[name="vcd"]:checked')?.value||'';
+    const v2=document.querySelector('input[name="vbc"]:checked')?.value||'';
+    if(v1==='abaixo')vd2.ant++;if(v1==='acima')vd2.post++;
+    if(v2==='abaixo')vd2.ant++;if(v2==='acima')vd2.post++;
+    const vs2=vd2.ant>vd2.post?'anterior':vd2.post>vd2.ant?'posterior':'normal';
+    const rm={direita:'Base Esquerda (AO)',esquerda:'Base Direita (AO)',anterior:'Base Inferior (AO)',posterior:'Base Superior (AO)'};
+    return[rm[ls2],rm[vs2]].filter(Boolean).join(' + ')||'Sem indicação';
+  };
+  fld('Rx Yoked (Tab.7)',rxCalc());
+  fld('Observações',document.getElementById('vmss_obs')?.value);
+  hl(y+2);y+=8;
+
+  // ── 5. EXAME ──
+  ck(30);sec('5. Exame Neuro-Optométrico',[78,120,160]);
+  [['av_db','AV Longe Bino'],['av_db_oc','AV Longe + Binasal'],['av_od','AV OD'],['av_oe','AV OE'],['av_pb','AV Perto Bino'],['av_pb_oc','AV Perto + Binasal'],['ct_d','Cover Test Longe'],['ct_p','Cover Test Perto'],['ppc_b','PPC Break'],['ppc_r','PPC Recovery'],['ester','Estereopsis'],['verg','Vergências'],['maddox','Maddox Rod'],['duc_od','Ducções OD'],['duc_oe','Ducções OE'],['ret_od','Retino OD'],['ret_oe','Retino OE'],['rx_od','Rx OD'],['rx_oe','Rx OE'],['bell','Bell Retino'],['mem','MEM'],['campo','Campo Visual'],['cores','Visão de Cores'],['vep_r','VEP'],['ocm_obs','Obs. Oculomotor'],['sc_obs','SC / AV Dinâmica'],['av_obs','Obs. AV'],['sm_obs','Obs. SM'],['rx_obs','Obs. Rx'],['ex_obs','Obs. Gerais']].forEach(([id,l])=>fld(l,document.getElementById(id)?.value));
+  const nyst=document.querySelector('input[name="nyst"]:checked')?.value;
+  if(nyst)fld('Nistagmo',NYST_INFO[nyst]?NYST_INFO[nyst].t:nyst);
+  if(S.pv['pursuits'])fld('Pursuits',S.pv['pursuits']);
+  if(S.pv['versoes'])fld('Versões',S.pv['versoes']);
+  if(S.pv['vor_h']||S.pv['vor_v'])fld('VOR',`H: ${S.pv['vor_h']||'—'} · V: ${S.pv['vor_v']||'—'}`);
+  if(S.pv['pupila_ref'])fld('Pupilas',S.pv['pupila_ref']);
+  const pupSz=document.getElementById('pupila_sz')?.value;if(pupSz)fld('Tamanho pupilar',pupSz);
+  if(S.pv['sc_od']||S.pv['sc_oe'])fld('Sensib. Contraste',`OD: ${S.pv['sc_od']||'—'} · OE: ${S.pv['sc_oe']||'—'}`);
+  const scInst=document.getElementById('sc_inst')?.value;if(scInst)fld('Instrumento SC',scInst);
+  if(S.pv['avd_od']||S.pv['avd_oe'])fld('AV Dinâmica',`OD: ${S.pv['avd_od']||'—'} · OE: ${S.pv['avd_oe']||'—'}`);
+  if(S.pv['vp_est'])fld('Veloc. Proc. Estático',S.pv['vp_est']);
+  if(S.pv['vp_mov'])fld('Veloc. Proc. Movimento',S.pv['vp_mov']);
+  const gs=GAZE_SYNDROMES.filter((_,i)=>document.getElementById(`gs${i}`)?.checked);
+  if(gs.length)fld('Síndromes de Gaze',gs.join(' · '));
+  hl(y+2);y+=8;
+
+  // ── 6. MOTOR ──
+  ck(25);sec('6. Qualidade Motora — Prone Reach',[120,90,60]);
+  const pc2=MQPOS.length;
+  const py2=MQPOS.filter((_,i)=>document.getElementById('mp'+i)?.checked).length;
+  const ny2=MQNEG.filter((_,i)=>document.getElementById('mn'+i)?.checked).length;
+  fld('Quality Score',`${py2}/${pc2} (${Math.round(py2/pc2*100)}%)`);
+  fld('Dysfunction Score',`${ny2} padrões`);
+  if(S.segs.length)fld('Segmentos',S.segs.map(s=>s.replace(/_/g,' ')).join(', '));
+  fld('Tarefa',document.getElementById('m_tar')?.value);
+  fld('Resultado',document.getElementById('m_res')?.value);
+  fld('Observações',document.getElementById('m_obs')?.value);
+  hl(y+2);y+=8;
+
+  // ── 7. IMPRESSÕES CLÍNICAS (diagnósticos numerados) ──
+  ck(20);sec('7. Impressões Clínicas',[176,80,60]);
+  diagN=0;
+  // PTVS
+  const ptvsN=PCARAC.filter((_,i)=>document.getElementById('pc'+i)?.checked).length+PSYMP.filter((_,i)=>document.getElementById('ps'+i)?.checked).length;
+  if(ptvsN>=3)diag('Post-Trauma Vision Syndrome (PTVS)',`${ptvsN}/17 critérios · Padula (2000) Cap. XIV`);
+  // VMSS
+  const vmssLs=document.querySelector('input[name="led"]:checked')?.value;
+  const vmssVs=document.querySelector('input[name="vcd"]:checked')?.value;
+  if((vmssLs&&vmssLs!=='normal')||(vmssVs&&vmssVs!=='normal'))diag('Visual Midline Shift Syndrome (VMSS)','Padula (2000) Cap. XV · Tabela 7');
+  // Nistagmo
+  if(nyst&&nyst!=='ausente'){const nd=NYST_INFO[nyst];if(nd)diag(nd.t,nd.s);}
+  // SC
+  if((S.pv['sc_od']&&S.pv['sc_od']!=='Normal')||(S.pv['sc_oe']&&S.pv['sc_oe']!=='Normal')){
+    const magno=(S.pv['sc_od']||'').includes('baixas')||(S.pv['sc_od']||'').includes('médias')||(S.pv['sc_oe']||'').includes('baixas')||(S.pv['sc_oe']||'').includes('médias');
+    diag('Déficit de Sensibilidade de Contraste'+(magno?' — Suspeita Disfunção Magnocelular':''),magno?'Redução em baixas–médias freq. sugere via M/dorsal stream. Suter & Harvey (2011) Cap. 12.':'');
+  }
+  // AV dinâmica
+  if((S.pv['avd_od']&&S.pv['avd_od']!=='Normal')||(S.pv['avd_oe']&&S.pv['avd_oe']!=='Normal'))
+    diag('Redução de Acuidade Visual para Movimento','Disfunção de via magnocelular. Suter & Harvey (2011) Cap. 12.');
+  // Motor
+  const py3=MQPOS.filter((_,i)=>document.getElementById('mp'+i)?.checked).length;
+  const pct3=Math.round(py3/MQPOS.length*100);
+  if(pct3<80)diag(`Déficit de Qualidade Motora — ${pct3<50?'Grave':'Moderado'} (Prone Reach ${pct3}%)`,'Magrun / Padula (2000) Cap. XI');
+  // Gaze syndromes
+  GAZE_SYNDROMES.forEach((gs,i)=>{if(document.getElementById(`gs${i}`)?.checked&&!gs.includes('Nenhuma'))diag(gs,'Politzer & Suter / Suter & Harvey (2011) Cap. 12');});
+  // Sintomas novos
+  if(novos2.length)diag(`${novos2.length} sintoma(s) novo(s) atribuível(is) à lesão`,novos2.slice(0,5).join(' · ')+(novos2.length>5?` · (+${novos2.length-5} outros)`:''));
+  if(!diagN){ck(8);doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(130,150,160);doc.text('Sem diagnósticos identificados nos módulos preenchidos.',ml,y);y+=7;}
+  hl(y+2);y+=8;
+
+  // ── 8. PLANO DE TRATAMENTO ──
+  ck(20);sec('8. Plano de Tratamento',[60,130,100]);
+  let planN=0;
+  if(ptvsN>=3){
+    planN++;ck(12);
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(40,70,90);
+    doc.text(`Plano ${planN} — PTVS`,ml,y);y+=7;
+    const prVal=document.querySelector('input[name="pr"]:checked')?.value;
+    const dpVal=S.pv['pdp'];
+    if(prVal==='positivo'&&dpVal)planItem(`Prescrever prisma base-in ${dpVal} AO no óculos de uso diário.`);
+    else planItem('Testar prisma base-in 0,5 → 2,0 DP AO. Iniciar com menor potência efetiva.');
+    planItem('Balancear Rx binocularmente. Evitar excesso de lente negativa.');
+    planItem('Solicitar VEP binocular com e sem prisma + oclusão binasal.');
+    planItem('Comunicar achados à equipe: TO, PT, Fonoaudiologia.');
+  }
+  if((vmssLs&&vmssLs!=='normal')||(vmssVs&&vmssVs!=='normal')){
+    planN++;ck(12);
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(40,70,90);
+    doc.text(`Plano ${planN} — VMSS`,ml,y);y+=7;
+    planItem('Iniciar yoked prism 1–2 DP na direção indicada (Tabela 7 · Padula 2000).');
+    planItem('Monitorar postura, equilíbrio e marcha com o prisma durante atividade motora.');
+    planItem('Progredir potência conforme resposta. Máximo habitual: 10 DP uso contínuo.');
+    planItem('Correlacionar com PTVS: yoked pode precisar combinar com prisma BI.');
+  }
+  if((S.pv['sc_od']&&S.pv['sc_od']!=='Normal')||(S.pv['sc_oe']&&S.pv['sc_oe']!=='Normal')){
+    planN++;ck(12);
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(40,70,90);
+    doc.text(`Plano ${planN} — Sensibilidade de Contraste`,ml,y);y+=7;
+    const magno=(S.pv['sc_od']||'').includes('baixas')||(S.pv['sc_od']||'').includes('médias')||(S.pv['sc_oe']||'').includes('baixas')||(S.pv['sc_oe']||'').includes('médias');
+    if(magno){planItem('Suspeita de disfunção magnocelular. Aprofundar avaliação de sácades e velocidade de processamento visual para targets em movimento.');}
+    planItem('Considerar filtros espectrais seletivos (Colorimetria / Cerium) se fotofobia associada.');
+    planItem('Reavaliar SC após 60 dias de terapia visual / adaptação óptica.');
+  }
+  if(pct3<80){
+    planN++;ck(12);
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(40,70,90);
+    doc.text(`Plano ${planN} — Qualidade Motora`,ml,y);y+=7;
+    planItem(pct3<50?'Qualidade motora gravemente comprometida. Encaminhar TO/PT para reabilitação neuromotora.':'Qualidade motora moderada. Terapia visual com foco em controle oculomotor durante tarefa motora.');
+    planItem('Testar resposta de qualidade motora com prisma yoked e/ou lentes de adição.');
+    if(S.segs.length)planItem(`Focos prioritários: ${S.segs.map(s=>s.replace(/_/g,' ')).join(', ')}.`);
+  }
+  if(nyst&&nyst!=='ausente'){
+    planN++;ck(12);
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(40,70,90);
+    doc.text(`Plano ${planN} — Nistagmo (${NYST_INFO[nyst]?.t||nyst})`,ml,y);y+=7;
+    if(nyst==='ritmico')planItem('Encaminhar para avaliação vestibular (fisioterapia vestibular / neuro-otologia).');
+    if(nyst==='bobbing'||nyst==='opsoclonus')planItem('Encaminhamento urgente para neurologia.');
+    if(nyst==='dismetria')planItem('Encaminhar para avaliação cerebelar. Avaliar impacto em sácades e leitura.');
+    planItem('Reavaliar motilidade ocular após intervenção vestibular/neurológica.');
+  }
+  if(!planN){ck(8);doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(130,150,160);doc.text('Nenhum plano gerado — preencher os módulos para gerar condutas.',ml,y);y+=7;}
+  hl(y+2);y+=8;
+
+  // ── RODAPÉ ──
+  ck(16);
+  doc.setFont('helvetica','italic');doc.setFontSize(7.5);doc.setTextColor(160,160,160);
+  doc.text('Fontes: Padula, W.V. — Neuro-Optometric Rehabilitation, 3ª Ed., OEP Foundation, 2000.',ml,y);y+=5;
+  doc.text('Suter, P.S. & Harvey, L.H. — Vision Rehabilitation: Multidisciplinary Care of the Patient Following Brain Injury, CRC Press, 2011.',ml,y,{maxWidth:tw});y+=5;
+  doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} · Olhar — Clínica da Visão · CROo 1726`,ml,y);
+  const pg=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pg;i++){doc.setPage(i);doc.setFontSize(7.5);doc.setTextColor(160,160,160);doc.setFont('helvetica','normal');doc.text(`${i}/${pg}`,W-mr,287,{align:'right'});}
+  const nm=S.pat.nome?S.pat.nome.split(' ')[0]:'paciente';
+  doc.save(`neuro-opt_${nm}_${new Date().toISOString().split('T')[0]}.pdf`);
+ }catch(e){
+  console.error('gerarPDF',e);
+  pdfErro('Não foi possível gerar o PDF. Os dados preenchidos foram preservados; tente novamente.');
+ }
+}
+
+
+/* mantém S.pat em dia a partir do DOM: o PDF não pode depender de o
+   clínico ter clicado em "Salvar" antes de gerar o relatório */
+function syncPat(){
+  var g=function(id){ var e=document.getElementById(id); return e?e.value:'' };
+  S.pat={ nome:g('p_nome'), nasc:g('p_nasc'), data:g('p_data'),
+          diag:g('p_diag'), queixa:g('p_queixa'), lado:(S.pv&&S.pv['lado'])||'' };
+  return S.pat;
+}
+
+/* ═══ PACIENTE: vem do cadastro do app, não se digita de novo ═══ */
+function rPac(){
+  var sel=document.getElementById('np_pac'); if(!sel)return;
+  var D0=hostD(); var ps=(D0&&Array.isArray(D0.patients))?D0.patients.slice():[];
+  ps.sort(function(a,b){return (a.name||'').localeCompare(b.name||'','pt-BR')});
+  var cur=sel.value;
+  sel.innerHTML='<option value="">— selecione —</option>'+
+    ps.map(function(p){return '<option value="'+p.id+'">'+escN(p.name||'(sem nome)')+'</option>'}).join('');
+  if(cur) sel.value=cur;
+}
+/* escape local e autocontido: não assume esc() do arquivo legado */
+function escN(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] }) }
+
+function pacAtual(){
+  var sel=document.getElementById('np_pac'); if(!sel||!sel.value)return null;
+  var D0=hostD(); if(!D0||!Array.isArray(D0.patients))return null;
+  return D0.patients.find(function(p){return p.id===sel.value})||null;
+}
+
+function selPac(){
+  limpar();                 /* sempre: a ficha nunca carrega resto do paciente anterior */
+  preencherDoCadastro();
+  var ult=avaliacoes().slice(-1)[0];
+  if(ult){ restaurar(ult); S.avalId=ult.id; tst('Última avaliação carregada'); }
+  syncPat(); updHdr(); renderHist();
+}
+
+/* ═══ PERSISTÊNCIA: entra no store do app (D.neuroExams) ═══ */
+function store(){
+  var D0=hostD(); if(!D0)return null;
+  if(!Array.isArray(D0.neuroExams)) D0.neuroExams=[];
+  return D0;
+}
+function avaliacoes(){
+  var D0=store(), p=pacAtual(); if(!D0||!p)return [];
+  return D0.neuroExams.filter(function(a){return a.patientId===p.id})
+         .sort(function(a,b){return (a.updatedAt||'').localeCompare(b.updatedAt||'')});
+}
+function raiz(){ return document.getElementById('p-o-neuro') }
+
+function coletar(){
+  var r=raiz(), f={campos:{},radios:{},pv:{},segs:[],done:{}};
+  if(!r)return f;
+  r.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(el){
+    if(el.type==='radio')return;
+    f.campos[el.id]= (el.type==='checkbox')? !!el.checked : el.value;
+  });
+  r.querySelectorAll('input[type=radio]').forEach(function(el){
+    if(el.checked && el.name) f.radios[el.name]=el.value;
+  });
+  f.pv=JSON.parse(JSON.stringify(S.pv||{}));
+  f.segs=(S.segs||[]).slice();
+  f.done=JSON.parse(JSON.stringify(S.done||{}));
+  return f;
+}
+
+function restaurar(av){
+  var r=raiz(), f=av&&av.campos?av:null; if(!r||!f)return;
+  Object.keys(f.campos||{}).forEach(function(id){
+    var el=document.getElementById(id); if(!el)return;
+    if(el.type==='checkbox'){ el.checked=!!f.campos[id]; var l=el.closest('.np-ci'); if(l)l.classList.toggle('np-on',el.checked); }
+    else el.value=f.campos[id];
+  });
+  Object.keys(f.radios||{}).forEach(function(nm){
+    var el=r.querySelector('input[name="'+nm+'"][value="'+f.radios[nm]+'"]');
+    if(el){ el.checked=true; var l=el.closest('.ri'); if(l){
+      r.querySelectorAll('input[name="'+nm+'"]').forEach(function(x){var c=x.closest('.ri'); if(c)c.classList.remove('np-on')});
+      l.classList.add('np-on'); } }
+  });
+  S.pv=JSON.parse(JSON.stringify(f.pv||{}));
+  r.querySelectorAll('.pg .pill').forEach(function(b){b.classList.remove('np-on')});
+  Object.keys(S.pv).forEach(function(k){
+    r.querySelectorAll('.pill').forEach(function(b){
+      var oc=b.getAttribute('onclick')||'';
+      if(oc.indexOf("'"+k+"'")>=0 && b.textContent.trim()===S.pv[k]) b.classList.add('np-on');
+    });
+  });
+  S.segs=(f.segs||[]).slice();
+  S.done=Object.assign({ptvs:0,vmss:0,exam:0,motor:0},f.done||{});
+  updGauge(Object.values(S.done).reduce(function(a,b){return a+b},0));
+  try{ updNystInfo() }catch(e){}
+}
+
+function salvar(){
+  var D0=store(), p=pacAtual();
+  if(!D0){ return false }
+  if(!p){ return false }
+  var reg={ id:S.avalId||hostGid(), patientId:p.id,
+            data:(document.getElementById('p_data')||{}).value||'',
+            updatedAt:new Date().toISOString() };
+  var f=coletar(); reg.campos=f.campos; reg.radios=f.radios; reg.pv=f.pv; reg.segs=f.segs; reg.done=f.done;
+  var i=D0.neuroExams.findIndex(function(a){return a.id===reg.id});
+  if(i>=0) D0.neuroExams[i]=reg; else D0.neuroExams.push(reg);
+  S.avalId=reg.id;
+  hostSv(); renderHist();
+  return true;
+}
+
+/* limpa todos os campos do modulo. Usada ao iniciar nova avaliacao e,
+   criticamente, ao trocar de paciente: sem isso os achados de um paciente
+   permaneceriam marcados na ficha do seguinte. */
+function limpar(){
+  var r=raiz(); if(!r)return;
+  r.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(el){
+    if(el.type==='checkbox'){ el.checked=false; var l=el.closest('.np-ci'); if(l)l.classList.remove('np-on'); }
+    else if(el.type!=='radio' && el.id!=='np_pac') el.value='';
+  });
+  r.querySelectorAll('input[type=radio]').forEach(function(el){
+    el.checked=false; var l=el.closest('.ri'); if(l)l.classList.remove('np-on');
+  });
+  r.querySelectorAll('.pill').forEach(function(b){ b.classList.remove('np-on') });
+  ['ptvs-rw','vmss-rw','anamnese-summary','nyst-info','sc_alert','gcs_adm_res','gcs_now_res','pdfErr']
+    .forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display='none' });
+  var ms=document.getElementById('m-score'); if(ms)ms.innerHTML='';
+  S.pv={}; S.segs=[]; S.done={ptvs:0,vmss:0,exam:0,motor:0}; S.avalId=null;
+  var dt=document.getElementById('p_data');
+  if(dt)dt.value=new Date().toISOString().split('T')[0];
+  updGauge(0);
+}
+
+function preencherDoCadastro(){
+  var p=pacAtual(); if(!p)return;
+  var nm=document.getElementById('p_nome'); if(nm)nm.value=p.name||'';
+  var nb=document.getElementById('p_nasc'); if(nb)nb.value=p.dob||'';
+}
+
+function nova(){
+  var p=pacAtual();
+  if(!p){ tst('Selecione um paciente primeiro'); return }
+  if(!confirm('Iniciar uma nova avaliação para '+(p.name||'este paciente')+'?\nA avaliação atual permanece salva no histórico.')) return;
+  var r=raiz(); if(!r)return;
+  limpar(); preencherDoCadastro();
+  updHdr(); renderHist(); go('pat'); tst('Nova avaliação iniciada');
+}
+
+function renderHist(){
+  var box=document.getElementById('np_hist'); if(!box)return;
+  var av=avaliacoes();
+  if(!av.length){ box.innerHTML='<span class="np-hist-vazio">Nenhuma avaliação registrada ainda.</span>'; return }
+  box.innerHTML=av.slice().reverse().map(function(a){
+    var n=Object.values(a.done||{}).reduce(function(x,y){return x+(y?1:0)},0);
+    var atual=(a.id===S.avalId)?' np-on':'';
+    return '<button class="np-hist-i'+atual+'" onclick="NEURO.abrir(\''+a.id+'\')">'+
+           '<strong>'+hostFd(a.data||(a.updatedAt||'').slice(0,10))+'</strong>'+
+           '<span>'+n+'/4 módulos</span></button>';
+  }).join('');
+}
+function abrir(id){
+  var D0=store(); if(!D0)return;
+  var a=D0.neuroExams.find(function(x){return x.id===id}); if(!a)return;
+  restaurar(a); S.avalId=a.id; updHdr(); renderHist(); go('pat');
+  tst('Avaliação de '+hostFd(a.data||'')+' carregada');
+}
+
+/* ═══ EXPORTAÇÃO: único símbolo global do módulo ═══ */
+window.NEURO={ go:go, syncPat:syncPat, limpar:limpar, sp:sp, sr2:sr2, tgSeg:tgSeg, updHdr:updHdr,
+  calcGCS:calcGCS, calcAnamnese:calcAnamnese, calcPTVS:calcPTVS, calcVMSS:calcVMSS,
+  calcMotor:calcMotor, saveExam:saveExam, savePat:savePat, gerarPDF:gerarPDF,
+  updNystInfo:updNystInfo, selPac:selPac, nova:nova, abrir:abrir,
+  salvar:salvar, rPac:rPac, renderHist:renderHist, _S:function(){return S} };
+
+/* o roteador do app chama isto ao abrir a página */
+window.rNeuro=function(){ try{ if(!S._init){ init(); S._init=1 } rPac(); renderHist(); }catch(e){ console.error('neuro',e) } };
+
+})();
+
 </script>
 </body></html>
