@@ -611,29 +611,34 @@ html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!
 <div class="page" id="p-o-patol"><div class="ph"><h1>Simulador de Patologias</h1><p>Mostre na TV como um quadro clínico altera a cena.</p></div><div id="simPatoPanel" class="simPanel"></div></div>
 <div class="page" id="p-o-fluxo"><div class="ph"><div><h2>Fluxo de Caixa</h2><div class="sub">Visão financeira mensal</div></div></div><div class="card"><div class="cha" id="flChart"></div><div style="display:flex;gap:16px;justify-content:center;margin-top:12px"><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)"><div style="width:8px;height:8px;border-radius:2px;background:var(--t)"></div>Entradas</div><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)"><div style="width:8px;height:8px;border-radius:2px;background:var(--red);opacity:.6"></div>Saídas</div></div></div><div class="stats" style="grid-template-columns:repeat(3,1fr);margin-top:16px" id="flStats"></div><div class="card" style="margin-top:16px;padding:0"><table><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody id="flTbl"></tbody></table></div><div class="card" style="margin-top:16px"><h4 style="font-size:15px;font-weight:700;margin-bottom:12px">A Receber — Óticas</h4><div id="flPendOticas"></div></div></div>
 <div class="page" id="p-o-neuro">
-<div class="ph"><div><h1>Neuro-optometria</h1><p>Padula (2000) 3ª ed. · Suter &amp; Harvey (2011)</p></div>
-<div class="acts">
-<button class="btn bs bsm" onclick="NEURO.nova()"><i class="ph-bold ph-file-plus"></i> Nova avaliação</button>
-<button class="btn bt" onclick="NEURO.gerarPDF()"><i class="ph-bold ph-file-pdf"></i> Gerar PDF</button>
-</div></div>
 
-<div class="np-bar card">
-  <div class="np-bar-pac">
-    <label for="np_pac">Paciente</label>
-    <select id="np_pac" onchange="NEURO.selPac()"></select>
-    <div class="np-bar-meta" id="np_pacMeta">Selecione um paciente do cadastro</div>
+<div class="ph">
+  <div><h2>Neuro-optometria</h2>
+  <div class="sub">Padula (2000) 3ª ed. · Suter &amp; Harvey (2011)</div></div>
+  <div class="acts">
+    <button class="btn bs bsm" onclick="NEURO.verHist()"><i class="ph-bold ph-clock-counter-clockwise"></i> Histórico</button>
+    <button class="btn bs bsm" onclick="NEURO.nova()"><i class="ph-bold ph-file-plus"></i> Nova</button>
+    <button class="btn bo" onclick="NEURO.salvarManual()"><i class="ph-bold ph-floppy-disk"></i> Salvar</button>
+    <button class="btn bo bsm" onclick="NEURO.gerarPDF()"><i class="ph-bold ph-file-pdf"></i> Gerar PDF</button>
   </div>
-  <div class="np-bar-prog">
-    <div class="pc-head"><div class="pc-num" id="pcN">0</div><div class="pc-den">de 4 módulos<br>concluídos</div></div>
-    <ul class="ms"><li class="ms-i" id="ms-ptvs"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">PTVS</span><span class="ms-s">Pendente</span></li><li class="ms-i" id="ms-vmss"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">VMSS</span><span class="ms-s">Pendente</span></li><li class="ms-i" id="ms-exam"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">Exame neuro-optométrico</span><span class="ms-s">Pendente</span></li><li class="ms-i" id="ms-motor"><span class="ms-k"><i class="ph-bold ph-check np-ic" aria-hidden="true"></i></span><span class="ms-n">Qualidade motora</span><span class="ms-s">Pendente</span></li></ul>
-    <div class="pc-act"><div class="pc-act-ic"><i class="ph-bold ph-info np-ic" aria-hidden="true"></i></div>
-    <div class="pc-act-tx" id="pcActTx">Próximo: PTVS</div>
-    <button class="pc-act-btn" id="pcActBtn" aria-label="Abrir PTVS"><i class="ph-bold ph-arrow-right np-ic" aria-hidden="true"></i></button></div>
-  </div>
-  <div class="np-bar-hist">
-    <div class="np-bar-hl">Avaliações deste paciente</div>
-    <div id="np_hist" class="np-hist">—</div>
-  </div>
+</div>
+
+<div class="card np-ctl">
+  <span class="np-ctl-lbl">Paciente:</span>
+  <select id="np_pac" onchange="NEURO.selPac()"></select>
+  <span class="np-ctl-sep"></span>
+  <span class="np-ctl-meta" id="np_pacMeta">Selecione um paciente do cadastro</span>
+  <span class="np-ctl-sp"></span>
+  <span class="np-ctl-prog" id="np_prog" title="Módulos concluídos">
+    <strong id="pcN">0</strong> de 4 módulos
+  </span>
+  <span class="np-chips"><span class="np-chip" id="ms-ptvs" data-m="ptvs">PTVS</span><span class="np-chip" id="ms-vmss" data-m="vmss">VMSS</span><span class="np-chip" id="ms-exam" data-m="exam">Exame</span><span class="np-chip" id="ms-motor" data-m="motor">Motor</span></span>
+</div>
+
+<div class="card np-hist-box" id="np_histBox" style="display:none">
+  <div class="np-hist-hd"><h4>Avaliações deste paciente</h4>
+    <button class="btn bsm bs" onclick="NEURO.verHist(false)">Fechar</button></div>
+  <div id="np_hist" class="np-hist">—</div>
 </div>
 
 <nav class="np-tabs" role="tablist"><button class="np-tab" data-np="pat" onclick="NEURO.go('pat')"><i class="ph-bold ph-user"></i><span>Paciente</span></button><button class="np-tab" data-np="ptvs" onclick="NEURO.go('ptvs')"><i class="ph-bold ph-eye"></i><span>PTVS</span></button><button class="np-tab" data-np="vmss" onclick="NEURO.go('vmss')"><i class="ph-bold ph-crosshair"></i><span>VMSS</span></button><button class="np-tab" data-np="exam" onclick="NEURO.go('exam')"><i class="ph-bold ph-clipboard-text"></i><span>Exame</span></button><button class="np-tab" data-np="motor" onclick="NEURO.go('motor')"><i class="ph-bold ph-person-simple-walk"></i><span>Motor</span></button></nav>
@@ -8899,9 +8904,13 @@ html.conforto .an-ano-hint{font-size:13px}
 
 
 /* ─── RESET ─── */
-#p-o-neuro *{box-sizing:border-box;margin:0;padding:0;
+#p-o-neuro *{box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none;}
+#p-o-neuro h1,#p-o-neuro h2,#p-o-neuro h3,#p-o-neuro h4,#p-o-neuro h5,
+#p-o-neuro p,#p-o-neuro ul,#p-o-neuro ol,#p-o-neuro li,#p-o-neuro figure,
+#p-o-neuro fieldset,#p-o-neuro legend{margin:0;padding:0;}
+#p-o-neuro ul,#p-o-neuro ol{list-style:none;}
 #p-o-neuro input, #p-o-neuro textarea, #p-o-neuro select{-webkit-touch-callout:default;}
 
 /* ─── TOKENS ─── */
@@ -9637,6 +9646,68 @@ html.conforto .an-ano-hint{font-size:13px}
 #p-o-neuro input[type=checkbox],#p-o-neuro input[type=radio]{accent-color:var(--pri);}
 #p-o-neuro select{color-scheme:light dark;}
 
+/* ══ invólucro no padrão do Prontuário ══
+   Antes: cabeçalho próprio + barra em 3 colunas + cabeçalho de painel =
+   496px de cromo antes do primeiro campo, numa tela de 723px. */
+
+/* barra de controle única, igual à do Prontuário */
+#p-o-neuro .np-ctl{
+  margin-bottom:16px;padding:14px 20px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+#p-o-neuro .np-ctl-lbl{font-size:12px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;}
+#p-o-neuro .np-ctl select{
+  min-width:260px;height:40px;padding:0 12px;
+  border:1px solid var(--bdr);border-radius:var(--r);
+  background:var(--bg3);color:var(--tx);font-family:var(--font);font-size:14px;
+}
+#p-o-neuro .np-ctl-sep{width:1px;height:26px;background:var(--bdr);}
+#p-o-neuro .np-ctl-meta{font-size:13px;color:var(--tx3);}
+#p-o-neuro .np-ctl-sp{flex:1;}
+#p-o-neuro .np-ctl-prog{font-size:13px;color:var(--tx2);white-space:nowrap;}
+#p-o-neuro .np-ctl-prog strong{font-size:17px;color:var(--tx);font-variant-numeric:tabular-nums;}
+
+/* os 4 módulos como fichas em linha: estado por marca e por texto, nunca só cor */
+#p-o-neuro .np-chips{display:flex;gap:6px;flex-wrap:wrap;}
+#p-o-neuro .np-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  min-height:32px;padding:0 11px;border-radius:var(--r);
+  border:1px solid var(--bdr);background:var(--bg3);
+  font-size:12.5px;color:var(--tx2);white-space:nowrap;
+}
+#p-o-neuro .np-chip::before{content:"○";font-size:12px;opacity:.7;}
+#p-o-neuro .np-chip.done{border-color:var(--pri);background:var(--pril);color:var(--tx);font-weight:600;}
+#p-o-neuro .np-chip.done::before{content:"✓";opacity:1;color:var(--pri);font-weight:700;}
+
+/* histórico: painel que abre sob demanda, como o "Prontuários Salvos" */
+#p-o-neuro .np-hist-box{margin-bottom:16px;}
+#p-o-neuro .np-hist-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+#p-o-neuro .np-hist-hd h4{font-size:15px;font-weight:700;color:var(--tx);}
+#p-o-neuro .np-hist{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px;max-height:none;overflow:visible;}
+#p-o-neuro .np-hist-i{min-height:40px;padding:8px 13px;gap:10px;}
+
+/* abas */
+#p-o-neuro .np-tabs{margin-bottom:16px;padding-bottom:9px;}
+#p-o-neuro .np-tab{min-height:40px;padding:0 15px;font-size:13.5px;}
+#p-o-neuro .np-tab i{font-size:17px;}
+
+/* cabeçalho de painel vira uma linha de procedência, não um bloco */
+#p-o-neuro .mhd{
+  background:transparent;border:none;box-shadow:none;
+  padding:0 2px 10px;margin-bottom:14px;
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+}
+#p-o-neuro .mhd-ic{display:none;}
+#p-o-neuro .mhd-title{font-size:16px;font-weight:600;color:var(--tx);}
+#p-o-neuro .mhd-sub{font-size:12.5px;color:var(--tx3);}
+#p-o-neuro .mhd-bdg{margin-left:auto;}
+
+@media (max-width:900px){
+  #p-o-neuro .np-ctl-sp{display:none;}
+  #p-o-neuro .np-ctl select{min-width:0;flex:1;}
+}
+
 /* ── invólucro do módulo dentro do app ── */
 #p-o-neuro .np-bar{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:22px;align-items:start;margin-bottom:18px;}
 #p-o-neuro .np-bar-pac label{display:block;font-size:12.5px;font-weight:500;color:var(--tx2);margin-bottom:7px;}
@@ -9777,7 +9848,7 @@ function bld(id,arr,pfx){
   c.innerHTML='';
   arr.forEach((t,i)=>{
     const l=document.createElement('label');
-    l.className='ci';
+    l.className='np-ci';
     l.innerHTML=`<input type="checkbox" id="${pfx}${i}"><span class="ci-lbl">${t}</span>`;
     l.querySelector('input').addEventListener('change',function(){
       l.classList.toggle('np-on',this.checked);
@@ -9796,7 +9867,7 @@ function bldAnamnese(){
     c.appendChild(hd);
     grp.items.forEach(txt=>{
       const row=document.createElement('div');
-      row.className='an-row';
+      row.className='np-an-row';
       row.innerHTML=`
         <span class="an-row-lbl">${txt}</span>
         <label class="an-chk">
@@ -9817,7 +9888,7 @@ function bldGazeSyndromes(){
   c.innerHTML='';
   GAZE_SYNDROMES.forEach((t,i)=>{
     const l=document.createElement('label');
-    l.className='ci';
+    l.className='np-ci';
     l.innerHTML=`<input type="checkbox" id="gs${i}"><span class="ci-lbl">${t}</span>`;
     l.querySelector('input').addEventListener('change',function(){l.classList.toggle('np-on',this.checked);});
     c.appendChild(l);
@@ -9867,7 +9938,7 @@ function updNystInfo(){
   if(!val||val==='ausente'){box.style.display='none';return;}
   const d=NYST_INFO[val];
   if(!d){box.style.display='none';return;}
-  box.className=`rc ${d.c}`;
+  box.className=`rc ${d.c==='tl'?'np-tl':d.c}`;
   box.innerHTML=`<div class="rc-lbl">Localização Neuroanatômica</div><div class="rc-val" style="font-size:16px;">${d.t}</div><div class="rc-sub">${d.s}</div>`;
   box.style.display='block';
 }
@@ -9886,7 +9957,7 @@ function calcGCS(ctx){
   if(tot<=8){grav='Grave — adaptar para testes objetivos';col='dg';}
   else if(tot<=12){grav='Moderado';col='wn';}
   else{grav='Leve / Preservado';col='tl';}
-  if(res){res.style.display='block';res.className=`rc ${col}`;}
+  if(res){res.style.display='block';res.className=`rc ${col==='tl'?'np-tl':col}`;}
   if(val)val.textContent=`GCS ${tot} = E${e} V${v} M${m}`;
   if(cls)cls.textContent=grav;
 }
@@ -10000,11 +10071,11 @@ function updGauge(n){
   if(pcN)pcN.textContent=n;
   const sm=document.getElementById('sMod'); if(sm) sm.textContent=n+'/4';
   Object.keys(S.done).forEach(m=>{
-    const row=document.getElementById('ms-'+m);
-    if(!row)return;
+    const chip=document.getElementById('ms-'+m);
+    if(!chip)return;
     const done=!!S.done[m];
-    row.classList.toggle('done',done);
-    row.querySelector('.ms-s').textContent=done?'Concluído':'Pendente';
+    chip.classList.toggle('done',done);
+    chip.title=chip.textContent.trim()+(done?': concluído':': pendente');
   });
   updProx();
 }
@@ -10029,7 +10100,7 @@ function calcPTVS(){
   else if(tot>=3){tipo='Suspeita Leve — Monitorar';cls='tl';}
   else{tipo='Baixa Suspeita / Dados Insuficientes';cls='tl';}
   const pos=Math.min(100,Math.max(0,tot/17*100));
-  let h=`<div class="rc ${cls}">
+  let h=`<div class="rc ${cls==='tl'?'np-tl':cls}">
     <div class="rc-lbl">Classificação PTVS</div>
     <div class="rc-val">${tipo}</div>
     <div class="rc-sub">${cY} características + ${sY} sintomas · ${tot} de 17 presentes</div>
@@ -10052,7 +10123,7 @@ function calcPTVS(){
     </div>
   </div>`;
   if(cls==='dg'||cls==='wn'){
-    h+=`<div class="rc tl" style="margin-top:10px;">
+    h+=`<div class="rc np-tl" style="margin-top:10px;">
       <div class="rc-lbl">Conduta — Padula (2000)</div>
       <div class="rc-val" style="font-size:17px;">${pr==='positivo'?`Prisma base-in ${dp} AO`:'Testar prisma base-in 0,5–2 DP AO'}</div>
       <div class="rc-sub" style="margin-top:6px;">
@@ -10088,18 +10159,18 @@ function calcVMSS(){
   const par=ls==='direita'?'Hemiparesia/plegia Esquerda provável':ls==='esquerda'?'Hemiparesia/plegia Direita provável':'';
   const vDesc=vs==='anterior'?'Shift Anterior → postura em flexão':vs==='posterior'?'Shift Posterior → postura em extensão':'';
   let h='';
-  h+=`<div class="rc ${ls!=='normal'?'wn':'tl'}">
+  h+=`<div class="rc ${ls!=='normal'?'wn':'np-tl'}">
     <div class="rc-lbl">Shift Lateral</div>
     <div class="rc-val">${ls==='normal'?'Normal':'Desviado para '+ls.charAt(0).toUpperCase()+ls.slice(1)}</div>
     ${par?`<div class="rc-sub">${par}</div>`:''}
   </div>`;
-  h+=`<div class="rc ${vs!=='normal'?'wn':'tl'}" style="margin-top:10px;">
+  h+=`<div class="rc ${vs!=='normal'?'wn':'np-tl'}" style="margin-top:10px;">
     <div class="rc-lbl">Shift Vertical</div>
     <div class="rc-val">${vs==='normal'?'Normal':'Midline '+vs.charAt(0).toUpperCase()+vs.slice(1)}</div>
     ${vDesc?`<div class="rc-sub">${vDesc}</div>`:''}
   </div>`;
   if(lrx||vrx){
-    h+=`<div class="rc tl" style="margin-top:10px;">
+    h+=`<div class="rc np-tl" style="margin-top:10px;">
       <div class="rc-lbl">Prescrição Yoked — Tabela 7</div>
       ${lrx?`<div class="rc-val">Lateral: <strong>${lrx}</strong></div>`:''}
       ${vrx?`<div class="rc-val" style="font-size:17px;margin-top:4px;">Vertical: <strong>${vrx}</strong></div>`:''}
@@ -10133,7 +10204,7 @@ function calcMotor(){
         <div class="pb-lbl">${pct}% qualidade normal · Dysfunction ${dPct}%</div>
       </div>
     </div>
-    <div class="rc ${cls}">
+    <div class="rc ${cls==='tl'?'np-tl':cls}">
       <div class="rc-lbl">Classificação</div>
       <div class="rc-val">${niv}</div>
       <div class="rc-sub">Quality: ${py} · Dysfunction: ${ny} · Segmentos: ${segs}</div>
@@ -10148,7 +10219,7 @@ function pdfErro(msg){
   let b=document.getElementById('pdfErr');
   if(!b){
     b=document.createElement('div');
-    b.id='pdfErr';b.className='al err';
+    b.id='pdfErr';b.className='al np-err';
     b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:900;max-width:520px;box-shadow:0 8px 32px rgba(62,90,106,.24);';
     document.body.appendChild(b);
   }
@@ -10602,8 +10673,23 @@ function abrir(id){
   tst('Avaliação de '+hostFd(a.data||'')+' carregada');
 }
 
+/* histórico abre sob demanda, como o painel "Prontuários Salvos" */
+function verHist(abrir){
+  var b=document.getElementById('np_histBox'); if(!b)return;
+  var mostrar = (abrir===false) ? false : (b.style.display==='none');
+  b.style.display = mostrar ? '' : 'none';
+  if(mostrar) renderHist();
+}
+
+/* Salvar explícito: o clínico vê a confirmação, como no Prontuário */
+function salvarManual(){
+  if(!pacAtual()){ tst('Selecione um paciente antes de salvar'); return }
+  syncPat();
+  tst(salvar() ? 'Avaliação salva' : 'Não foi possível salvar');
+}
+
 /* ═══ EXPORTAÇÃO: único símbolo global do módulo ═══ */
-window.NEURO={ go:go, syncPat:syncPat, limpar:limpar, sp:sp, sr2:sr2, tgSeg:tgSeg, updHdr:updHdr,
+window.NEURO={ go:go, syncPat:syncPat, limpar:limpar, verHist:verHist, salvarManual:salvarManual, sp:sp, sr2:sr2, tgSeg:tgSeg, updHdr:updHdr,
   calcGCS:calcGCS, calcAnamnese:calcAnamnese, calcPTVS:calcPTVS, calcVMSS:calcVMSS,
   calcMotor:calcMotor, saveExam:saveExam, savePat:savePat, gerarPDF:gerarPDF,
   updNystInfo:updNystInfo, selPac:selPac, nova:nova, abrir:abrir,
