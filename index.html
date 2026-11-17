@@ -9742,6 +9742,44 @@ html.conforto .an-ano-hint{font-size:13px}
 #p-o-neuro .ph p{font-size:12px;color:var(--tx3);margin-top:3px;}
 @media (max-width:1100px){ #p-o-neuro .np-bar{grid-template-columns:1fr;} }
 
+
+/* ═══ MOTORES CLÍNICOS ═══ */
+/* ═══ MOTORES CLÍNICOS — saída junto ao campo ═══ */
+.mc-out{
+  margin:10px 0 16px;padding:13px 16px;
+  background:var(--bg3);border:1px solid var(--bdr);
+  border-left:3px solid var(--pri);border-radius:var(--r);
+}
+.mc-hd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px;}
+.mc-t{font-size:13.5px;font-weight:600;color:var(--tx);}
+.mc-src{font-size:11.5px;color:var(--tx3);}
+.mc-ctx{font-size:12.5px;color:var(--tx2);margin-bottom:8px;}
+.mc-lista{list-style:none;display:flex;flex-direction:column;gap:5px;margin:0;padding:0;}
+.mc-li{
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  padding:7px 10px;border-radius:var(--r);background:var(--bg2);
+  border:1px solid var(--bdr);font-size:13px;color:var(--tx);
+}
+.mc-li-fora{border-color:var(--wn);}
+.mc-rot{min-width:120px;font-weight:600;color:var(--tx2);}
+.mc-val{font-variant-numeric:tabular-nums;}
+.mc-esp{color:var(--tx3);font-size:12px;}
+.mc-frase{flex:1;}
+.mc-m{
+  margin-left:auto;font-size:11.5px;font-weight:600;
+  padding:2px 9px;border-radius:999px;
+  border:1px solid var(--bdr);color:var(--tx2);background:var(--bg3);
+  white-space:nowrap;
+}
+.mc-ok{border-color:var(--grn);color:var(--grn);}
+.mc-fora{border-color:var(--wn);color:var(--wn);}
+.mc-parc{border-color:var(--bdr);color:var(--tx3);}
+.mc-concl{margin-top:9px;font-size:13px;font-weight:600;color:var(--tx);}
+.mc-concl-fora{color:var(--wn);}
+.mc-falta{font-size:13px;color:var(--tx2);}
+.mc-nota{margin-top:9px;font-size:12px;color:var(--tx3);line-height:1.5;}
+@media (max-width:700px){ .mc-rot{min-width:0;} .mc-m{margin-left:0;} }
+
 </style>
 <script id="ano-escolar-js">
 (function(){
@@ -10698,6 +10736,394 @@ window.NEURO={ go:go, syncPat:syncPat, limpar:limpar, verHist:verHist, salvarMan
 /* o roteador do app chama isto ao abrir a página */
 window.rNeuro=function(){ try{ if(!S._init){ init(); S._init=1 } rPac(); renderHist(); }catch(e){ console.error('neuro',e) } };
 
+})();
+
+</script>
+
+<!-- ═══ MOTORES CLÍNICOS — tabelas normativas (verbatim do optometriacomportamental, fornecidas pelo Geandré) ═══ -->
+<script>
+// Auto-generated from user-provided table. Do not edit manually.
+window.NSUCO_NORMS = {"source": "user-provided NSUCO minimum acceptable scores (M/F) by age", "saccades": {"5": {"M": {"ability": 5, "accuracy": 3, "head": 2, "body": 3}, "F": {"ability": 5, "accuracy": 3, "head": 2, "body": 4}}, "6": {"M": {"ability": 5, "accuracy": 3, "head": 2, "body": 3}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "7": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 3}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "8": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "9": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "10": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 3, "head": 4, "body": 4}}, "11": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 3, "head": 4, "body": 5}}, "12": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 3, "head": 4, "body": 5}}, "13": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 5}, "F": {"ability": 5, "accuracy": 3, "head": 4, "body": 5}}, "14+": {"M": {"ability": 5, "accuracy": 4, "head": 3, "body": 5}, "F": {"ability": 5, "accuracy": 3, "head": 4, "body": 5}}}, "pursuits": {"5": {"M": {"ability": 4, "accuracy": 2, "head": 2, "body": 3}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "6": {"M": {"ability": 4, "accuracy": 2, "head": 2, "body": 3}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "7": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 3}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "8": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}}, "9": {"M": {"ability": 5, "accuracy": 3, "head": 3, "body": 4}, "F": {"ability": 5, "accuracy": 4, "head": 3, "body": 4}}, "10": {"M": {"ability": 5, "accuracy": 4, "head": 4, "body": 4}, "F": {"ability": 5, "accuracy": 4, "head": 4, "body": 5}}, "11": {"M": {"ability": 5, "accuracy": 4, "head": 4, "body": 4}, "F": {"ability": 5, "accuracy": 4, "head": 4, "body": 5}}, "12": {"M": {"ability": 5, "accuracy": 4, "head": 4, "body": 5}, "F": {"ability": 5, "accuracy": 4, "head": 4, "body": 5}}, "13": {"M": {"ability": 5, "accuracy": 5, "head": 4, "body": 5}, "F": {"ability": 5, "accuracy": 4, "head": 4, "body": 5}}, "14+": {"M": {"ability": 5, "accuracy": 5, "head": 4, "body": 5}, "F": {"ability": 5, "accuracy": 4, "head": 4, "body": 5}}}};
+
+</script>
+<script>
+// Auto-generated. Do not edit manually.
+window.BINOCULAR_NORMS = {"source":"screenshot user provided (Morgan-style norms)","cover_test":{"distance":{"mean":"1 exophoria","sd_prism_diopters":2},"near":{"mean":"3 exophoria","sd_prism_diopters":3},"distance_lateral_phoria":{"mean":"3 exophoria","sd_prism_diopters":2},"near_lateral_phoria":{"mean":"1 exophoria","sd_prism_diopters":2},"aca_ratio":{"mean":4.1,"sd":null}},"smooth_vergence":{"base_out_distance":{"blur":{"mean":9,"sd":4},"break":{"mean":19,"sd":8},"recovery":{"mean":10,"sd":4}},"base_in_distance":{"break":{"mean":7,"sd":3},"recovery":{"mean":4,"sd":2}},"base_out_near":{"blur":{"mean":17,"sd":5},"break":{"mean":21,"sd":6},"recovery":{"mean":11,"sd":7}},"base_in_near":{"blur":{"mean":13,"sd":4},"break":{"mean":21,"sd":4},"recovery":{"mean":13,"sd":5}}},"step_vergence":{"children_7_12":{"base_out_near":{"break":{"mean":23,"sd":8},"recovery":{"mean":16,"sd":6}},"base_in_near":{"break":{"mean":12,"sd":5},"recovery":{"mean":7,"sd":4}}},"adults":{"base_out_distance":{"break":{"mean":11,"sd":7},"recovery":{"mean":7,"sd":2}},"base_in_distance":{"break":{"mean":7,"sd":3},"recovery":{"mean":4,"sd":2}},"base_out_near":{"break":{"mean":19,"sd":9},"recovery":{"mean":14,"sd":7}},"base_in_near":{"break":{"mean":13,"sd":6},"recovery":{"mean":10,"sd":5}}}},"facility_and_npc":{"vergence_facility_near_12bo":{"mean_cpm":15.0,"sd_cpm":3},"vergence_facility_distance_12bo":{"mean_cpm":15.0,"sd_cpm":3},"npc_accommodative_target":{"break_cm":{"mean":2.5,"sd":2.5},"recovery_cm":{"mean":4.5,"sd":3.0}},"npc_penlight_rg":{"break_cm":{"mean":2.5,"sd":4.0},"recovery_cm":{"mean":4.5,"sd":5.0}}},"accommodation":{"amplitude_of_accommodation":{"push_up_test":{"expected_formula":"18 - (age_years/3)","sd_diopters":2.0},"minus_lens_test":{"expected_delta_from_pushup_diopters":-2.0}},"accommodative_facility":{"monocular":{"children":{"6":{"mean_cpm":5.5,"sd_cpm":2.5},"7":{"mean_cpm":6.5,"sd_cpm":2.0},"8_12":{"mean_cpm":7.0,"sd_cpm":2.5}},"adults":{"13_30":{"mean_cpm":11.0,"sd_cpm":5.0},"30_40":null}},"binocular":{"children":{"6":{"mean_cpm":3.0,"sd_cpm":2.5},"7":{"mean_cpm":3.5,"sd_cpm":2.5},"8_12":{"mean_cpm":5.0,"sd_cpm":2.5}},"adults":{"mean_cpm":10.0,"sd_cpm":5.0}}},"accuracy":{"mem":{"mean_diopters":0.5,"sd_diopters":0.25},"fcc":{"mean_diopters":0.5,"sd_diopters":0.5},"nra":{"mean_diopters":2.0,"sd_diopters":0.5},"pra":{"mean_diopters":-2.37,"sd_diopters":1.0}}}};
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   MOTORES CLÍNICOS — Sistema Olhar
+   Portados do optometriacomportamental (nsuco_norms.js, binocular_norms.js).
+   Nenhum valor normativo foi escrito aqui: as tabelas são as do Geandré,
+   copiadas verbatim, e ficam isoladas em window.NSUCO_NORMS e
+   window.BINOCULAR_NORMS para poderem ser corrigidas sem tocar na lógica.
+   Quando falta norma para o caso (idade fora da tabela, sexo em branco),
+   o motor diz que falta — nunca extrapola.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  /* ---------- utilidades locais (não dependem do arquivo legado) ---------- */
+  function $(id) { return document.getElementById(id); }
+  function val(id) { var e = $(id); return e ? String(e.value || '').trim() : ''; }
+  /* primeiro número do texto. Importante: os <option> do prontuário guardam
+     rótulos inteiros ("5 — Completa 5 viagens"); concatenar todos os dígitos
+     daria 555, então aqui só o número que abre a string é lido. */
+  function num(v) {
+    if (v === null || v === undefined) return null;
+    var m = String(v).replace(',', '.').match(/-?\d+(?:\.\d+)?/);
+    if (!m) return null;
+    var n = parseFloat(m[0]);
+    return isNaN(n) ? null : n;
+  }
+
+  /* faixa a partir de rótulos como "1-5 cm", ">15 cm", "Até o nariz" */
+  function faixa(txt) {
+    var s = String(txt || '').trim();
+    if (!s) return null;
+    if (/nariz/i.test(s)) return { lo: 0, hi: 0, rot: s };
+    var m = s.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+    if (m) return { lo: parseFloat(m[1]), hi: parseFloat(m[2]), rot: s };
+    m = s.match(/>\s*(\d+(?:\.\d+)?)/);
+    if (m) return { lo: parseFloat(m[1]), hi: Infinity, rot: s };
+    m = s.match(/<\s*(\d+(?:\.\d+)?)/);
+    if (m) return { lo: 0, hi: parseFloat(m[1]), rot: s };
+    var n = num(s);
+    return n === null ? null : { lo: n, hi: n, rot: s };
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* idade em anos a partir de pr_dn; usa calcAge do app se existir */
+  function idadeAnos() {
+    var dn = val('pr_dn');
+    if (!dn) return null;
+    var d = new Date(dn + 'T00:00:00');
+    if (isNaN(d.getTime())) return null;
+    var hoje = new Date(), a = hoje.getFullYear() - d.getFullYear();
+    var m = hoje.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < d.getDate())) a--;
+    return a >= 0 && a < 130 ? a : null;
+  }
+  function sexo() {
+    var s = val('pr_sx').toUpperCase();
+    return (s === 'M' || s === 'F') ? s : '';
+  }
+
+  /* ═══════════ MOTOR 1 — NSUCO (Maples, Atchley & Ficklin) ═══════════
+     Compara cada variável com o escore mínimo aceitável para idade e sexo.
+     Abaixo do mínimo = falha naquela variável. */
+  var NSUCO_VARS = [
+    { k: 'ability',  rot: 'Habilidade' },
+    { k: 'accuracy', rot: 'Precisão' },
+    { k: 'head',     rot: 'Mov. cabeça' },
+    { k: 'body',     rot: 'Mov. corpo' }
+  ];
+
+  function nsucoMin(secao, anos, sx) {
+    var N = window.NSUCO_NORMS;
+    if (!N || anos == null || !sx) return null;
+    if (anos < 5) return null;                   // tabela começa aos 5 anos
+    var chave = anos >= 14 ? '14+' : String(anos);
+    var linha = N[secao] && N[secao][chave];
+    return (linha && linha[sx]) || null;
+  }
+
+  function nsucoAvalia(secao, ids) {
+    var anos = idadeAnos(), sx = sexo();
+    var escores = {};
+    var algum = false;
+    NSUCO_VARS.forEach(function (v, i) {
+      var n = num(val(ids[i]));
+      escores[v.k] = n;
+      if (n !== null) algum = true;
+    });
+    if (!algum) return { vazio: true };
+
+    var min = nsucoMin(secao, anos, sx);
+    if (!min) {
+      var falta = [];
+      if (anos == null) falta.push('data de nascimento');
+      if (!sx) falta.push('sexo');
+      if (anos != null && anos < 5) falta.push('idade abaixo de 5 anos (fora da tabela de Maples)');
+      return { semNorma: true, falta: falta, escores: escores, anos: anos, sx: sx };
+    }
+
+    var itens = NSUCO_VARS.map(function (v) {
+      var obtido = escores[v.k], esperado = min[v.k];
+      var estado = (obtido === null) ? 'vazio'
+                 : (obtido < esperado) ? 'abaixo' : 'ok';
+      return { rot: v.rot, obtido: obtido, esperado: esperado, estado: estado };
+    });
+    var falhas = itens.filter(function (i) { return i.estado === 'abaixo'; });
+    return { itens: itens, falhas: falhas, anos: anos, sx: sx };
+  }
+
+  /* ═══════════ MOTOR 2 — Binocular (normas de Morgan) ═══════════
+     Compara a magnitude da foria com média ± DP da tabela, por distância.
+     O tipo (eso/exo) vem do select; o motor não decide diagnóstico,
+     informa se a medida cai dentro ou fora do esperado. */
+  function normaCover(chave) {
+    var N = window.BINOCULAR_NORMS;
+    var o = N && N.cover_test && N.cover_test[chave];
+    if (!o) return null;
+    var m = (typeof o.mean === 'string') ? o.mean.match(/([0-9.]+)/) : null;
+    return {
+      media: m ? Number(m[1]) : null,
+      dp: o.sd_prism_diopters,
+      sentido: (typeof o.mean === 'string' && /eso/i.test(o.mean)) ? 'Esoforia' : 'Exoforia',
+      texto: o.mean
+    };
+  }
+
+  function comparaForia(tipo, magnitude, norma) {
+    if (!norma || norma.media == null || norma.dp == null) return null;
+    if (!tipo) return null;
+    if (/^Ortoforia/i.test(tipo)) {
+      return { estado: 'ok', frase: 'Ortoforia — dentro do esperado (' + norma.texto + ' ± ' + norma.dp + 'Δ).' };
+    }
+    if (magnitude === null) {
+      return { estado: 'parcial', frase: tipo + ' registrada sem magnitude; informe o valor em Δ para comparar com a norma.' };
+    }
+    var lo = norma.media - norma.dp, hi = norma.media + norma.dp;
+    var mesmoSentido = new RegExp(norma.sentido, 'i').test(tipo);
+    if (!mesmoSentido) {
+      return {
+        estado: 'fora',
+        frase: tipo + ' ' + magnitude + 'Δ — a norma esperada nesta distância é ' + norma.texto +
+               ' (± ' + norma.dp + 'Δ). Desvio em sentido oposto ao esperado.'
+      };
+    }
+    if (magnitude >= lo && magnitude <= hi) {
+      return { estado: 'ok', frase: tipo + ' ' + magnitude + 'Δ — dentro do esperado (' + norma.texto + ' ± ' + norma.dp + 'Δ).' };
+    }
+    return {
+      estado: 'fora',
+      frase: tipo + ' ' + magnitude + 'Δ — fora do esperado (' + norma.texto + ' ± ' + norma.dp +
+             'Δ, faixa ' + lo.toFixed(1) + '–' + hi.toFixed(1) + 'Δ).'
+    };
+  }
+
+  function binocularAvalia() {
+    var linhas = [];
+    [
+      { tipo: 'ct_vl', mag: 'ct_dvl', norma: 'distance', rot: 'VL (6 m)' },
+      { tipo: 'ct_40', mag: 'ct_d40', norma: 'near',     rot: 'VP (40 cm)' },
+      { tipo: 'ct_20', mag: 'ct_d20', norma: 'near',     rot: 'VP (20 cm)' }
+    ].forEach(function (c) {
+      var t = val(c.tipo);
+      if (!t) return;
+      var r = comparaForia(t, num(val(c.mag)), normaCover(c.norma));
+      if (r) linhas.push({ rot: c.rot, estado: r.estado, frase: r.frase });
+    });
+
+    /* PPC — o prontuário registra objeto real e estímulo fusional */
+    var N = window.BINOCULAR_NORMS;
+    var npc = N && N.facility_and_npc && N.facility_and_npc.npc_accommodative_target;
+    /* o prontuário registra o PPC por faixa, não por valor pontual.
+       Comparar faixa com limiar: só afirmo quando a faixa inteira cai de
+       um lado; quando ela cruza o limite, digo que é limítrofe. */
+    [
+      { id: 'pp_or', rot: 'PPC objeto real' },
+      { id: 'pp_sf', rot: 'PPC estímulo fusional' }
+    ].forEach(function (p) {
+      var f = faixa(val(p.id));
+      if (!f || !npc) return;
+      var lim = npc.break_cm.mean + npc.break_cm.sd;   // média + 1 DP
+      var est, frase;
+      if (f.hi <= lim) { est = 'ok'; frase = f.rot + ' — dentro do esperado'; }
+      else if (f.lo >= lim) { est = 'fora'; frase = f.rot + ' — além do esperado'; }
+      else { est = 'parcial'; frase = f.rot + ' — faixa cruza o limite; registre o valor exato para concluir'; }
+      linhas.push({
+        rot: p.rot, estado: est,
+        frase: frase + ' (ruptura ' + npc.break_cm.mean + ' ± ' + npc.break_cm.sd +
+               ' cm, até ' + lim.toFixed(1) + ' cm).'
+      });
+    });
+
+    return linhas.length ? { linhas: linhas } : { vazio: true };
+  }
+
+  /* ═══════════ MOTOR 3 — Ceratometria ═══════════
+     Aritmética pura sobre K1/K2: não há norma envolvida e nenhum
+     limiar de suspeita é afirmado, porque eu não tenho fonte para ele. */
+  function keDoOlho(olho) {
+    var k1 = num(val('ce_' + olho + '_k1'));
+    var k2 = num(val('ce_' + olho + '_k2'));
+    if (k1 === null || k2 === null) return null;
+    var plano = Math.min(k1, k2), curvo = Math.max(k1, k2);
+    return {
+      k1: k1, k2: k2,
+      plano: plano, curvo: curvo,
+      cil: +(curvo - plano).toFixed(2),
+      medio: +((k1 + k2) / 2).toFixed(2)
+    };
+  }
+
+  function ceratoAvalia() {
+    var od = keDoOlho('od'), oe = keDoOlho('oe');
+    if (!od && !oe) return { vazio: true };
+    var r = { od: od, oe: oe };
+    if (od && oe) {
+      r.difMedio = +Math.abs(od.medio - oe.medio).toFixed(2);
+      r.difCil = +Math.abs(od.cil - oe.cil).toFixed(2);
+    }
+    return r;
+  }
+
+  /* ═══════════ RENDERIZAÇÃO — saída junto ao campo ═══════════ */
+  function painel(id, titulo, fonte) {
+    var p = $(id);
+    if (p) return p;
+    p = document.createElement('div');
+    p.id = id;
+    p.className = 'mc-out';
+    p.innerHTML = '<div class="mc-hd"><span class="mc-t">' + esc(titulo) +
+                  '</span><span class="mc-src">' + esc(fonte) + '</span></div><div class="mc-bd"></div>';
+    return p;
+  }
+
+  /* ancora o painel logo depois do bloco que contém o campo */
+  function ancora(idCampo) {
+    var e = $(idCampo);
+    if (!e) return null;
+    var bloco = e.closest('.fr') || e.closest('.sec') || e.parentElement;
+    return bloco || null;
+  }
+
+  function monta(idPainel, idCampoAncora, titulo, fonte) {
+    var a = ancora(idCampoAncora);
+    if (!a) return null;
+    var p = painel(idPainel, titulo, fonte);
+    if (!p.isConnected) a.parentNode.insertBefore(p, a.nextSibling);
+    return p.querySelector('.mc-bd');
+  }
+
+  function marca(estado) {
+    if (estado === 'ok') return '<span class="mc-m mc-ok">dentro</span>';
+    if (estado === 'abaixo' || estado === 'fora') return '<span class="mc-m mc-fora">fora</span>';
+    if (estado === 'parcial') return '<span class="mc-m mc-parc">incompleto</span>';
+    return '<span class="mc-m">—</span>';
+  }
+
+  function renderNSUCO(secao, ids, idPainel, titulo) {
+    var bd = monta(idPainel, ids[0], titulo,
+                   'Maples, Atchley & Ficklin · NSUCO oculomotor norms, J Behav Optom 1992');
+    if (!bd) return;
+    var r = nsucoAvalia(secao, ids);
+    var p = bd.parentNode;
+    if (r.vazio) { p.style.display = 'none'; return; }
+    p.style.display = '';
+
+    if (r.semNorma) {
+      bd.innerHTML = '<div class="mc-falta">Sem norma aplicável: falta ' +
+        esc(r.falta.join(' e ')) + '. Os escores ficam registrados, sem comparação.</div>';
+      return;
+    }
+    var html = '<div class="mc-ctx">Comparado com o mínimo aceitável para ' + r.anos +
+               ' anos, sexo ' + r.sx + '.</div><ul class="mc-lista">';
+    r.itens.forEach(function (i) {
+      html += '<li class="mc-li ' + (i.estado === 'abaixo' ? 'mc-li-fora' : '') + '">' +
+              '<span class="mc-rot">' + esc(i.rot) + '</span>' +
+              '<span class="mc-val">' + (i.obtido === null ? '—' : i.obtido) +
+              ' <span class="mc-esp">(mín. ' + i.esperado + ')</span></span>' +
+              (i.estado === 'vazio' ? '<span class="mc-m">—</span>' : marca(i.estado)) + '</li>';
+    });
+    html += '</ul>';
+    html += r.falhas.length
+      ? '<div class="mc-concl mc-concl-fora">' + r.falhas.length + ' de 4 variáveis abaixo do mínimo para a idade.</div>'
+      : '<div class="mc-concl">Todas as variáveis dentro do mínimo para a idade.</div>';
+    bd.innerHTML = html;
+  }
+
+  function renderBinocular() {
+    var bd = monta('mc_bin', 'ct_vl', 'Comparação com a norma',
+                   'Normas de Morgan · Scheiman & Wick, Clinical Management of Binocular Vision');
+    if (!bd) return;
+    var r = binocularAvalia(), p = bd.parentNode;
+    if (r.vazio) { p.style.display = 'none'; return; }
+    p.style.display = '';
+    var html = '<ul class="mc-lista">';
+    r.linhas.forEach(function (l) {
+      html += '<li class="mc-li ' + (l.estado === 'fora' ? 'mc-li-fora' : '') + '">' +
+              '<span class="mc-rot">' + esc(l.rot) + '</span>' +
+              '<span class="mc-frase">' + esc(l.frase) + '</span>' + marca(l.estado) + '</li>';
+    });
+    html += '</ul><div class="mc-nota">A comparação é com a faixa esperada. O diagnóstico binocular ' +
+            'depende de AC/A, vergências e acomodação, que este motor não avalia.</div>';
+    bd.innerHTML = html;
+  }
+
+  function renderCerato() {
+    var bd = monta('mc_ce', 'ce_od_k1', 'Astigmatismo corneano', 'Cálculo direto de K1 e K2');
+    if (!bd) return;
+    var r = ceratoAvalia(), p = bd.parentNode;
+    if (r.vazio) { p.style.display = 'none'; return; }
+    p.style.display = '';
+    var html = '<ul class="mc-lista">';
+    [['OD', r.od], ['OE', r.oe]].forEach(function (par) {
+      var o = par[1];
+      if (!o) return;
+      html += '<li class="mc-li"><span class="mc-rot">' + par[0] + '</span>' +
+              '<span class="mc-frase">Cilindro corneano <strong>' + o.cil.toFixed(2) + ' D</strong>' +
+              ' · K médio ' + o.medio.toFixed(2) + ' D · meridiano plano ' + o.plano.toFixed(2) +
+              ' D, curvo ' + o.curvo.toFixed(2) + ' D</span></li>';
+    });
+    if (r.difMedio !== undefined) {
+      html += '<li class="mc-li"><span class="mc-rot">OD × OE</span>' +
+              '<span class="mc-frase">Diferença de K médio ' + r.difMedio.toFixed(2) +
+              ' D · diferença de cilindro ' + r.difCil.toFixed(2) + ' D</span></li>';
+    }
+    html += '</ul><div class="mc-nota">Valores calculados, sem juízo clínico: não há limiar de ' +
+            'suspeita embutido porque eu não tenho fonte para afirmá-lo.</div>';
+    bd.innerHTML = html;
+  }
+
+  /* ═══════════ ATUALIZAÇÃO ═══════════ */
+  function atualizar() {
+    try { renderNSUCO('saccades', ['ns_ab', 'ns_ac', 'ns_hd', 'ns_bd'], 'mc_ns', 'NSUCO sacádicos — comparação com a norma'); } catch (e) { console.error('mc nsuco s', e); }
+    try { renderNSUCO('pursuits', ['np_ab', 'np_ac', 'np_hd', 'np_bd'], 'mc_np', 'NSUCO perseguições — comparação com a norma'); } catch (e) { console.error('mc nsuco p', e); }
+    try { renderBinocular(); } catch (e) { console.error('mc bin', e); }
+    try { renderCerato(); } catch (e) { console.error('mc cerato', e); }
+  }
+
+  var GATILHOS = ['ns_ab','ns_ac','ns_hd','ns_bd','np_ab','np_ac','np_hd','np_bd',
+                  'ct_vl','ct_40','ct_20','ct_dvl','ct_d40','ct_d20','pp_or','pp_sf',
+                  'ce_od_k1','ce_od_k2','ce_oe_k1','ce_oe_k2','pr_dn','pr_sx'];
+
+  var pend = null;
+  function agenda() { clearTimeout(pend); pend = setTimeout(atualizar, 120); }
+
+  function ligar() {
+    GATILHOS.forEach(function (id) {
+      var e = $(id);
+      if (!e || e.dataset.mcLigado) return;
+      e.dataset.mcLigado = '1';
+      e.addEventListener('change', agenda);
+      e.addEventListener('input', agenda);
+    });
+    atualizar();
+  }
+
+  /* o prontuário re-renderiza os campos ao trocar de seção ou de paciente:
+     o observer religa os gatilhos sem depender de hooks do arquivo legado */
+  function observar() {
+    var alvo = document.getElementById('p-o-pront') || document.body;
+    var mo = new MutationObserver(function () { clearTimeout(pend); pend = setTimeout(ligar, 200); });
+    mo.observe(alvo, { childList: true, subtree: true });
+  }
+
+  window.MotoresClinicos = {
+    atualizar: atualizar, ligar: ligar,
+    nsuco: nsucoAvalia, binocular: binocularAvalia, cerato: ceratoAvalia,
+    _idade: idadeAnos, _sexo: sexo
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { ligar(); observar(); });
+  else { ligar(); observar(); }
 })();
 
 </script>
