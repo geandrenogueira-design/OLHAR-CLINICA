@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head><meta charset="UTF-8">
 <script>(function(){try{var c=localStorage.getItem('olhar_conforto');if(c!=='0')document.documentElement.classList.add('conforto')}catch(e){document.documentElement.classList.add('conforto')}})();</script><script>(function(){try{var t=localStorage.getItem('olhar_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="description" content="Instituto do Olhar — sistema clínico para prontuário, refração, prescrição óptica e gestão de pacientes.">
-<meta name="theme-color" content="#24356f">
+<meta name="theme-color" content="#1e2d68">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -440,7 +440,7 @@ body *{display:none!important}
 }
 
 /* IDENTIDADE INSTITUTO DO OLHAR — azul profundo, dourado e marca circular segmentada */
-:root{--io-navy:#24356f;--io-navy-dark:#1b2a5a;--io-gold:#c99b73;--io-sky:#d8eff4}
+:root{--io-navy:#1e2d68;--io-navy-dark:#152150;--io-gold:#c4966e;--io-sky:#cde7f1}
 body{background:var(--bg);color:var(--tx)}
 #loginScreen{background:radial-gradient(circle at 88% 12%,rgba(201,155,115,.12),transparent 28%),linear-gradient(135deg,#f7f8f9 0%,#eef2f5 100%)}
 #loginScreen::before{background:radial-gradient(circle,rgba(36,53,111,.12) 0%,transparent 70%)}
@@ -495,11 +495,33 @@ html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!
 }
 </style></head><body>
 
-<div id="loginScreen"><div class="lc"><div class="lb"><div class="eye"></div><div class="greeting" id="loginGreeting"></div><div class="quote" id="loginQuote"></div></div>
-<div style="text-align:center;font-size:13px;color:var(--tx3);margin-bottom:20px;text-transform:uppercase;letter-spacing:2px;font-weight:600">Acessar como</div>
-<div class="rb"><div class="rbtn s" onclick="enterAs('sec')"><div class="ic"><i class="ph-bold ph-folders"></i></div><div><h3>Secretaria</h3><p>Agenda, pacientes, caixa, CRM</p></div></div>
-<div class="rbtn o" onclick="enterAs('opto')"><div class="ic"><i class="ph-bold ph-eye"></i></div><div><h3>Dr. Geandré</h3><p>Prontuário, receitas, documentos</p></div></div></div>
-<div style="text-align:center;margin-top:32px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="font-family:var(--font-h);font-size:14px;color:var(--tx3);letter-spacing:.08em">Instituto do Olhar</span><span style="color:var(--tx3);font-size:12px;font-style:italic">— Optometria do desenvolvimento</span></div></div></div>
+<div id="loginScreen" class="lg2"><div class="lg">
+<aside class="lg-brand" aria-label="Instituto do Olhar">
+<div class="lg-lockup"><div class="lg-dial lg-dial-sm" aria-hidden="true"></div><div><b>Instituto do Olhar</b><span>Optometria do desenvolvimento</span></div></div>
+<div class="lg-mid"><div class="lg-dial lg-dial-big" aria-hidden="true"></div><p class="lg-sig">Cuidado humano para a sua visão.</p></div>
+<figure class="lg-quote"><small>Frase do dia</small><p id="loginQuote"></p><cite id="loginQuoteBy"></cite></figure>
+</aside>
+<main class="lg-main" id="lgPanel">
+<div class="lg-col" id="lgCol">
+<p class="lg-kick" id="loginDate"></p>
+<h1 class="lg-h1" id="loginGreeting">Olá.</h1>
+<p class="lg-lead">Escolha seu perfil para entrar.</p>
+<div class="lg-roles">
+<button type="button" class="lg-role s" onclick="enterAs('sec')"><span class="lg-ri"><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M228,56H160L133.33,36a20.12,20.12,0,0,0-12-4H76A20,20,0,0,0,56,52V72H36A20,20,0,0,0,16,92V204a20,20,0,0,0,20,20H188.89A19.13,19.13,0,0,0,208,204.89V184h20.89A19.13,19.13,0,0,0,248,164.89V76A20,20,0,0,0,228,56ZM184,200H40V96H80l28.8,21.6A12,12,0,0,0,116,120h68Zm40-40H208V116a20,20,0,0,0-20-20H120L93.33,76a20.12,20.12,0,0,0-12-4H80V56h40l28.8,21.6A12,12,0,0,0,156,80h68Z"/></svg></span><span class="lg-rt"><b>Secretaria</b><small>Agenda, pacientes, caixa e CRM</small></span><span class="lg-chev"><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></button>
+<button type="button" class="lg-role o" onclick="enterAs('opto')"><span class="lg-ri"><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M251,123.13c-.37-.81-9.13-20.26-28.48-39.61C196.63,57.67,164,44,128,44S59.37,57.67,33.51,83.52C14.16,102.87,5.4,122.32,5,123.13a12.08,12.08,0,0,0,0,9.75c.37.82,9.13,20.26,28.49,39.61C59.37,198.34,92,212,128,212s68.63-13.66,94.48-39.51c19.36-19.35,28.12-38.79,28.49-39.61A12.08,12.08,0,0,0,251,123.13Zm-46.06,33C183.47,177.27,157.59,188,128,188s-55.47-10.73-76.91-31.88A130.36,130.36,0,0,1,29.52,128,130.45,130.45,0,0,1,51.09,99.89C72.54,78.73,98.41,68,128,68s55.46,10.73,76.91,31.89A130.36,130.36,0,0,1,226.48,128,130.45,130.45,0,0,1,204.91,156.12ZM128,84a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,148Z"/></svg></span><span class="lg-rt"><b>Geandré</b><small>Prontuário, receitas e documentos</small></span><span class="lg-chev"><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"/></svg></span></button>
+</div>
+<p class="lg-msg" id="lgSlow" role="status"></p>
+<figure class="lg-quote-m"><p id="loginQuoteM"></p><cite id="loginQuoteByM"></cite></figure>
+<p class="lg-net" id="lgNet" role="status" hidden><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M216.88,207.93a12,12,0,1,1-17.76,16.14L147.78,167.6a56.06,56.06,0,0,0-52.71,7.1,12,12,0,0,1-14.14-19.4,79.35,79.35,0,0,1,41.92-15.12L103.51,118.9a104.18,104.18,0,0,0-40.06,19.55,12,12,0,0,1-14.9-18.81A128.46,128.46,0,0,1,85.61,99.21l-17.31-19a151.14,151.14,0,0,0-36.68,22.28A12,12,0,1,1,16.39,83.91a175.52,175.52,0,0,1,35-22.38L39.12,48.07A12,12,0,1,1,56.88,31.93ZM128,188a16,16,0,1,0,16,16A16,16,0,0,0,128,188Zm64.55-49.55a12,12,0,0,0,14.9-18.81A127.27,127.27,0,0,0,170,99.05a12,12,0,0,0-7.87,22.67A103.62,103.62,0,0,1,192.55,138.45Zm47.06-54.54A176.33,176.33,0,0,0,128,44c-3.94,0-7.93.13-11.86.39a12,12,0,1,0,1.59,24c3.4-.23,6.86-.34,10.27-.34a152.24,152.24,0,0,1,96.38,34.46,12,12,0,1,0,15.23-18.55Z"/></svg>Sem internet</p>
+</div>
+<div class="lg-col" id="lgErr" hidden>
+<div class="lg-err-ic"><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm-12-80V80a12,12,0,0,1,24,0v52a12,12,0,0,1-24,0Zm28,40a16,16,0,1,1-16-16A16,16,0,0,1,144,172Z"/></svg></div>
+<h1 class="lg-h1">Não foi possível abrir o acesso.</h1>
+<p class="lg-lead">O módulo de acesso não carregou. Recarregue a página. Se continuar, feche o Edge e abra o Olhar de novo.</p>
+<button type="button" class="lg-btn" onclick="location.reload()"><svg class="lg-ic" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M244,56v48a12,12,0,0,1-12,12H184a12,12,0,1,1,0-24H201.1l-19-17.38c-.13-.12-.26-.24-.38-.37A76,76,0,1,0,127,204h1a75.53,75.53,0,0,0,52.15-20.72,12,12,0,0,1,16.49,17.45A99.45,99.45,0,0,1,128,228h-1.37A100,100,0,1,1,198.51,57.06L220,76.72V56a12,12,0,0,1,24,0Z"/></svg>Recarregar</button>
+</div>
+</main>
+</div></div>
 
 <aside class="sidebar ss" id="sbSec" style="display:none">
 <div class="slogo"><div class="esm"></div><div><h2>Instituto do Olhar</h2><span>Secretaria</span></div></div>
@@ -530,7 +552,7 @@ html.conforto[data-theme="dark"] .card>div[onclick]:first-child{color:var(--tx)!
 <div class="si" data-p="o-pac" onclick="gp(this)"><span class="ic"><i class="ph-bold ph-user-circle"></i></span>Buscar Paciente</div>
 <div class="ssec">Financeiro</div>
 <div class="si" data-p="o-fluxo" onclick="gp(this)"><span class="ic"><i class="ph-bold ph-chart-line-up"></i></span>Fluxo de Caixa</div>
-<div class="ssec">Mostrar ao paciente</div><div class="si" data-p="o-simul" onclick="gp(this)" title="Simulador de Ametropia"><span class="ic"><i class="ph-bold ph-eyeglasses"></i></span>Simulador de Ametropia</div><div class="si" data-p="o-patol" onclick="gp(this)" title="Simulador de Patologias"><span class="ic"><i class="ph-bold ph-eye-closed"></i></span>Simulador de Patologias</div><div class="sbot"><div style="display:flex;align-items:center;gap:10px;padding:8px 10px;color:rgba(255,255,255,.7);font-size:12px"><div style="width:30px;height:30px;border-radius:8px;background:var(--o);display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ph-bold ph-eye" style="color:var(--o)"></i></div><div><strong style="color:#fff;font-size:13px">Dr. Geandré</strong><span style="display:block;font-size:10px;opacity:.6">CROO 1726</span></div></div>
+<div class="ssec">Mostrar ao paciente</div><div class="si" data-p="o-simul" onclick="gp(this)" title="Simulador de Ametropia"><span class="ic"><i class="ph-bold ph-eyeglasses"></i></span>Simulador de Ametropia</div><div class="si" data-p="o-patol" onclick="gp(this)" title="Simulador de Patologias"><span class="ic"><i class="ph-bold ph-eye-closed"></i></span>Simulador de Patologias</div><div class="sbot"><div style="display:flex;align-items:center;gap:10px;padding:8px 10px;color:rgba(255,255,255,.7);font-size:12px"><div style="width:30px;height:30px;border-radius:8px;background:var(--o);display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ph-bold ph-eye" style="color:var(--o)"></i></div><div><strong style="color:#fff;font-size:13px">Geandré</strong><span style="display:block;font-size:10px;opacity:.6">CROO 1726</span></div></div>
 <div class="ssw" onclick="switchRole()"><i class="ph-bold ph-arrows-left-right"></i></div></div></aside>
 
 <main class="main" id="mainC" style="display:none">
@@ -2918,7 +2940,7 @@ const h=new Date().getHours();
 let greet='Boa noite, Geandré';
 if(h>=5&&h<12)greet='Bom dia, Geandré';
 else if(h>=12&&h<18)greet='Boa tarde, Geandré';
-document.getElementById('loginGreeting').textContent=greet;
+document.getElementById('loginGreeting').textContent=greet.split(',')[0]+'.';try{var dd=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});document.getElementById('loginDate').textContent=dd}catch(e){}
 
 const quotes=[
 '"A visão é a arte de ver o que é invisível para os outros." — Jonathan Swift',
@@ -2954,7 +2976,7 @@ const quotes=[
 ];
 const dayOfYear=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
 const qi=dayOfYear%quotes.length;
-document.getElementById('loginQuote').textContent=quotes[qi];
+(function(q){var k=q.lastIndexOf('" — '),t=(k>0?q.slice(0,k+1):q).replace(/^"|"$/g,''),a=k>0?q.slice(k+4):'';['','M'].forEach(function(x){var e=document.getElementById('loginQuote'+x),b=document.getElementById('loginQuoteBy'+x);if(e)e.textContent='“'+t+'”';if(b){b.textContent=a?'— '+a:'';b.hidden=!a}})})(quotes[qi]);
 })();
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();if(role==='opto'&&document.getElementById('p-o-pront').classList.contains('active'))savePr()}});
 
@@ -2987,9 +3009,9 @@ window.exportBackup=function(){try{saveBlob('backup_olhar_'+stamp()+'.json',JSON
 window.importBackup=function(file){if(!file)return;const r=new FileReader();r.onload=function(){try{const parsed=JSON.parse(r.result);const data=parsed.data||parsed;if(!data||!Array.isArray(data.patients))throw new Error('Arquivo incompatível.');if(!confirm('Importar este backup substituirá os dados locais atuais. Continuar?'))return;D=Object.assign(D,data);sv();toast('Backup importado');setTimeout(function(){location.reload()},500)}catch(e){alert('Não foi possível importar: '+e.message)}};r.readAsText(file)};
 function ensureHardbar(){if(byId('hardbar'))return;const bar=document.createElement('div');bar.className='hardbar';bar.id='hardbar';bar.style.display='none';bar.innerHTML='<button class="btn bs bsm" onclick="openBackupsPanel()">Backups</button><label class="btn bs bsm" style="cursor:pointer">Importar<input type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0]);this.value=\'\'"></label><button class="btn bs bsm" onclick="changeRolePin()">PIN</button>';document.body.appendChild(bar)}
 const oldEnterAs=enterAs;
-enterAs=function(r){const go=function(){oldEnterAs(r);ensureHardbar();byId('hardbar').style.display='flex'};if(sessionStorage.getItem(SESSION_KEY+'_'+r)==='ok'){go();return}if(typeof window.olharPinGate==='function'){window.olharPinGate(r,go);return}alert('Módulo de acesso indisponível. Recarregue a página.')};
+enterAs=function(r){const go=function(){oldEnterAs(r);ensureHardbar();byId('hardbar').style.display='flex'};if(sessionStorage.getItem(SESSION_KEY+'_'+r)==='ok'){go();return}if(typeof window.olharPinGate==='function'){window.olharPinGate(r,go);return}(window.olharLoginError?window.olharLoginError():alert('Módulo de acesso indisponível. Recarregue a página.'))};
 switchRole=function(){const target=role==='sec'?'opto':'sec';sessionStorage.removeItem(SESSION_KEY+'_'+target);enterAs(target)};
-window.changeRolePin=function(){const current=role||'opto';const pins=getPins();const old=prompt('PIN atual de '+(current==='opto'?'Dr. Geandré':'Secretaria')+':');if(old===null)return;if(String(old)!==String(pins[current])){alert('PIN atual incorreto.');return}const np=prompt('Novo PIN numérico, mínimo 4 dígitos:');if(np===null)return;if(!/^\d{4,12}$/.test(np)){alert('Use apenas números, com 4 a 12 dígitos.');return}pins[current]=np;localStorage.setItem(PIN_KEY,JSON.stringify(pins));sessionStorage.setItem(SESSION_KEY+'_'+current,'ok');toast('PIN atualizado')};
+window.changeRolePin=function(){const current=role||'opto';const pins=getPins();const old=prompt('PIN atual de '+(current==='opto'?'Geandré':'Secretaria')+':');if(old===null)return;if(String(old)!==String(pins[current])){alert('PIN atual incorreto.');return}const np=prompt('Novo PIN numérico, mínimo 4 dígitos:');if(np===null)return;if(!/^\d{4,12}$/.test(np)){alert('Use apenas números, com 4 a 12 dígitos.');return}pins[current]=np;localStorage.setItem(PIN_KEY,JSON.stringify(pins));sessionStorage.setItem(SESSION_KEY+'_'+current,'ok');toast('PIN atualizado')};
 
 function optList(list){return list.map(function(x){return '<option value="'+esc(x)+'">'+(x?esc(x):'—')+'</option>'}).join('')}
 function rangeOpts(min,max,step,blank){let h=blank?'<option value="">—</option>':'';for(let x=min;x<=max+0.0001;x+=step){let val=(Math.round(x*100)/100).toFixed(2);if(Number(val)>0)val='+'+val;h+='<option value="'+val+'">'+val+'</option>'}return h}
@@ -5885,7 +5907,7 @@ if ('serviceWorker' in navigator) {
 /* Selo de versão — confirma visualmente qual build está carregada (some na impressão) */
 (function(){
   try{
-    var BUILD='Olhar v45 · IndexedDB';
+    var BUILD='Olhar v46 · IndexedDB';
     var st=document.createElement('style');
     st.textContent='#olharBuild{position:fixed;left:10px;bottom:6px;z-index:99999;font:700 11px/1.2 system-ui,-apple-system,sans-serif;color:#0C0C0C;background:#b8f04a;border:1px solid #2a2a2a;border-radius:8px;padding:3px 9px;opacity:.9;pointer-events:none;letter-spacing:.2px}@media print{#olharBuild{display:none!important}}';
     (document.head||document.documentElement).appendChild(st);
@@ -6379,6 +6401,11 @@ if(initialEnter){
   enterAs=function(r){ storageReady.then(function(){ initialEnter(r) }) };
   window.enterAs=enterAs;
 }
+(function(){var ls=document.getElementById('loginScreen');if(!ls)return;var ok=false;
+  var t1=setTimeout(function(){if(!ok)ls.classList.add('lg-wait')},150);
+  var t2=setTimeout(function(){if(!ok){var m=document.getElementById('lgSlow');if(m)m.textContent='Ainda preparando o acesso. Isso pode levar alguns segundos.'}},2000);
+  storageReady.then(function(){ok=true;clearTimeout(t1);clearTimeout(t2);ls.classList.remove('lg-wait');var m=document.getElementById('lgSlow');if(m)m.textContent=''});
+})();
 
 /* ---------- API de criptografia (usada pelo módulo de acesso) ---------- */
 function replaceData(data){
@@ -6838,7 +6865,7 @@ else iniciar();
 @media(max-width:680px){.pp-tabs{border-radius:16px;flex-direction:column}.pp-tab{border-radius:12px}.pp-box{padding:14px}.pp-actions{display:grid;grid-template-columns:1fr}.pp-actions .btn{justify-content:center}.pp-credentials dl{grid-template-columns:1fr}.pp-credentials dt{margin-top:5px}}
 @media print{#partnerPortalBtn,.pp-side{display:none!important}}
 /* Reforço final da identidade do Instituto do Olhar após os estilos legados */
-:root{--io-navy:#24356f;--io-navy-dark:#1b2a5a;--io-gold:#c99b73;--io-sky:#d8eff4}
+:root{--io-navy:#1e2d68;--io-navy-dark:#152150;--io-gold:#c4966e;--io-sky:#cde7f1}
 .lb .eye,.slogo .esm,.call-tv .tv-logo .eye-lg{border:0!important;background:repeating-conic-gradient(from -38deg,var(--io-gold) 0deg 7deg,transparent 7deg 12deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));box-shadow:none!important}
 .lb .eye::after,.slogo .esm::after,.call-tv .tv-logo .eye-lg::after{display:none!important}
 .sidebar,.sidebar.ss,.sidebar.so{background:var(--io-navy)!important;border-right-color:rgba(255,255,255,.14)}.slogo{border-bottom-color:rgba(255,255,255,.16)}.si{color:rgba(255,255,255,.64)}.si:hover{background:rgba(255,255,255,.12);color:#fff}.si.active{background:#fff;color:var(--io-navy);box-shadow:0 5px 18px rgba(0,0,0,.14)}.sbadge{background:var(--io-gold);color:var(--io-navy)}.sbot{border-top-color:rgba(255,255,255,.16)}.ssw{color:rgba(255,255,255,.64)}.ssw:hover{background:rgba(255,255,255,.12);color:#fff}.sbot>div:first-child>div:first-child{background:var(--io-gold)!important}.sbot>div:first-child>div:first-child i{color:var(--io-navy)!important}
@@ -7026,7 +7053,7 @@ var LEGACY_KEY=DBK+'_pins_v3', V4_KEY=DBK+'_pins_v4', LOCK_KEY=DBK+'_pin_lock', 
 var SESSION_KEY=DBK+'_session_v3';
 var FACTORY={opto:'1726',sec:'0000'};
 var ITER=150000;
-var LABEL={opto:'Dr. Geandré',sec:'Secretaria'};
+var LABEL={opto:'Geandré',sec:'Secretaria'};
 
 function $(id){return document.getElementById(id)}
 function H(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -7167,6 +7194,22 @@ function overlay(html,cls){
   var o=document.createElement('div'); o.className='sx-ov'+(cls?' '+cls:'');
   o.setAttribute('role','dialog'); o.setAttribute('aria-modal','true');
   o.innerHTML='<div class="sx-card'+(cls&&cls.indexOf('wide')>=0?' sx-wide':'')+'">'+html+'</div>';
+  var ls=document.getElementById('loginScreen'), panel=document.getElementById('lgPanel');
+  var lockView=!!(cls&&cls.indexOf('sx-lock')>=0&&ls&&ls.style.display==='none'&&typeof role!=='undefined'&&role);
+  if(panel&&ls&&(ls.style.display!=='none'||lockView)){
+    if(lockView){ls.style.display='';ls.setAttribute('data-lockview','1')}
+    o.classList.add('sx-inpanel');
+    var card=o.querySelector('.sx-card'), c=o.querySelector('#sxCancel');
+    if(c&&card){var bk=document.createElement('button');bk.type='button';bk.className='lg-back';
+      bk.innerHTML='<svg class="lg-ic" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228,128a12,12,0,0,1-12,12H69l51.52,51.51a12,12,0,0,1-17,17l-72-72a12,12,0,0,1,0-17l72-72a12,12,0,0,1,17,17L69,116H216A12,12,0,0,1,228,128Z"/></svg>'+(c.textContent==='Cancelar'?'Trocar perfil':c.textContent);
+      bk.onclick=function(){c.click()};card.insertBefore(bk,card.firstChild)}
+    panel.appendChild(o);
+    if(ls.hasAttribute('data-lockview')&&!panel._lgmo){
+      panel._lgmo=new MutationObserver(function(){if(!panel.querySelector('.sx-ov')){panel._lgmo.disconnect();panel._lgmo=null;ls.style.display='none';ls.removeAttribute('data-lockview')}});
+      panel._lgmo.observe(panel,{childList:true});
+    }
+    return o;
+  }
   document.body.appendChild(o); return o;
 }
 function q(o,sel){return o.querySelector(sel)}
@@ -7226,7 +7269,7 @@ function showRecovery(done){
 
 function askRecovery(done){
   var o=overlay(
-    '<div class="sx-k">Dr. Geandré</div><h2 class="sx-t">Esqueci o PIN</h2>'+
+    '<div class="sx-k">Geandré</div><h2 class="sx-t">Esqueci o PIN</h2>'+
     '<p class="sx-p">Digite o código de recuperação que apareceu quando o PIN foi criado (formato XXXX-XXXX).</p>'+
     '<input class="sx-in sx-sm" id="sxRc" autocomplete="off" autocapitalize="characters" placeholder="XXXX-XXXX">'+
     '<div class="sx-err" id="sxErr"></div>'+
@@ -7259,7 +7302,7 @@ function pinGate(role,proceed,opts){
     pinInput('sxPin')+
     '<div class="sx-err" id="sxErr"></div>'+
     '<div class="sx-row">'+(lockStyle?'<button class="sx-b" id="sxOut" type="button">Trocar de usuário</button>':'<button class="sx-b" id="sxCancel" type="button">Cancelar</button>')+'<button class="sx-b sx-pri" id="sxGo" type="button">Entrar</button></div>'+
-    (role==='opto'?'<button class="sx-link" id="sxForgot" type="button">Esqueci o PIN</button>':'<p class="sx-p" style="margin:12px 0 0;font-size:12px">Esqueceu? O Dr. Geandré redefine o PIN da Secretaria no menu <strong>PIN</strong>.</p>')
+    (role==='opto'?'<button class="sx-link" id="sxForgot" type="button">Esqueci o PIN</button>':'<p class="sx-p" style="margin:12px 0 0;font-size:12px">Esqueceu? Geandré redefine o PIN da Secretaria no menu <strong>PIN</strong>.</p>')
   , lockStyle?'sx-lock':'');
   var inp=q(o,'#sxPin'), err=q(o,'#sxErr'), go=q(o,'#sxGo');
   digitsOnly(inp);
@@ -7631,7 +7674,7 @@ function renderPanel(){
   if(q(p,'#bkKey')) q(p,'#bkKey').onclick=function(){ if(typeof window.configurePartnerPortalKey==='function'){window.configurePartnerPortalKey();renderPanel()} else err.textContent='Configuração da chave indisponível.' };
   if(q(p,'#bkEnable')) q(p,'#bkEnable').onclick=function(){
     p.remove(); panel=null;
-    var o=overlay('<div class="sx-k">Dr. Geandré</div><h2 class="sx-t">Confirme seu PIN</h2>'+pinInput('sxCur')+'<div class="sx-err" id="sxErr"></div><div class="sx-row"><button class="sx-b" id="sxCancel" type="button">Cancelar</button><button class="sx-b sx-pri" id="sxGo" type="button">Continuar</button></div>');
+    var o=overlay('<div class="sx-k">Geandré</div><h2 class="sx-t">Confirme seu PIN</h2>'+pinInput('sxCur')+'<div class="sx-err" id="sxErr"></div><div class="sx-row"><button class="sx-b" id="sxCancel" type="button">Cancelar</button><button class="sx-b sx-pri" id="sxGo" type="button">Continuar</button></div>');
     var cur=q(o,'#sxCur'); digitsOnly(cur); setTimeout(function(){cur.focus()},50);
     function go(){ verify('opto',cur.value).then(function(res){ if(!res.ok){q(o,'#sxErr').textContent='PIN incorreto.';cur.value='';return} var pin=cur.value; o.remove(); try{localStorage.removeItem(SNOOZE_KEY)}catch(e){} enableFlow(pin,function(){}) }) }
     onEnter(cur,go); q(o,'#sxGo').onclick=go; q(o,'#sxCancel').onclick=function(){o.remove()};
@@ -11126,5 +11169,130 @@ window.BINOCULAR_NORMS = {"source":"screenshot user provided (Morgan-style norms
   else { ligar(); observar(); }
 })();
 
+</script>
+<style id="olhar-login-v2">
+/* ===== LOGIN v2 (craft · design/1-login) — cores e raios só por tokens ===== */
+@font-face{font-family:'Outfit';font-style:normal;font-weight:300;font-display:swap;src:url(fonts/outfit-latin-300-normal.woff2) format('woff2')}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/outfit-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/outfit-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/outfit-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/outfit-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/outfit-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:900;font-display:swap;src:url(fonts/outfit-latin-900-normal.woff2) format('woff2')}
+
+/* desliga o visual antigo */
+html[data-theme] #loginScreen.lg2{background:var(--bg)!important;align-items:stretch;justify-content:flex-start;font-family:var(--font)}
+html[data-theme] #loginScreen.lg2::before,html[data-theme] #loginScreen.lg2::after{display:none!important}
+#loginScreen .lg-ic{width:1em;height:1em;display:block;flex-shrink:0}
+
+/* estrutura */
+#loginScreen .lg{flex:1 0 auto;min-height:100%;display:grid;grid-template-columns:minmax(400px,5fr) 7fr}
+#loginScreen .lg-brand{background:var(--io-navy);color:var(--io-sky);padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;gap:40px;position:relative;overflow:hidden}
+#loginScreen .lg-brand::after{content:'';position:absolute;inset:auto -30% -40% auto;width:80%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,var(--io-navy-dark) 0%,transparent 70%);pointer-events:none}
+#loginScreen .lg-brand>*{position:relative;z-index:1}
+#loginScreen .lg-main{display:flex;align-items:center;justify-content:center;padding:48px 40px}
+#loginScreen .lg-col{width:100%;max-width:440px}
+#loginScreen .lg-col[hidden]{display:none}
+
+/* marca */
+#loginScreen .lg-lockup{display:flex;align-items:center;gap:12px}
+#loginScreen .lg-lockup b{display:block;font-weight:600;font-size:17px;letter-spacing:.01em;color:var(--io-sky)}
+#loginScreen .lg-lockup span{display:block;font-size:12px;color:color-mix(in srgb,var(--io-sky) 62%,transparent);margin-top:1px}
+#loginScreen .lg-dial{border-radius:50%;background:repeating-conic-gradient(from -38deg,var(--io-gold) 0deg 7deg,transparent 7deg 12deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));flex-shrink:0}
+#loginScreen .lg-dial-sm{width:40px;height:40px}
+#loginScreen .lg-dial-big{width:168px;height:168px;margin-bottom:32px}
+#loginScreen .lg-sig{font-weight:300;font-size:34px;line-height:1.18;letter-spacing:-.01em;color:var(--io-sky);max-width:380px;text-wrap:balance;margin:0}
+#loginScreen .lg-quote{border-top:1px solid color-mix(in srgb,var(--io-sky) 18%,transparent);padding-top:20px;max-width:400px;margin:0}
+#loginScreen .lg-quote small{display:block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--io-gold);margin-bottom:8px}
+#loginScreen .lg-quote p{font-size:15px;line-height:1.55;font-style:italic;font-weight:300;color:color-mix(in srgb,var(--io-sky) 86%,transparent);text-wrap:pretty;margin:0}
+#loginScreen .lg-quote cite{display:block;font-style:normal;font-size:13px;margin-top:8px;color:color-mix(in srgb,var(--io-sky) 62%,transparent)}
+
+/* cabeçalho do painel */
+#loginScreen .lg-kick{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin:0 0 10px;min-height:18px}
+#loginScreen .lg-h1{font-family:var(--font-h);font-weight:700;font-size:40px;line-height:1.1;letter-spacing:-.02em;color:var(--pri);text-wrap:balance;margin:0;background:none;-webkit-text-fill-color:currentColor}
+#loginScreen .lg-lead{font-size:15px;line-height:1.5;color:var(--tx3);margin:10px 0 0;text-wrap:pretty}
+
+/* cartões de perfil */
+#loginScreen .lg-roles{display:grid;gap:12px;margin-top:32px}
+#loginScreen .lg-role{all:unset;box-sizing:border-box;display:grid;grid-template-columns:48px minmax(0,1fr) 20px;align-items:center;gap:16px;min-height:80px;padding:16px 18px;border:1px solid var(--bdr);border-radius:var(--r);background:var(--bg2);cursor:pointer;transition:border-color .25s,background-color .25s;font-family:var(--font)}
+#loginScreen .lg-role:hover{border-color:var(--bdr2);transition-duration:.15s}
+#loginScreen .lg-role:active{background:var(--prib);transition:none}
+#loginScreen .lg-role:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+#loginScreen .lg-ri{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:22px}
+#loginScreen .lg-role.s .lg-ri{background:var(--pril);color:var(--pri)}
+#loginScreen .lg-role.o .lg-ri{background:var(--ol);color:var(--o)}
+#loginScreen .lg-rt b{display:block;font-family:var(--font-h);font-size:17px;font-weight:600;color:var(--tx);line-height:1.25}
+#loginScreen .lg-rt small{display:block;font-size:13px;color:var(--tx3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#loginScreen .lg-chev{font-size:18px;color:var(--tx3)}
+
+/* espera do armazenamento: esqueleto do mesmo tamanho */
+#loginScreen.lg-wait .lg-role{pointer-events:none;cursor:default}
+#loginScreen.lg-wait .lg-role>*{visibility:hidden}
+#loginScreen.lg-wait .lg-role{background:linear-gradient(var(--bg2),var(--bg2)) padding-box;position:relative}
+#loginScreen.lg-wait .lg-role::before{content:'';position:absolute;left:18px;top:50%;width:48px;height:48px;margin-top:-24px;border-radius:50%;background:var(--bg4);animation:lgpulse 1.6s ease-in-out infinite}
+#loginScreen.lg-wait .lg-role::after{content:'';position:absolute;left:82px;right:60px;top:50%;height:12px;margin-top:-10px;border-radius:6px;background:var(--bg4);box-shadow:0 20px 0 -2px var(--bg4);animation:lgpulse 1.6s ease-in-out infinite}
+@keyframes lgpulse{50%{opacity:.55}}
+#loginScreen .lg-msg{min-height:22px;margin:12px 0 0;font-size:14px;color:var(--tx3)}
+
+/* sem internet */
+#loginScreen .lg-net{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--tx3);margin:20px 0 0;padding:6px 12px;border:1px solid var(--bdr);border-radius:999px;background:var(--bg2)}
+#loginScreen .lg-net[hidden]{display:none}
+#loginScreen .lg-net .lg-ic{font-size:15px}
+
+/* erro */
+#loginScreen .lg-err-ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--rl);color:var(--red);font-size:24px;margin-bottom:20px}
+#loginScreen .lg-btn{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;margin-top:28px;border-radius:12px;background:var(--pri);color:var(--bg);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font)}
+#loginScreen .lg-btn:hover{background:var(--prid)}
+#loginScreen .lg-btn:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+
+/* frase no celular */
+#loginScreen .lg-quote-m{display:none;margin:32px 0 0;padding-top:18px;border-top:1px solid var(--bdr)}
+#loginScreen .lg-quote-m p{font-size:14px;line-height:1.55;font-style:italic;font-weight:300;color:var(--tx2);margin:0}
+#loginScreen .lg-quote-m cite{display:block;font-style:normal;font-size:12px;margin-top:6px;color:var(--tx3)}
+#loginScreen cite[hidden]{display:none}
+
+/* ===== PIN no próprio painel (peças .sx-* do módulo de acesso) ===== */
+#lgPanel:has(.sx-ov) .lg-col{display:none!important}
+#lgPanel .sx-ov.sx-inpanel{position:static;inset:auto;z-index:auto;display:block;padding:0;background:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;width:100%;max-width:440px}
+#lgPanel .sx-inpanel .sx-card{max-width:none;background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;max-height:none;overflow:visible;font-family:var(--font)}
+#lgPanel .sx-inpanel .lg-back{all:unset;display:flex;width:max-content;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--tx3);cursor:pointer;margin-bottom:28px;min-height:32px;font-family:var(--font)}
+#lgPanel .sx-inpanel .lg-back:hover{color:var(--tx)}
+#lgPanel .sx-inpanel .lg-back:focus-visible{outline:2px solid var(--pri);outline-offset:2px;border-radius:6px}
+#lgPanel .sx-inpanel .lg-ic{width:1em;height:1em;display:block}
+#lgPanel .sx-inpanel #sxCancel{display:none}
+#lgPanel .sx-inpanel .sx-k{font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--o);margin-bottom:10px}
+#lgPanel .sx-inpanel .sx-t{font-family:var(--font-h);font-size:40px;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--pri);margin:0 0 10px;text-wrap:balance}
+#lgPanel .sx-inpanel .sx-p{font-size:15px;line-height:1.5;color:var(--tx3);margin:0 0 4px;text-wrap:pretty}
+#lgPanel .sx-inpanel .sx-l{font-size:13px;font-weight:600;margin:24px 0 8px}
+#lgPanel .sx-inpanel .sx-in{height:60px;padding:0 16px;font-size:24px;letter-spacing:10px;border-radius:12px}
+#lgPanel .sx-inpanel .sx-in.sx-sm{height:52px;font-size:17px;letter-spacing:2px}
+#lgPanel .sx-inpanel .sx-err{min-height:40px;font-size:14px;font-weight:500;margin-top:10px;line-height:1.4}
+#lgPanel .sx-inpanel .sx-row{margin-top:6px;gap:10px}
+#lgPanel .sx-inpanel .sx-b{min-height:52px;font-size:15px;font-weight:600;border-radius:12px;transition:background-color .25s,border-color .25s}
+#lgPanel .sx-inpanel .sx-b.sx-pri{color:var(--bg)}
+#lgPanel .sx-inpanel .sx-b.sx-pri:hover{background:var(--prid);border-color:var(--prid)}
+#lgPanel .sx-inpanel .sx-b:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+#lgPanel .sx-inpanel .sx-link{font-size:14px;font-weight:500;padding-top:18px;text-underline-offset:3px}
+#lgPanel .sx-inpanel .sx-code{margin-top:20px}
+
+@media (max-width:760px){
+  #loginScreen .lg{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  #loginScreen .lg-brand{padding:20px 20px 22px;gap:0;flex-direction:row;align-items:center}
+  #loginScreen .lg-mid,#loginScreen .lg-brand .lg-quote{display:none}
+  #loginScreen .lg-main{align-items:flex-start;padding:28px 20px 32px}
+  #loginScreen .lg-h1,#lgPanel .sx-inpanel .sx-t{font-size:32px}
+  #loginScreen .lg-roles{margin-top:24px}
+  #loginScreen .lg-quote-m{display:block}
+}
+@media (prefers-reduced-motion:reduce){#loginScreen .lg-role,#loginScreen.lg-wait .lg-role::before,#loginScreen.lg-wait .lg-role::after{animation:none;transition:none}}
+
+</style>
+<script id="olhar-login-v2-js">
+(function(){
+  window.olharLoginError=function(){var c=document.getElementById('lgCol'),e=document.getElementById('lgErr');if(c)c.hidden=true;if(e)e.hidden=false};
+  var n=document.getElementById('lgNet');
+  function net(){if(n)n.hidden=navigator.onLine!==false}
+  net();window.addEventListener('online',net);window.addEventListener('offline',net);
+})();
 </script>
 </body></html>

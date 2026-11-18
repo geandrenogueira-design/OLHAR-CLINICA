@@ -12,7 +12,7 @@
    - o fetch é criado do zero com redirect:"follow";
    - nunca devolve index.html no lugar de um simulador.
    ============================================================ */
-var VERSION = 'olhar-v33';
+var VERSION = 'olhar-v34';
 var CACHE = 'olhar-cache-' + VERSION;
 
 var PRECACHE = [
@@ -24,7 +24,14 @@ var PRECACHE = [
   './icon-maskable-512.png',
   './olhar-simulador-ametropia',
   './olhar-simulador-patologias',
-  './cenas/manifest.js'
+  './cenas/manifest.js',
+  './fonts/outfit-latin-300-normal.woff2',
+  './fonts/outfit-latin-400-normal.woff2',
+  './fonts/outfit-latin-500-normal.woff2',
+  './fonts/outfit-latin-600-normal.woff2',
+  './fonts/outfit-latin-700-normal.woff2',
+  './fonts/outfit-latin-800-normal.woff2',
+  './fonts/outfit-latin-900-normal.woff2'
 ];
 
 self.addEventListener('install', function (event) {

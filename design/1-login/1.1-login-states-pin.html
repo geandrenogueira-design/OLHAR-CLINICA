@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1.1 · Login · estados do PIN</title>
+<link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../login.css">
+</head><body>
+<div class="sheet">
+<h1>1.1 · Login · estados do PIN</h1>
+<p>Só a parte que muda: campo, mensagem, botão e link. O botão “Entrar” mantém a largura em todos os estados; a linha de mensagem tem altura reservada, então nada pula.</p>
+<div class="cells">
+<figure class="cell"><figcaption>Verificando</figcaption><label class="fl" for="pin">PIN de acesso</label>
+<input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••••" value="482916">
+<div class="msg " role="alert"><span></span></div>
+<div class="acts"><button class="btn pri loading" type="button"><span class="lbl">Entrar</span><span class=spin></span></button></div>
+</figure>
+<figure class="cell"><figcaption>PIN errado</figcaption><label class="fl" for="pin">PIN de acesso</label>
+<input class="pin bad" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••••">
+<div class="msg " role="alert"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm-12-80V80a12,12,0,0,1,24,0v52a12,12,0,0,1-24,0Zm28,40a16,16,0,1,1-16-16A16,16,0,0,1,144,172Z"/></svg><span>PIN incorreto.</span></div>
+<div class="acts"><button class="btn pri" type="button"><span class="lbl">Entrar</span></button></div>
+</figure>
+<figure class="cell"><figcaption>PIN errado · 3ª tentativa</figcaption><label class="fl" for="pin">PIN de acesso</label>
+<input class="pin bad" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••••">
+<div class="msg " role="alert"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm-12-80V80a12,12,0,0,1,24,0v52a12,12,0,0,1-24,0Zm28,40a16,16,0,1,1-16-16A16,16,0,0,1,144,172Z"/></svg><span>PIN incorreto. Restam 2 tentativas antes de uma pausa.</span></div>
+<div class="acts"><button class="btn pri" type="button"><span class="lbl">Entrar</span></button></div>
+</figure>
+<figure class="cell"><figcaption>Bloqueado após 5 erros</figcaption><label class="fl" for="pin">PIN de acesso</label>
+<input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••••" disabled>
+<div class="msg " role="alert"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm-12-80V80a12,12,0,0,1,24,0v52a12,12,0,0,1-24,0Zm28,40a16,16,0,1,1-16-16A16,16,0,0,1,144,172Z"/></svg><span>Muitas tentativas erradas. Aguarde 4 min 30 s.</span></div>
+<div class="acts"><button class="btn pri" type="button" disabled><span class="lbl">Entrar</span></button></div>
+</figure>
+<figure class="cell"><figcaption>Esqueci o PIN · Geandré</figcaption><label class="fl" for="rc">Código de recuperação</label><input class="pin sm" id="rc" placeholder="XXXX-XXXX" autocapitalize="characters"><div class="msg" role="alert"><span></span></div><div class="acts"><button class="btn sec" type="button"><span class="lbl">Voltar</span></button><button class="btn pri" type="button"><span class="lbl">Verificar</span></button></div></figure>
+<figure class="cell"><figcaption>Esqueci o PIN · código não confere</figcaption><label class="fl" for="rc2">Código de recuperação</label><input class="pin sm bad" id="rc2" value="K7QM-4XR8"><div class="msg" role="alert"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm-12-80V80a12,12,0,0,1,24,0v52a12,12,0,0,1-24,0Zm28,40a16,16,0,1,1-16-16A16,16,0,0,1,144,172Z"/></svg><span>Código não confere.</span></div><div class="acts"><button class="btn sec" type="button"><span class="lbl">Voltar</span></button><button class="btn pri" type="button"><span class="lbl">Verificar</span></button></div></figure>
+<figure class="cell"><figcaption>Esqueci o PIN · sem código neste aparelho</figcaption><label class="fl" for="pin">PIN de acesso</label>
+<input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••••">
+<div class="msg " role="alert"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm-12-80V80a12,12,0,0,1,24,0v52a12,12,0,0,1-24,0Zm28,40a16,16,0,1,1-16-16A16,16,0,0,1,144,172Z"/></svg><span>Ainda não existe código de recuperação neste aparelho. Ele é criado na primeira troca de PIN.</span></div>
+<div class="acts"><button class="btn pri" type="button"><span class="lbl">Entrar</span></button></div>
+</figure>
+<figure class="cell"><figcaption>Secretaria · esqueceu o PIN</figcaption><div class="who s"><span class="ri"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M228,56H160L133.33,36a20.12,20.12,0,0,0-12-4H76A20,20,0,0,0,56,52V72H36A20,20,0,0,0,16,92V204a20,20,0,0,0,20,20H188.89A19.13,19.13,0,0,0,208,204.89V184h20.89A19.13,19.13,0,0,0,248,164.89V76A20,20,0,0,0,228,56ZM184,200H40V96H80l28.8,21.6A12,12,0,0,0,116,120h68Zm40-40H208V116a20,20,0,0,0-20-20H120L93.33,76a20.12,20.12,0,0,0-12-4H80V56h40l28.8,21.6A12,12,0,0,0,156,80h68Z"/></svg></span>Secretaria</div><label class="fl" for="pin">PIN de acesso</label>
+<input class="pin" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••••">
+<div class="msg " role="alert"><span></span></div>
+<div class="acts"><button class="btn pri" type="button"><span class="lbl">Entrar</span></button></div>
+<p class="note">Esqueceu? O Geandré redefine o PIN da Secretaria no menu <strong>PIN</strong>.</p></figure>
+</div></div>
+</body></html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1 · Login · Instituto do Olhar — redesenho</title>
+<link rel="stylesheet" href="../tokens.css"><link rel="stylesheet" href="../login.css">
+<style>
+.ix{max-width:1100px;margin:0 auto;padding:40px 24px 64px}
+.ix h1{font-family:var(--font-h);font-size:30px;font-weight:700;color:var(--pri);letter-spacing:-.01em}
+.ix h2{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin:36px 0 12px}
+.ix p,.ix li{font-size:15px;line-height:1.55;color:var(--tx2)}
+.ix ul,.ix ol{padding-left:20px;display:grid;gap:6px}
+.ix .lead{margin-top:8px;max-width:720px}
+.ix a{color:var(--pri);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.tile{display:block;border:1px solid var(--bdr);border-radius:var(--r);background:var(--bg2);overflow:hidden;text-decoration:none}
+.tile:hover{border-color:var(--bdr2)}
+.tile:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.frame{height:160px;overflow:hidden;position:relative;background:var(--bg)}
+.frame iframe{width:1280px;height:800px;border:0;transform:scale(.1953);transform-origin:0 0;pointer-events:none}
+.tile span{display:block;padding:12px 14px;font-size:14px;font-weight:600;color:var(--tx)}
+.tile small{display:block;padding:0 14px 12px;margin-top:-6px;font-size:12.5px;color:var(--tx3);font-weight:400}
+</style></head><body>
+<div class="ix">
+<h1>1 · Login · como ler esta página</h1>
+<p class="lead">Redesenho da tela de entrada do sistema clínico (escolha de perfil + PIN). Quadros finais, em ordem: estado principal, outros estados, folhas de estado. Abra cada quadro e redimensione a janela para ver a versão de celular (abaixo de 760 px).</p>
+
+<h2>Quadros</h2>
+<div class="tiles">
+<a class="tile" href="1.1-login-default.html"><div class="frame"><iframe src="1.1-login-default.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · padrão</span><small>Principal. Frase mais longa da lista.</small></a>
+<a class="tile" href="1.1-login-default-dark.html"><div class="frame"><iframe src="1.1-login-default-dark.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · padrão · escuro</span><small>Mesmo layout no tema escuro.</small></a>
+<a class="tile" href="1.1-login-pin.html"><div class="frame"><iframe src="1.1-login-pin.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · PIN</span><small>Passo 2, no próprio painel (sem pop-up).</small></a>
+<a class="tile" href="1.1-login-first-access.html"><div class="frame"><iframe src="1.1-login-first-access.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · primeiro acesso</span><small>Criar PIN pessoal (1 de 2).</small></a>
+<a class="tile" href="1.1-login-recovery-code.html"><div class="frame"><iframe src="1.1-login-recovery-code.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · código de recuperação</span><small>Só no perfil do Geandré (2 de 2).</small></a>
+<a class="tile" href="1.1-login-loading.html"><div class="frame"><iframe src="1.1-login-loading.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · carregando (lento)</span><small>Esqueleto do mesmo tamanho dos cartões.</small></a>
+<a class="tile" href="1.1-login-error.html"><div class="frame"><iframe src="1.1-login-error.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · erro no acesso</span><small>Substitui o alert atual.</small></a>
+<a class="tile" href="1.1-login-offline.html"><div class="frame"><iframe src="1.1-login-offline.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · sem internet</span><small>Fonte e ícones locais: nada some.</small></a>
+<a class="tile" href="1.1-login-locked.html"><div class="frame"><iframe src="1.1-login-locked.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · sessão bloqueada</span><small>Esconde o prontuário aberto por trás.</small></a>
+<a class="tile" href="1.1-login-states-pin.html"><div class="frame"><iframe src="1.1-login-states-pin.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · folha · estados do PIN</span><small>Verificando, erros, bloqueio, esqueci o PIN.</small></a>
+<a class="tile" href="1.1-login-states-interaction.html"><div class="frame"><iframe src="1.1-login-states-interaction.html" tabindex="-1" loading="lazy"></iframe></div><span>1.1 · folha · interação</span><small>Mouse em cima, pressionado, foco, desativado.</small></a>
+</div>
+
+<h2>Decisões</h2>
+<ul>
+<li><strong>Tela dividida:</strong> painel da marca em azul institucional (símbolo, assinatura e frase do dia) e painel de ação claro. A marca fica presente sem disputar com a escolha de perfil.</li>
+<li><strong>Saudação neutra até escolher o perfil</strong> (“Boa tarde.”); o nome só aparece depois (“Boa tarde, Geandré.”). Hoje a secretária é saudada como Geandré.</li>
+<li><strong>PIN no próprio painel, não em pop-up:</strong> menos camadas, e o bloqueio por inatividade cobre o prontuário aberto.</li>
+<li><strong>Fonte Outfit e ícones embutidos no app</strong> (sem depender de CDN): é o que os tokens já pedem, e o login continua igual sem internet.</li>
+<li><strong>Mensagens com altura reservada e botão de largura fixa:</strong> nada pula ao errar o PIN ou ao verificar.</li>
+<li><strong>Sem movimento decorativo:</strong> o cartão não sobe mais no hover; só a borda escurece.</li>
+</ul>
+
+<h2>Perguntas para você</h2>
+<ol>
+<li>Fonte: confirmo Outfit (como nos tokens) no lugar do Inter que aparece hoje?</li>
+<li>Dois azuis e dois dourados no código (#1e2d68/#24356f e #c4966e/#c99b73): qual fica?</li>
+</ol>
+</div>
+</body></html>

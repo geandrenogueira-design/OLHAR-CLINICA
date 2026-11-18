@@ -1,0 +1,33 @@
+/* Copiado sem alterações de index.html (linhas 17-36, 42-52 e 443). Não editar valores aqui: mudanças passam pelo craft-system. */
+:root{
+  /* base compartilhada — cores primária e secundária são iguais nos dois temas */
+  --pri:#1e2d68;--prid:#152150;--pril:rgba(30,45,104,.10);--prib:rgba(30,45,104,.06);
+  --o:#8a5f3a;--od:#6d4a2c;--ol:rgba(138,95,58,.12);--op:rgba(138,95,58,.06);
+  --gold:#c4966e;
+  --cyan:#cde7f1;
+
+  /* modo CLARO — dos mockups; é o default */
+  --bg:#f4f6f7;--bg2:#ffffff;--bg3:#ffffff;--bg4:#e3e7ea;--bg5:#cfd5d9;
+  --tx:#0a0a0a;--tx2:#232830;--tx3:#4a5568;
+  --bdr:#dde3e7;--bdr2:#cfd5d9;
+
+  --red:#c53030;--rl:rgba(197,48,48,.10);
+  --wn:#b45309;--wl:rgba(180,83,9,.12);
+  --grn:#15803d;--grl:rgba(21,128,61,.12);
+  --sh:0 4px 20px rgba(30,45,104,.12);--sh2:0 12px 48px rgba(30,45,104,.15);
+  --r:14px;--r2:20px;--r3:24px;
+  --font:'Outfit','Inter',sans-serif;--font-h:'Outfit','Inter',sans-serif;--font-m:'JetBrains Mono',monospace
+}
+
+[data-theme="dark"]{
+  --bg:#0a1030;--bg2:#131a45;--bg3:#1a2255;--bg4:#232d68;--bg5:#2e3a7a;
+  --tx:#eaf2fb;--tx2:#cddaee;--tx3:#a4b3ca;
+  --bdr:#2a3562;--bdr2:#3b4880;
+  --pri:#cde7f1;--prid:#a3d0e0;--pril:rgba(205,231,241,.12);--prib:rgba(205,231,241,.06);
+  --o:#c4966e;--od:#a37a52;--ol:rgba(196,150,110,.14);--op:rgba(196,150,110,.06);
+  --red:#f05555;--rl:rgba(240,85,85,.14);
+  --wn:#f0a030;--wl:rgba(240,160,48,.14);
+  --grn:#6dd26d;--grl:rgba(109,210,109,.14);
+  --sh:0 4px 20px rgba(0,0,0,.5);--sh2:0 12px 48px rgba(0,0,0,.6)
+}
+:root{--io-navy:#1e2d68;--io-navy-dark:#152150;--io-gold:#c4966e;--io-sky:#cde7f1}
